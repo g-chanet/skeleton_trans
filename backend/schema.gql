@@ -1,0 +1,28 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Message {
+  uuid: String!
+  message: String!
+}
+
+type Query {
+  findAllMessages: [Message!]!
+  findMessage(uuid: String!): Message!
+}
+
+type Mutation {
+  createMessage(CreateMessageInput: CreateMessageInput!): Message!
+  updateMessage(UpdateMessageInput: UpdateMessageInput!): Message!
+  removeMessage(uuid: String!): Message!
+}
+
+input CreateMessageInput {
+  message: String!
+}
+
+input UpdateMessageInput {
+  uuid: String!
+  message: String!
+}
