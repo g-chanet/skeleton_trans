@@ -10,7 +10,175 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Message {
-  uuid    String @id @default(uuid())
-  message String
+//**************************************************//
+//  SESSION
+//**************************************************//
+
+model Session {
+  id        String   @id @default(nanoid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+}
+
+//**************************************************//
+//  USER
+//**************************************************//
+
+model User {
+  id         String  @id @default(nanoid())
+  username   String  @unique
+  doubleAuth Boolean @default(false)
+  avatarUrl  String?
+
+  presenceStatus EUserPresenceStatus @default(Default)
+  language       EUserLanguage       @default(Default)
+
+  sessions      Session[]
+  userPresences UserPresence[]
+
+  relationFollowers  UserRelation[] @relation("relationFollowers")
+  relationFollowings UserRelation[] @relation("relationFollowings")
+
+  channelMembers  ChannelMember[]
+  channelMessages ChannelMessage[]
+
+  gameStats             GameStat[]
+  gameMember            GameMember?
+  gameMatchmakingMember GameMatchmakingMember?
+}
+
+model UserPresence {
+  id             String    @id @default(nanoid())
+  user           User      @relation(fields: [userId], references: [id])
+  userId         String
+  connectedAt    DateTime  @default(now())
+  disconnectedAt DateTime?
+}
+
+model UserRelation {
+  userOwner   User   @relation("relationFollowers", fields: [userOwnerId], references: [id], onDelete: Cascade)
+  userOwnerId String
+
+  userTarget   User   @relation("relationFollowings", fields: [userTargetId], references: [id], onDelete: Cascade)
+  userTargetId String
+
+  type EUserRelationType
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@id([userOwnerId, userTargetId])
+}
+
+//**************************************************//
+//  CHANNEL
+//**************************************************//
+
+model Channel {
+  id              String           @id @default(nanoid())
+  name            String
+  avatarUrl       String?
+  password        String?
+  channelType     EChannelType
+  channelMembers  ChannelMember[]
+  channelMessages ChannelMessage[]
+  createdAt       DateTime         @default(now())
+}
+
+model ChannelMember {
+  channel         Channel            @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId       String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  type            EChannelMemberType @default(Default)
+  muted           DateTime           @default(now())
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  channelMessages ChannelMessage[]
+
+  @@id([channelId, userId])
+}
+
+model ChannelMessage {
+  id            String        @id @default(nanoid())
+  message       String
+  channel       Channel       @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channelMember ChannelMember @relation(fields: [channelId, userId], references: [channelId, userId], onDelete: Cascade)
+  channelId     String
+  userId        String
+  createdAt     DateTime      @default(now())
+}
+
+//**************************************************//
+//  GAME
+//**************************************************//
+
+model Game {
+  id          String       @id @default(nanoid())
+  gameMembers GameMember[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model GameMember {
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([gameId, userId])
+}
+
+model GameStat {
+  id        String   @id @default(nanoid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+}
+
+model GameMatchmakingMember {
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @id
+  createdAt DateTime @default(now())
+}
+
+//**************************************************//
+//  ENUM
+//**************************************************//
+
+enum EUserLanguage {
+  Default
+  Fr
+  En
+}
+
+enum EUserPresenceStatus {
+  Default
+  NotDisturb
+  Invisible
+}
+
+enum EUserRelationType {
+  WaitingAccept
+  WaitingConfirm
+  Friend
+  Blocked
+}
+
+enum EChannelType {
+  Public
+  Protected
+  Private
+}
+
+enum EChannelMemberType {
+  Default
+  Admin
+  Owner
+  Banned
+  Invited
 }
