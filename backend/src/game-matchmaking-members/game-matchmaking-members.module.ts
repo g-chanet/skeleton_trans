@@ -3,6 +3,6 @@ import { GameMatchmakingMembersService } from './game-matchmaking-members.servic
 import { GameMatchmakingMembersResolver } from './game-matchmaking-members.resolver';
 
 @Module({
-  providers: [GameMatchmakingMembersResolver, GameMatchmakingMembersService]
+  providers: [GameMatchmakingMembersResolver, GameMatchmakingMembersService],
 })
 export class GameMatchmakingMembersModule {}

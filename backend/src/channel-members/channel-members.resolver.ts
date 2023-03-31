@@ -9,7 +9,10 @@ export class ChannelMembersResolver {
   constructor(private readonly channelMembersService: ChannelMembersService) {}
 
   @Mutation(() => ChannelMember)
-  createChannelMember(@Args('createChannelMemberInput') createChannelMemberInput: CreateChannelMemberInput) {
+  createChannelMember(
+    @Args('createChannelMemberInput')
+    createChannelMemberInput: CreateChannelMemberInput,
+  ) {
     return this.channelMembersService.create(createChannelMemberInput);
   }
 
@@ -24,8 +27,14 @@ export class ChannelMembersResolver {
   }
 
   @Mutation(() => ChannelMember)
-  updateChannelMember(@Args('updateChannelMemberInput') updateChannelMemberInput: UpdateChannelMemberInput) {
-    return this.channelMembersService.update(updateChannelMemberInput.id, updateChannelMemberInput);
+  updateChannelMember(
+    @Args('updateChannelMemberInput')
+    updateChannelMemberInput: UpdateChannelMemberInput,
+  ) {
+    return this.channelMembersService.update(
+      updateChannelMemberInput.id,
+      updateChannelMemberInput,
+    );
   }
 
   @Mutation(() => ChannelMember)

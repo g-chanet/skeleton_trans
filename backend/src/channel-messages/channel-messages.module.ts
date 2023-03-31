@@ -3,6 +3,6 @@ import { ChannelMessagesService } from './channel-messages.service';
 import { ChannelMessagesResolver } from './channel-messages.resolver';
 
 @Module({
-  providers: [ChannelMessagesResolver, ChannelMessagesService]
+  providers: [ChannelMessagesResolver, ChannelMessagesService],
 })
 export class ChannelMessagesModule {}
