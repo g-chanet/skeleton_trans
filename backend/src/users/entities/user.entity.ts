@@ -13,7 +13,7 @@ export class UserPublic {
 }
 
 @ObjectType()
-export class UserPrivate extends UserPublic {
+export class User extends UserPublic {
   @Field(() => Boolean)
   doubleAuth: boolean;
 }

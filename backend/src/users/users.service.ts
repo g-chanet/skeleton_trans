@@ -6,9 +6,25 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
+  //**************************************************//
+  //  MUTATION
+  //**************************************************//
+
   create(data: Prisma.UserCreateInput) {
     return this.prisma.user.create({ data });
   }
+
+  update(id: string, data: Prisma.UserUpdateInput) {
+    return this.prisma.user.update({ where: { id }, data });
+  }
+
+  delete(id: string) {
+    return this.prisma.user.delete({ where: { id } });
+  }
+
+  //**************************************************//
+  //  QUERY
+  //**************************************************//
 
   findOne(id: string) {
     return this.prisma.user.findUnique({ where: { id } });
@@ -22,11 +38,7 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: { username } });
   }
 
-  update(id: string, data: Prisma.UserUpdateInput) {
-    return this.prisma.user.update({ where: { id }, data });
-  }
-
-  delete(id: string) {
-    return this.prisma.user.delete({ where: { id } });
+  findOneByEmail(username: string) {
+    return this.prisma.user.findUnique({ where: { username } });
   }
 }

@@ -2,23 +2,31 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class ChannelMembersService {
+  //**************************************************//
+  //  MUTATION
+  //**************************************************//
+
   create() {
-    return 'This action adds a new channelMember';
-  }
-
-  findAll() {
-    return `This action returns all channelMembers`;
-  }
-
-  findOne(id: string) {
-    return `This action returns a #${id} channelMember`;
+    return `This action add`;
   }
 
   update(id: string) {
-    return `This action updates a #${id} channelMember`;
+    return `This action updates a #${id}`;
   }
 
   remove(id: string) {
-    return `This action removes a #${id} channelMember`;
+    return `This action removes a #${id}`;
+  }
+
+  //**************************************************//
+  //  QUERY
+  //**************************************************//
+
+  findAll() {
+    return `This action returns all`;
+  }
+
+  findOne(id: string) {
+    return `This action returns a #${id}`;
   }
 }

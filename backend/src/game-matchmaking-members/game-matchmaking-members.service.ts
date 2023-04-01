@@ -2,23 +2,31 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class GameMatchmakingMembersService {
+  //**************************************************//
+  //  MUTATION
+  //**************************************************//
+
   create() {
-    return 'This action adds a new gameMatchmakingMember';
-  }
-
-  findAll() {
-    return `This action returns all gameMatchmakingMembers`;
-  }
-
-  findOne(id: string) {
-    return `This action returns a #${id} gameMatchmakingMember`;
+    return `This action add`;
   }
 
   update(id: string) {
-    return `This action updates a #${id} gameMatchmakingMember`;
+    return `This action updates a #${id}`;
   }
 
   remove(id: string) {
-    return `This action removes a #${id} gameMatchmakingMember`;
+    return `This action removes a #${id}`;
+  }
+
+  //**************************************************//
+  //  QUERY
+  //**************************************************//
+
+  findAll() {
+    return `This action returns all`;
+  }
+
+  findOne(id: string) {
+    return `This action returns a #${id}`;
   }
 }

@@ -8,7 +8,7 @@ type UserPublic {
   avatarUrl: String
 }
 
-type UserPrivate {
+type User {
   id: String!
   username: String!
   avatarUrl: String
@@ -16,7 +16,7 @@ type UserPrivate {
 }
 
 type Query {
-  findMyUser: UserPrivate!
+  findMyUser: User!
   findUser(args: FindUserInput!): UserPublic!
 }
 
@@ -27,7 +27,12 @@ input FindUserInput {
 type Mutation {
   updateMyUser(args: UpdateMyUserInput!): Boolean!
   deleteMyUser: Boolean!
-  login(args: LoginLocalInput!): Boolean!
+  signInLocal(args: signInLocalInput!): Boolean!
+  signUpLocal(args: SignUpLocalInput!): Boolean!
+  signInGoogle: Boolean!
+  signInGithub: Boolean!
+  signIn42: Boolean!
+  signInDiscord: Boolean!
   logout: Boolean!
 }
 
@@ -35,7 +40,13 @@ input UpdateMyUserInput {
   id: String!
 }
 
-input LoginLocalInput {
+input signInLocalInput {
   password: String!
+  emailOrUsername: String!
+}
+
+input SignUpLocalInput {
+  password: String!
+  email: String!
   username: String!
 }

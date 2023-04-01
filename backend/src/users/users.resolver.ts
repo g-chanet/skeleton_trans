@@ -1,6 +1,6 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { UsersService } from './users.service';
-import { UserPublic, UserPrivate } from './entities/user.entity';
+import { UserPublic, User } from './entities/user.entity';
 import { FindUserInput, UpdateMyUserInput } from './dto/user.input';
 
 @Resolver()
@@ -25,7 +25,7 @@ export class UsersResolver {
   //  QUERY
   //**************************************************//
 
-  @Query(() => UserPrivate)
+  @Query(() => User)
   findMyUser() {
     return this.usersService.findOne('');
   }

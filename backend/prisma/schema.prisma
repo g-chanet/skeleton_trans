@@ -27,12 +27,12 @@ model Session {
 
 model User {
   id         String  @id @default(nanoid())
-  username   String  @unique
   doubleAuth Boolean @default(false)
   avatarUrl  String?
 
   password String?
-  email    String?
+  email    String? @unique
+  username String  @unique
 
   presenceStatus EUserPresenceStatus @default(Default)
   language       EUserLanguage       @default(Default)

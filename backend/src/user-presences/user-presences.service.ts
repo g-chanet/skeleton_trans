@@ -2,23 +2,31 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UserPresencesService {
+  //**************************************************//
+  //  MUTATION
+  //**************************************************//
+
   create() {
-    return 'This action adds a new userPresence';
-  }
-
-  findAll() {
-    return `This action returns all userPresences`;
-  }
-
-  findOne(id: string) {
-    return `This action returns a #${id} userPresence`;
+    return `This action add`;
   }
 
   update(id: string) {
-    return `This action updates a #${id} userPresence`;
+    return `This action updates a #${id}`;
   }
 
   remove(id: string) {
-    return `This action removes a #${id} userPresence`;
+    return `This action removes a #${id}`;
+  }
+
+  //**************************************************//
+  //  QUERY
+  //**************************************************//
+
+  findAll() {
+    return `This action returns all`;
+  }
+
+  findOne(id: string) {
+    return `This action returns a #${id}`;
   }
 }
