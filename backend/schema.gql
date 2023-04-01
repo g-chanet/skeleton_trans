@@ -15,6 +15,11 @@ type User {
   doubleAuth: Boolean!
 }
 
+type UserToken {
+  token: String!
+  user: User!
+}
+
 type Query {
   findMyUser: User!
   findUser(args: FindUserInput!): UserPublic!
@@ -27,8 +32,8 @@ input FindUserInput {
 type Mutation {
   updateMyUser(args: UpdateMyUserInput!): Boolean!
   deleteMyUser: Boolean!
-  signInLocal(args: signInLocalInput!): Boolean!
-  signUpLocal(args: SignUpLocalInput!): Boolean!
+  signInLocal(args: signInLocalInput!): UserToken!
+  signUpLocal(args: SignUpLocalInput!): UserToken!
   signInGoogle: Boolean!
   signInGithub: Boolean!
   signIn42: Boolean!

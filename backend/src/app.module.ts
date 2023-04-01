@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriverConfig } from '@nestjs/apollo';
@@ -17,14 +15,13 @@ import { ChannelMessagesModule } from './channel-messages/channel-messages.modul
 import { ChannelMembersModule } from './channel-members/channel-members.module';
 import { ChannelsModule } from './channels/channels.module';
 import { UserRelationsModule } from './user-relations/user-relations.module';
-import { SessionModule } from './session/session.module';
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       playground: false,
-      autoSchemaFile: 'schema.gql',
+      autoSchemaFile: `schema.gql`,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
     PrismaModule,
@@ -39,7 +36,6 @@ import { SessionModule } from './session/session.module';
     GameMembersModule,
     GameMatchmakingMembersModule,
     AuthModule,
-    SessionModule,
   ],
   // controllers: [AppController],
 })

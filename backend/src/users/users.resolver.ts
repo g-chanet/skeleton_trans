@@ -1,9 +1,13 @@
+import { GqlAuthGuard } from './../auth/guards/gql-auth.guard';
+import { UseGuards } from '@nestjs/common';
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { UserPublic, User } from './entities/user.entity';
-import { FindUserInput, UpdateMyUserInput } from './dto/user.input';
+import * as DTO from './dto/user.input';
+import { CtxUser } from 'src/auth/decorators/ctx-user.decorator';
 
 @Resolver()
+@UseGuards(GqlAuthGuard)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
@@ -12,13 +16,16 @@ export class UsersResolver {
   //**************************************************//
 
   @Mutation(() => Boolean)
-  updateMyUser(@Args('args') args: UpdateMyUserInput) {
-    return this.usersService.update('', args);
+  updateMyUser(
+    @CtxUser() user: User,
+    @Args(`args`) args: DTO.UpdateMyUserInput,
+  ) {
+    return this.usersService.update(user.id, args);
   }
 
   @Mutation(() => Boolean)
-  deleteMyUser() {
-    return this.usersService.delete('');
+  deleteMyUser(@CtxUser() user: User) {
+    return this.usersService.delete(user.id);
   }
 
   //**************************************************//
@@ -26,12 +33,12 @@ export class UsersResolver {
   //**************************************************//
 
   @Query(() => User)
-  findMyUser() {
-    return this.usersService.findOne('');
+  findMyUser(@CtxUser() user: User) {
+    return user;
   }
 
   @Query(() => UserPublic)
-  findUser(@Args('args') args: FindUserInput) {
+  findUser(@Args(`args`) args: DTO.FindUserInput) {
     return this.usersService.findOne(args.id);
   }
 

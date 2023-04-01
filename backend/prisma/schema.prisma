@@ -11,17 +11,6 @@ datasource db {
 }
 
 //**************************************************//
-//  SESSION
-//**************************************************//
-
-model Session {
-  id        String   @id @default(nanoid())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  createdAt DateTime @default(now())
-}
-
-//**************************************************//
 //  USER
 //**************************************************//
 
@@ -37,7 +26,6 @@ model User {
   presenceStatus EUserPresenceStatus @default(Default)
   language       EUserLanguage       @default(Default)
 
-  sessions      Session[]
   userPresences UserPresence[]
 
   relationFollowers  UserRelation[] @relation("relationFollowers")
