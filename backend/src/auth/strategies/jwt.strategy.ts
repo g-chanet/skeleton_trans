@@ -4,12 +4,14 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from '../auth.service';
 import { JwtDto } from '../dto/jwt.dto';
 
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, `jwt`) {
   constructor(private readonly authService: AuthService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: `YellowSubmarineKey`,
+      secretOrKey: JWT_SECRET_KEY,
     });
   }
 

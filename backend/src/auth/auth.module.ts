@@ -8,11 +8,13 @@ import { GqlAuthGuard } from './guards/gql-auth.guard';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+
 @Module({
   imports: [
     UsersModule,
     JwtModule.register({
-      secret: `YellowSubmarineKey`,
+      secret: JWT_SECRET_KEY,
     }),
     PassportModule.register({
       session: true,
