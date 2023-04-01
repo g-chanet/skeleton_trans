@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateGameMemberInput } from './dto/create-game-member.input';
-import { UpdateGameMemberInput } from './dto/update-game-member.input';
 
 @Injectable()
 export class GameMembersService {
-  create(createGameMemberInput: CreateGameMemberInput) {
+  create() {
     return 'This action adds a new gameMember';
   }
 
@@ -12,15 +10,15 @@ export class GameMembersService {
     return `This action returns all gameMembers`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} gameMember`;
   }
 
-  update(id: number, updateGameMemberInput: UpdateGameMemberInput) {
+  update(id: string) {
     return `This action updates a #${id} gameMember`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} gameMember`;
   }
 }

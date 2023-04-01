@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateChannelInput } from './dto/create-channel.input';
-import { UpdateChannelInput } from './dto/update-channel.input';
 
 @Injectable()
 export class ChannelsService {
-  create(createChannelInput: CreateChannelInput) {
+  create() {
     return 'This action adds a new channel';
   }
 
@@ -12,15 +10,15 @@ export class ChannelsService {
     return `This action returns all channels`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} channel`;
   }
 
-  update(id: number, updateChannelInput: UpdateChannelInput) {
+  update(id: string) {
     return `This action updates a #${id} channel`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} channel`;
   }
 }

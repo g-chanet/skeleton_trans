@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserPresenceInput } from './dto/create-user-presence.input';
-import { UpdateUserPresenceInput } from './dto/update-user-presence.input';
 
 @Injectable()
 export class UserPresencesService {
-  create(createUserPresenceInput: CreateUserPresenceInput) {
+  create() {
     return 'This action adds a new userPresence';
   }
 
@@ -12,15 +10,15 @@ export class UserPresencesService {
     return `This action returns all userPresences`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} userPresence`;
   }
 
-  update(id: number, updateUserPresenceInput: UpdateUserPresenceInput) {
+  update(id: string) {
     return `This action updates a #${id} userPresence`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} userPresence`;
   }
 }

@@ -2,27 +2,40 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Message {
-  uuid: String!
-  message: String!
+type UserPublic {
+  id: String!
+  username: String!
+  avatarUrl: String
+}
+
+type UserPrivate {
+  id: String!
+  username: String!
+  avatarUrl: String
+  doubleAuth: Boolean!
 }
 
 type Query {
-  findAllMessages: [Message!]!
-  findMessage(uuid: String!): Message!
+  findMyUser: UserPrivate!
+  findUser(args: FindUserInput!): UserPublic!
+}
+
+input FindUserInput {
+  id: String!
 }
 
 type Mutation {
-  createMessage(CreateMessageInput: CreateMessageInput!): Message!
-  updateMessage(UpdateMessageInput: UpdateMessageInput!): Message!
-  removeMessage(uuid: String!): Message!
+  updateMyUser(args: UpdateMyUserInput!): Boolean!
+  deleteMyUser: Boolean!
+  login(args: LoginLocalInput!): Boolean!
+  logout: Boolean!
 }
 
-input CreateMessageInput {
-  message: String!
+input UpdateMyUserInput {
+  id: String!
 }
 
-input UpdateMessageInput {
-  uuid: String!
-  message: String!
+input LoginLocalInput {
+  password: String!
+  username: String!
 }

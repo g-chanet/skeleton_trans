@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateGameDataInput } from './dto/create-game-data.input';
-import { UpdateGameDataInput } from './dto/update-game-data.input';
 
 @Injectable()
 export class GameDatasService {
-  create(createGameDataInput: CreateGameDataInput) {
+  create() {
     return 'This action adds a new gameData';
   }
 
@@ -12,15 +10,15 @@ export class GameDatasService {
     return `This action returns all gameDatas`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} gameData`;
   }
 
-  update(id: number, updateGameDataInput: UpdateGameDataInput) {
+  update(id: string) {
     return `This action updates a #${id} gameData`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} gameData`;
   }
 }

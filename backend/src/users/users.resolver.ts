@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { UserPublic, UserPrivate } from './entities/user.entity';
-import { CreateUserInput } from './dto/create-user.input';
-import { UpdateUserInput } from './dto/update-user.input';
+import { FindUserInput, UpdateMyUserInput } from './dto/user.input';
 
 @Resolver()
 export class UsersResolver {
@@ -13,20 +12,28 @@ export class UsersResolver {
   //**************************************************//
 
   @Mutation(() => Boolean)
-  updateMyUser() {}
+  updateMyUser(@Args('args') args: UpdateMyUserInput) {
+    return this.usersService.update('', args);
+  }
 
   @Mutation(() => Boolean)
-  deleteMyUser() {}
+  deleteMyUser() {
+    return this.usersService.delete('');
+  }
 
   //**************************************************//
   //  QUERY
   //**************************************************//
 
   @Query(() => UserPrivate)
-  findMyUser() {}
+  findMyUser() {
+    return this.usersService.findOne('');
+  }
 
   @Query(() => UserPublic)
-  findUser() {}
+  findUser(@Args('args') args: FindUserInput) {
+    return this.usersService.findOne(args.id);
+  }
 
   //**************************************************//
   //  SUBSCRIPTION

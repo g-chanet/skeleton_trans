@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
-import { MessagesModule } from './messages/messages.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriverConfig } from '@nestjs/apollo';
 import { ApolloDriver } from '@nestjs/apollo/dist/drivers';
@@ -28,7 +27,6 @@ import { UserRelationsModule } from './user-relations/user-relations.module';
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
     PrismaModule,
-    MessagesModule,
     UsersModule,
     UserPresencesModule,
     UserRelationsModule,
