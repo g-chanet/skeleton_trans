@@ -19,6 +19,10 @@ export default defineConfig({
         target: API_HOST_FOR_DEV_PROXY,
         changeOrigin: true,
       },
+      "/socket.io": {
+        target: API_HOST_FOR_DEV_PROXY,
+        changeOrigin: true,
+      },
     }
   }
 })

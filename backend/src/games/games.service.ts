@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from 'src/users/entities/user.entity';
-import { GameData } from './entities/game-data.entity';
+import { GameData, PlayerData } from './entities/game-data.entity';
 import { Game } from './entities/game.entity';
 import { Prisma } from '@prisma/client';
 
@@ -13,39 +13,45 @@ export class GamesService {
   //  GAME DATA
   //**************************************************//
 
-  private rooms = new Map<string, GameData>();
+  private gamesData = new Map<string, GameData>();
 
   playerJoin(gameId: string, user: User) {
-    return this.updateRoom({});
+    return this.findGameData(gameId).join(user);
   }
 
   playerLeave(gameId: string, user: User) {
-    return this.updateRoom({});
+    return this.findGameData(gameId).leave(user);
   }
 
-  playerUpdate(gameId: string, user: User) {
-    return this.updateRoom({});
+  playerUpdate(gameId: string, user: User, data: Partial<PlayerData>) {
+    return this.findGameData(gameId).updatePlayer(user, data);
   }
 
-  updateRoom(game: Partial<GameData>) {
-    if (!this.rooms.has(game.id)) {
-      throw new BadRequestException(`Cannot update gameData with ${game.id}`);
+  findGameData(gameId: string) {
+    if (!this.gamesData.has(gameId)) {
+      throw new BadRequestException(`Cannot update gameData with ${gameId}`);
     }
-    return Object.assign(this.rooms[game.id], game);
+    return this.gamesData.get(gameId);
   }
 
-  createRoom(game: Game) {
-    if (this.rooms.has(game.id)) {
+  updateGameData(game: Game) {
+    return this.findGameData(game.id).update(game);
+  }
+
+  createGameData(game: Game) {
+    if (this.gamesData.has(game.id)) {
       throw new BadRequestException(`Cannot create gameData with ${game.id}`);
     }
-    return this.rooms.set(game.id, new GameData(game));
+    const gameData = new GameData(game);
+    this.gamesData.set(game.id, gameData);
+    return gameData;
   }
 
-  deleteRoom(game: Game) {
-    if (!this.rooms.has(game.id)) {
+  deleteGameData(game: Game) {
+    if (!this.gamesData.has(game.id)) {
       throw new BadRequestException(`Cannot delete gameData with ${game.id}`);
     }
-    return this.rooms.delete(game.id);
+    return this.gamesData.delete(game.id);
   }
 
   //**************************************************//
@@ -54,19 +60,17 @@ export class GamesService {
 
   async create(data: Prisma.GameCreateInput) {
     const game = await this.prisma.game.create({ data });
-    this.createRoom(game);
-    return game;
+    return this.createGameData(game);
   }
 
   async update(id: string, data: Prisma.GameUpdateInput) {
     const game = await this.prisma.game.update({ where: { id }, data });
-    this.updateRoom(game);
-    return game;
+    return this.updateGameData(game);
   }
 
   async delete(id: string) {
     const game = await this.prisma.game.delete({ where: { id } });
-    this.deleteRoom(game);
+    this.deleteGameData(game);
     return game;
   }
 

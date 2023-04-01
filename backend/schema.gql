@@ -20,6 +20,15 @@ type UserToken {
   user: User!
 }
 
+type GameMember {
+  id: String!
+}
+
+type GameData {
+  id: String!
+  gameMembers: [GameMember!]!
+}
+
 type Query {
   findMyUser: User!
   findUser(args: FindUserInput!): UserPublic!
@@ -32,7 +41,11 @@ input FindUserInput {
 type Mutation {
   updateMyUser(args: UpdateMyUserInput!): Boolean!
   deleteMyUser: Boolean!
-  signInLocal(args: signInLocalInput!): UserToken!
+  createGame(args: CreateGameInput!): GameData!
+  updateGame(args: UpdateGameInput!): GameData!
+  joinGame(args: JoinGameInput!): GameData!
+  leaveGame(args: LeaveGameInput!): Boolean!
+  signInLocal(args: SignInLocalInput!): UserToken!
   signUpLocal(args: SignUpLocalInput!): UserToken!
   signInGoogle: Boolean!
   signInGithub: Boolean!
@@ -45,7 +58,23 @@ input UpdateMyUserInput {
   id: String!
 }
 
-input signInLocalInput {
+input CreateGameInput {
+  userIds: [String!]!
+}
+
+input UpdateGameInput {
+  id: String!
+}
+
+input JoinGameInput {
+  id: String!
+}
+
+input LeaveGameInput {
+  id: String!
+}
+
+input SignInLocalInput {
   password: String!
   emailOrUsername: String!
 }

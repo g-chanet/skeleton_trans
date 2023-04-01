@@ -14,6 +14,7 @@ import { ChannelMessagesModule } from './channel-messages/channel-messages.modul
 import { ChannelMembersModule } from './channel-members/channel-members.module';
 import { ChannelsModule } from './channels/channels.module';
 import { UserRelationsModule } from './user-relations/user-relations.module';
+import { AppGateway } from './app.gateway';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { UserRelationsModule } from './user-relations/user-relations.module';
     GameMatchmakingMembersModule,
     AuthModule,
   ],
+  providers: [AppGateway],
   // controllers: [AppController],
 })
 export class AppModule {}

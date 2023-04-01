@@ -24,7 +24,7 @@ export class AuthService {
   async signInLocal({
     emailOrUsername,
     password,
-  }: DTO.signInLocalInput): Promise<UserToken> {
+  }: DTO.SignInLocalInput): Promise<UserToken> {
     const user =
       (await this.usersService.findOneByEmail(emailOrUsername)) ||
       (await this.usersService.findOneByUsername(emailOrUsername));

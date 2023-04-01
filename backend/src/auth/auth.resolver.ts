@@ -15,7 +15,7 @@ export class AuthResolver {
 
   // EMAIL + PASSWORD
   @Mutation(() => UserToken)
-  signInLocal(@Args(`args`) args: DTO.signInLocalInput) {
+  signInLocal(@Args(`args`) args: DTO.SignInLocalInput) {
     return this.authService.signInLocal(args);
   }
 

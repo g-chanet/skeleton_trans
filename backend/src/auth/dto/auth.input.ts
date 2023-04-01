@@ -5,7 +5,7 @@ import { InputType, Field } from '@nestjs/graphql';
 //**************************************************//
 
 @InputType()
-export class signInLocalInput {
+export class SignInLocalInput {
   @Field(() => String)
   password: string;
 
