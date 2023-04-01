@@ -17,6 +17,7 @@ import { ChannelMessagesModule } from './channel-messages/channel-messages.modul
 import { ChannelMembersModule } from './channel-members/channel-members.module';
 import { ChannelsModule } from './channels/channels.module';
 import { UserRelationsModule } from './user-relations/user-relations.module';
+import { SessionModule } from './session/session.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { UserRelationsModule } from './user-relations/user-relations.module';
     GameMembersModule,
     GameMatchmakingMembersModule,
     AuthModule,
+    SessionModule,
   ],
   // controllers: [AppController],
 })
