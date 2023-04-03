@@ -1,32 +1,43 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ChannelMembersService {
+  constructor(private prisma: PrismaService) {}
+
   //**************************************************//
   //  MUTATION
   //**************************************************//
 
-  create() {
-    return `This action add`;
+  async create(data: Prisma.ChannelMemberUncheckedCreateInput) {
+    return await this.prisma.channelMember.create({ data });
   }
 
-  update(id: string) {
-    return `This action updates a #${id}`;
+  async update(userId: string, data: Prisma.ChannelMemberUpdateInput) {
+    return await this.prisma.channelMember.update({ where: { userId }, data });
   }
 
-  remove(id: string) {
-    return `This action removes a #${id}`;
+  async remove(userId: string) {
+    return await this.prisma.channelMember.delete({ where: { userId } });
   }
 
   //**************************************************//
   //  QUERY
   //**************************************************//
 
-  findAll() {
-    return `This action returns all`;
+  async findAll() {
+    return await this.prisma.channelMember.findMany({});
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id}`;
+  async findOne(channelId: string, userId: string) {
+    return await this.prisma.channelMember.findUnique({
+      where: {
+        channelId_userId: {
+          channelId,
+          userId,
+        },
+      },
+    });
   }
 }
