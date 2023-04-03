@@ -5,7 +5,7 @@ const getHeaders = (contentType?: string) => {
   if (token)
     headers[`Authorization`] = `Bearer ${token}`
   if (contentType)
-    headers[`Content-Type`] = `application/json`
+    headers[`Content-Type`] = contentType
   return headers
 }
 
