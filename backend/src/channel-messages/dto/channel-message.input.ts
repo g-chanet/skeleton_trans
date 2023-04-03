@@ -17,6 +17,9 @@ export class UpdateMessageForChannelInput {
     id: string;
 
     @Field(() => String)
+    channelId: string;
+
+    @Field(() => String)
     message: string;
 }
 

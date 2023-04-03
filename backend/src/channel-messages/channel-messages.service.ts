@@ -9,32 +9,48 @@ export class ChannelMessagesService {
   //  MUTATION
   //**************************************************//
 
-  create(userId: string, data: Prisma.ChannelMessageUncheckedCreateInput) {
-    data.userId = userId;
-    return this.prisma.channelMessage.create({ data });
+  async create(data: Prisma.ChannelMessageUncheckedCreateInput) {
+    return await this.prisma.channelMessage.create({ data });
   }
 
-  update(id: string, data: Prisma.ChannelMessageUpdateInput) {
-    return this.prisma.channelMessage.update({ where: { id }, data });
+  async update(id: string, userId: string, data: Prisma.ChannelMessageUncheckedUpdateInput) {
+    return await this.prisma.channelMessage.update({
+      where: {
+        id_userId: {
+          id,
+          userId,
+        },
+      },
+      data,
+    });
   }
 
-  remove(id: string) {
-    return this.prisma.channelMessage.delete({ where: { id } });
+  async delete(id: string, userId: string) {
+    return await this.prisma.channelMessage.delete({
+      where: {
+        id_userId: {
+          id,
+          userId,
+        },
+      },
+    });
   }
 
   //**************************************************//
   //  QUERY
   //**************************************************//
 
-  findAll() {
-    return this.prisma.channelMessage.findMany({});
+  async findAll() {
+    return await this.prisma.channelMessage.findMany({});
   }
 
-  findOne(id: string) {
-    return this.prisma.channelMessage.findFirst({ where: { id } });
+  async findOne(id_userId: Prisma.ChannelMessageIdUserIdCompoundUniqueInput) {
+    return await this.prisma.channelMessage.findUnique({
+      where: { id_userId },
+    });
   }
 
-  findAllForChannel(channelId: string) {
-    return this.prisma.channelMessage.findMany({ where: { channelId } });
+  async findAllForChannel(channelId: string) {
+    return await this.prisma.channelMessage.findMany({ where: { channelId } });
   }
 }
