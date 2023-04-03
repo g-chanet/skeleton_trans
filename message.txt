@@ -1,0 +1,108 @@
+```
+BACKEND -> END_POINTS
+
+Auth
+  mutation
+    - signIn (Boolean)
+
+User
+  mutation
+    - updateMyUser (Boolean)
+    - deleteMyUser (Boolean)
+  query
+    - findMyUser (User)
+    - findUser (User)
+
+UserPresence
+  subscription
+    - onUpdateUserPresence (UserPresence)
+
+UserRelation
+  mutation
+    - createRequestWaitingFriends (Boolean)
+    - acceptedFriendRequest (Boolean)
+    - refusedFriendRequest (Boolean)
+    - blockRelation (Boolean)
+    - removeRelation (Boolean)
+  subscription
+    - onCreateMyUserRelation (UserRelation)
+    - onUpdateMyUserRelation (UserRelation)
+    - onDeleteMyUserRelation (UserRelation)
+
+Channel
+  mutation
+    - createChannel (Boolean)
+    - updateChannel (Boolean)
+    - deleteChannel (Boolean)
+  query
+    - findChannel (Channel)
+    - findAllPublicChannels (Channel[])
+  subscription
+    - onUpdateChannel (Channel)
+    - onDeleteChannel (Channel)
+    - onCreatePublicChannel (Channel)
+    - onUpdatePublicChannel (Channel)
+    - onDeletePublicChannel (Channel)
+  
+ChannelMember
+  mutation
+    - joinChannel (Boolean)
+    - leaveChannel (Boolean)
+    - kickChannelMember (Boolean)
+    - updateMyChannelMember (Boolean)
+  query
+    - findAllChannelMembersForChannel (ChannelMember[])
+  subscription
+    - onCreateChannelMemberForChannel (ChannelMember)
+    - onUpdateChannelMemberForChannel (ChannelMember)
+    - onDeleteChannelMemberForChannel (ChannelMember)
+  
+ChannelMessage
+  mutation
+    - createMessageForChannel (Boolean)
+    - updateMyMessageForChannel (Boolean)
+    - deleteMyMessageForChannel (Boolean)
+  query
+    - findAllChannelMessagesForChannel (ChannelMessage[])
+  subscription
+    - onCreateMessageForChannel (ChannelMessage)
+    - onUpdateMessageForChannel (ChannelMessage)
+    - onDeleteMessageForChannel (ChannelMessage)
+
+Game
+  mutation
+    - createGame (Boolean)
+    - updateGame (Boolean)
+  query
+    - findGame (Game)
+  subscription
+    - onUpdateGame (Game)
+
+GameData
+  mutation
+    - onUpdateMyGameData
+  subscription
+    - onUpdateGameData
+  
+GameMember
+  mutation
+    - joinGame (Boolean)
+    - leaveGame (Boolean)
+    - updateGameMemberForGame (Boolean)
+  query
+    - findAllGameMembersForGame (GameMember[])
+  subscription
+    - onCreateGameForGame (GameMember)
+    - onUpdateGameForGame (GameMember)
+    - onDeleteGameForGame (GameMember)
+  
+GameMatchmakingMember
+  mutation
+    - joinGameMatchmakingMember (Boolean)
+    - leaveGameMatchmakingMember (Boolean)
+  query
+    - findAllGameMatchmakingMembers (GameMatchmakingMember[])
+  subscription
+    - onCreateGameMatchmakingMember (GameMatchmakingMember)
+    - onDeleteGameMatchmakingMember (GameMatchmakingMember)
+```
