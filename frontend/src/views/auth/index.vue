@@ -16,11 +16,9 @@
 import { reactive } from "vue"
 import type { SignInLocalInput } from "@/graphql/graphql-operations"
 import { useSignInLocalMutation } from "@/graphql/graphql-operations"
-import Cookies from 'universal-cookie'
 import { ElMessage } from "element-plus"
 import { refreshSocket } from "@/services/socketIo"
 
-const cookies = new Cookies()
 const form = reactive<SignInLocalInput>({
   emailOrUsername: `gasgssa@sasdchotmail.com`,
   password: `Mdp23Mdp`,
@@ -33,7 +31,8 @@ const onSubmit = () => {
 }
 
 onDone((e) => {
-  cookies.set(`token`, e.data?.signInLocal.token)
+  if (!e.data?.signInLocal.token) return
+  localStorage.setItem(`token`, e.data?.signInLocal.token)
   refreshSocket()
   ElMessage({
     showClose: true,

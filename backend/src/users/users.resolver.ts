@@ -7,7 +7,6 @@ import * as DTO from './dto/user.input';
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator';
 
 @Resolver()
-@UseGuards(GqlAuthGuard)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
@@ -16,6 +15,7 @@ export class UsersResolver {
   //**************************************************//
 
   @Mutation(() => Boolean)
+  @UseGuards(GqlAuthGuard)
   updateMyUser(
     @CtxUser() user: User,
     @Args(`args`) args: DTO.UpdateMyUserInput,
@@ -24,6 +24,7 @@ export class UsersResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseGuards(GqlAuthGuard)
   deleteMyUser(@CtxUser() user: User) {
     return this.usersService.delete(user.id);
   }
@@ -33,7 +34,9 @@ export class UsersResolver {
   //**************************************************//
 
   @Query(() => User)
+  @UseGuards(GqlAuthGuard)
   findMyUser(@CtxUser() user: User) {
+    console.log(`findMyUser`, user);
     return user;
   }
 

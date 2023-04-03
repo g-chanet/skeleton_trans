@@ -56,7 +56,6 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() position: number,
   ) {
-    console.log(position);
     this.server.to(socket.rooms[0]).emit(`update_room`, position);
   }
 }

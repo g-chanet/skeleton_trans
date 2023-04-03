@@ -21,3 +21,12 @@ mutation SignUpLocal($args: SignUpLocalInput!) {
     }
   }
 }
+
+query FindMyUser {
+  findMyUser {
+    doubleAuth
+    avatarUrl
+    id
+    username
+  }
+}

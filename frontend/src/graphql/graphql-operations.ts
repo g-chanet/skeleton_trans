@@ -160,6 +160,11 @@ export type SignUpLocalMutationVariables = Exact<{
 
 export type SignUpLocalMutation = { __typename?: 'Mutation', signUpLocal: { __typename?: 'UserToken', token: string, user: { __typename?: 'User', id: string, username: string, avatarUrl?: string | null, doubleAuth: boolean } } };
 
+export type FindMyUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FindMyUserQuery = { __typename?: 'Query', findMyUser: { __typename?: 'User', doubleAuth: boolean, avatarUrl?: string | null, id: string, username: string } };
+
 
 export const SignInLocalDocument = gql`
     mutation SignInLocal($args: SignInLocalInput!) {
@@ -231,3 +236,33 @@ export function useSignUpLocalMutation(options: VueApolloComposable.UseMutationO
   return VueApolloComposable.useMutation<SignUpLocalMutation, SignUpLocalMutationVariables>(SignUpLocalDocument, options);
 }
 export type SignUpLocalMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<SignUpLocalMutation, SignUpLocalMutationVariables>;
+export const FindMyUserDocument = gql`
+    query FindMyUser {
+  findMyUser {
+    doubleAuth
+    avatarUrl
+    id
+    username
+  }
+}
+    `;
+
+/**
+ * __useFindMyUserQuery__
+ *
+ * To run a query within a Vue component, call `useFindMyUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindMyUserQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindMyUserQuery();
+ */
+export function useFindMyUserQuery(options: VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options);
+}
+export function useFindMyUserLazyQuery(options: VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options);
+}
+export type FindMyUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindMyUserQuery, FindMyUserQueryVariables>;
