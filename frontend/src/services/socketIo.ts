@@ -1,11 +1,11 @@
 import {  Manager } from "socket.io-client"
+import { getHeadersWs } from "./header"
 
-
-const manager = new Manager({extraHeaders: {Authorization :`Bearer ${localStorage.getItem(`token`)}`}})
+const manager = new Manager({ extraHeaders: getHeadersWs() })
 
 export const refreshSocket = () => {
   socket.disconnect()
-  manager.opts.extraHeaders = {Authorization: `Bearer ${localStorage.getItem(`token`)}`}
+  manager.opts.extraHeaders =  getHeadersWs()
   socket.connect()
 }
 
