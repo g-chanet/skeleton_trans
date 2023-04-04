@@ -1,7 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
+import * as DTO from './dto/channel.input'
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
 import { ChannelsService } from './channels.service'
 import { Channel } from './entities/channel.entity'
-import { CreateChannelInput, UpdateChannelInput } from './dto/channel.input'
 
 @Resolver(() => Channel)
 export class ChannelsResolver {
@@ -12,12 +12,16 @@ export class ChannelsResolver {
   //**************************************************//
 
   @Mutation(() => Boolean)
-  async createChannel(@Args(`CreateChannelInput`) args: CreateChannelInput) {
+  async createChannel(
+    @Args(`CreateChannelInput`) args: DTO.CreateChannelInput,
+  ) {
     return (await this.channelsService.create(args)) !== null
   }
 
   @Mutation(() => Boolean)
-  async updateChannel(@Args(`UpdateChannelInput`) args: UpdateChannelInput) {
+  async updateChannel(
+    @Args(`UpdateChannelInput`) args: DTO.UpdateChannelInput,
+  ) {
     return (await this.channelsService.update(args.id, args)) !== null
   }
 
