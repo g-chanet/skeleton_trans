@@ -5,22 +5,13 @@ import { Field, InputType } from '@nestjs/graphql';
 @InputType()
 export class CreateGameMemberInput {
   @Field(() => String)
-  message: string;
-
-  @Field(() => String)
-  channelId: string;
+  gameId: string;
 }
 
 @InputType()
 export class UpdateGameMemberInput {
-    @Field(() => String)
-    id: string;
-
-    @Field(() => String)
-    channelId: string;
-
-    @Field(() => String)
-    message: string;
+  @Field(() => String)
+  gameId: string;
 }
 
 //**************************************************//

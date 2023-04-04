@@ -1,32 +1,53 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class GameMembersService {
+  constructor(private prisma: PrismaService) {}
   //**************************************************//
   //  MUTATION
   //**************************************************//
 
-  create() {
-    return `This action add`;
+  async create(data: Prisma.GameMemberUncheckedCreateInput) {
+    return await this.prisma.gameMember.create({ data });
   }
 
-  update(id: string) {
-    return `This action updates a #${id}`;
+  async update(
+    gameId: string,
+    userId: string,
+    data: Prisma.GameMemberUncheckedUpdateInput,
+  ) {
+    return await this.prisma.gameMember.update({
+      where: {
+        gameId_userId: {
+          gameId,
+          userId,
+        },
+      },
+      data,
+    });
   }
 
-  remove(id: string) {
-    return `This action removes a #${id}`;
+  async delete(gameId: string, userId: string) {
+    return await this.prisma.gameMember.delete({
+      where: { gameId_userId: { gameId, userId } },
+    });
   }
 
   //**************************************************//
   //  QUERY
   //**************************************************//
 
-  findAll() {
-    return `This action returns all`;
+  async findAllForGame(gameId: string) {
+    return await this.prisma.gameMember.findMany({ where: { gameId } });
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id}`;
+  async findOne(
+    gameId_userId: Prisma.GameMemberGameIdUserIdCompoundUniqueInput,
+  ) {
+    return await this.prisma.gameMember.findUnique({
+      where: { gameId_userId },
+    });
   }
 }
