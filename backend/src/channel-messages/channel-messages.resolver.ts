@@ -1,10 +1,7 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
 import { ChannelMessagesService } from './channel-messages.service'
 import { ChannelMessage } from './entities/channel-message.entity'
-import {
-  CreateMessageForChannelInput,
-  UpdateMessageForChannelInput,
-} from './dto/channel-message.input'
+import * as DTO from './dto/channel-message.input'
 import { UseGuards } from '@nestjs/common'
 import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
@@ -24,7 +21,7 @@ export class ChannelMessagesResolver {
   @UseGuards(GqlAuthGuard)
   async createMessageForChannel(
     @CtxUser() user: User,
-    @Args(`args`) args: CreateMessageForChannelInput,
+    @Args(`args`) args: DTO.CreateMessageForChannelInput,
   ) {
     return await this.channelMessagesService.create({
       ...args,
@@ -36,7 +33,7 @@ export class ChannelMessagesResolver {
   @UseGuards(GqlAuthGuard)
   async updateMyMessageForChannel(
     @CtxUser() user: User,
-    @Args(`args`) args: UpdateMessageForChannelInput,
+    @Args(`args`) args: DTO.UpdateMessageForChannelInput,
   ) {
     return await this.channelMessagesService.update(args.id, user.id, args)
   }

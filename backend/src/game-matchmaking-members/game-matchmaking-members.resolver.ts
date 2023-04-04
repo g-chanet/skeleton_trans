@@ -1,4 +1,4 @@
-import { Resolver } from '@nestjs/graphql'
+import { Mutation, Query, Resolver } from '@nestjs/graphql'
 import { GameMatchmakingMembersService } from './game-matchmaking-members.service'
 import { GameMatchmakingMember } from './entities/game-matchmaking-member.entity'
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard'

@@ -1,7 +1,7 @@
 import { Resolver, Mutation, Args } from '@nestjs/graphql'
 import { GameMembersService } from './game-members.service'
 import { GameMember } from './entities/game-member.entity'
-import { UpdateGameMemberInput } from './dto/game-member.input'
+import * as DTO from './dto/game-member.input'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from '@prisma/client'
 import { UseGuards } from '@nestjs/common'
@@ -18,7 +18,7 @@ export class GameMembersResolver {
   @UseGuards(GqlAuthGuard)
   async updateGameMemberForGame(
     @CtxUser() user: User,
-    @Args(`args`) args: UpdateGameMemberInput,
+    @Args(`args`) args: DTO.UpdateGameMemberInput,
   ) {
     return await this.gameMembersService.update(args.gameId, user.id, args)
   }
