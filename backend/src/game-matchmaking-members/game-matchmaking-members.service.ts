@@ -1,24 +1,27 @@
 import { Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
+import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
 export class GameMatchmakingMembersService {
+  constructor(private prisma: PrismaService) {}
   //**************************************************//
   //  MUTATION
   //**************************************************//
 
-  create() {
-    return `This action add`
+  async create(data: Prisma.GameMatchmakingMemberUncheckedCreateInput) {
+    return await this.prisma.gameMatchmakingMember.create({ data })
   }
 
-  remove(id: string) {
-    return `This action removes a #${id}`
+  async remove(userId: string) {
+    return await this.prisma.gameMatchmakingMember.delete({ where: { userId } })
   }
 
   //**************************************************//
   //  QUERY
   //**************************************************//
 
-  findAll() {
-    return `This action returns all`
+  async findAll() {
+    return await this.prisma.gameMatchmakingMember.findMany({})
   }
 }
