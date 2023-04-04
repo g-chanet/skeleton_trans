@@ -91,7 +91,7 @@ type UserRelation {
 
 enum EUserRealtionType {
   WaitingAccept
-  WaitingConfirm
+  PendingAccept
   Friend
   Blocked
 }
@@ -120,11 +120,11 @@ input FindAllMessagesForChannelInput {
 type Mutation {
   updateMyUser(args: UpdateMyUserInput!): Boolean!
   deleteMyUser: Boolean!
-  createRequestWaitingFriends(args: CreateUserRelationInput!): UserRelation!
+  createRequestFriend(args: CreateRequestFriendInput!): UserRelation!
   acceptFriendRequest(args: UpdateUserRelationInput!): UserRelation!
   refuseFriendRequest(args: UpdateUserRelationInput!): UserRelation!
   blockRelation(args: UpdateUserRelationInput!): UserRelation!
-  removeRelation(args: UpdateUserRelationInput!): UserRelation!
+  removeFriend(args: UpdateUserRelationInput!): UserRelation!
   createChannel(args: CreateChannelInput!): Boolean!
   updateChannel(args: UpdateChannelInput!): Boolean!
   deleteChannel(args: DeleteChannelInput!): Boolean!
@@ -154,9 +154,8 @@ input UpdateMyUserInput {
   id: String!
 }
 
-input CreateUserRelationInput {
+input CreateRequestFriendInput {
   userTargetId: String!
-  type: EUserRealtionType!
 }
 
 input UpdateUserRelationInput {
