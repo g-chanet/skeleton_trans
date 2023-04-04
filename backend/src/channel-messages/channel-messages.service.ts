@@ -54,9 +54,14 @@ export class ChannelMessagesService {
     return await this.prisma.channelMessage.findMany({})
   }
 
-  async findOne(id_userId: Prisma.ChannelMessageIdUserIdCompoundUniqueInput) {
+  async findOne(id: string, userId: string) {
     return await this.prisma.channelMessage.findUnique({
-      where: { id_userId },
+      where: {
+        id_userId: {
+          id,
+          userId,
+        },
+      },
     })
   }
 
