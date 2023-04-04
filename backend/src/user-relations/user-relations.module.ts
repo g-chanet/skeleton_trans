@@ -3,6 +3,6 @@ import { UserRelationsService } from './user-relations.service';
 import { UserRelationsResolver } from './user-relations.resolver';
 
 @Module({
-  providers: [UserRelationsResolver, UserRelationsService]
+  providers: [UserRelationsResolver, UserRelationsService],
 })
 export class UserRelationsModule {}

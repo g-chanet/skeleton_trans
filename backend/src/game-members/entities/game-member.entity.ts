@@ -1,7 +1,10 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field } from '@nestjs/graphql';
 
 @ObjectType()
 export class GameMember {
   @Field(() => String)
-  id: string;
+  gameId: string;
+
+  @Field(() => String)
+  userId: string;
 }

@@ -19,23 +19,44 @@ export class ChannelMessagesService {
     });
   }
 
-  update(id: string) {
-    return `This action updates a #${id}`;
+  async update(id: string, userId: string, data: Prisma.ChannelMessageUncheckedUpdateInput) {
+    return await this.prisma.channelMessage.update({
+      where: {
+        id_userId: {
+          id,
+          userId,
+        },
+      },
+      data,
+    });
   }
 
-  remove(id: string) {
-    return `This action removes a #${id}`;
+  async delete(id: string, userId: string) {
+    return await this.prisma.channelMessage.delete({
+      where: {
+        id_userId: {
+          id,
+          userId,
+        },
+      },
+    });
   }
 
   //**************************************************//
   //  QUERY
   //**************************************************//
 
-  findAll() {
-    return `This action returns all`;
+  async findAll() {
+    return await this.prisma.channelMessage.findMany({});
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id}`;
+  async findOne(id_userId: Prisma.ChannelMessageIdUserIdCompoundUniqueInput) {
+    return await this.prisma.channelMessage.findUnique({
+      where: { id_userId },
+    });
+  }
+
+  async findAllForChannel(channelId: string) {
+    return await this.prisma.channelMessage.findMany({ where: { channelId } });
   }
 }

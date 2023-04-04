@@ -4,4 +4,13 @@ import { ObjectType, Field, Int } from '@nestjs/graphql';
 export class UserPresence {
   @Field(() => String)
   id: string;
+  
+  @Field(() => String)
+  userId: String;
+
+  @Field(() => Date)
+  connectedAt: Date;
+
+  @Field(() => Date)
+  disconnectedAt: Date;
 }

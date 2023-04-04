@@ -8,27 +8,27 @@ export class ChannelsService {
   //  MUTATION
   //**************************************************//
 
-  create() {
-    return `This action add`;
+  async create(data: Prisma.ChannelCreateInput) {
+    return await this.prisma.channel.create({data});
   }
 
-  update(id: string) {
-    return `This action updates a #${id}`;
+  async update(id: string, data: Prisma.ChannelUpdateInput) {
+    return await this.prisma.channel.update({ where: { id }, data });
   }
 
-  remove(id: string) {
-    return `This action removes a #${id}`;
+  async remove(id: string) {
+    return await this.prisma.channel.delete({ where: { id } });
   }
 
   //**************************************************//
   //  QUERY
   //**************************************************//
 
-  findAll() {
-    return `This action returns all`;
+  async findAll() {
+    return await this.prisma.channel.findMany({});
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id}`;
+  async findOne(id: string) {
+    return await this.prisma.channel.findFirst({ where : { id } });
   }
 }
