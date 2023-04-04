@@ -1,10 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
+import { Resolver, Mutation, Args } from '@nestjs/graphql'
 import { GameMembersService } from './game-members.service'
 import { GameMember } from './entities/game-member.entity'
-import {
-  CreateGameMemberInput,
-  UpdateGameMemberInput,
-} from './dto/game-member.input'
+import { UpdateGameMemberInput } from './dto/game-member.input'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from '@prisma/client'
 import { UseGuards } from '@nestjs/common'

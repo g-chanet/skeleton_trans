@@ -13,16 +13,16 @@ export class ChannelsSecurity {
   async channelRW(channelId: string, userId: string): Promise<Boolean> {
     const channel = await this.channelsService.findOne(channelId)
     if (!channel) return false
-    const member = await this.channelMembersService.findMember(
-      channelId,
-      userId,
-    )
+    const member = await this.channelMembersService.findOne(channelId, userId)
     if (member === undefined || member.type === EChannelMemberType.Banned)
       return false
     return true
   }
 
-  channelR(channelId: string, userId?: string) {
+  async channelR(channelId: string, userId?: string) {
+    const channel = await this.channelsService.findOne(channelId)
+    if (!channel) return false
+    const member = await this.channelMembersService.findOne(channelId, userId)
     return false
   }
 }
