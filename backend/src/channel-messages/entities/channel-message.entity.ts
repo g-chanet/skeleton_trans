@@ -16,4 +16,7 @@ export class ChannelMessage {
 
   @Field(() => Date)
   createdAt : Date
+
+  @Field(() => Date)
+  updatedAt : Date
 }
