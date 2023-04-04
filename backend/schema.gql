@@ -80,31 +80,60 @@ enum EChannelType {
   Private
 }
 
+type UserRelation {
+  id: String!
+  userOwnerId: String!
+  userTargetId: String!
+  type: EUserRealtionType!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum EUserRealtionType {
+  WaitingAccept
+  WaitingConfirm
+  Friend
+  Blocked
+}
+
 type Query {
   findMyUser: User!
   findUser(args: FindUserInput!): UserPublic!
-  findChannel(id: String!): Channel!
+  findChannel(args: FindChannelInput!): Channel!
   findAllChannels: [Channel!]!
   findAllChannelMembersForChannel: [GameMatchmakingMember!]!
-  findAllChannelMessagesForChannel(channelId: String!): [ChannelMessage!]!
+  findAllChannelMessagesForChannel(args: FindAllMessagesForChannelInput!): [ChannelMessage!]!
 }
 
 input FindUserInput {
   id: String!
 }
 
+input FindChannelInput {
+  id: String!
+}
+
+input FindAllMessagesForChannelInput {
+  channelId: String!
+}
+
 type Mutation {
   updateMyUser(args: UpdateMyUserInput!): Boolean!
   deleteMyUser: Boolean!
-  createChannel(CreateChannelInput: CreateChannelInput!): Boolean!
-  updateChannel(UpdateChannelInput: UpdateChannelInput!): Boolean!
-  deleteChannel(id: String!): Boolean!
-  createMemberForChannel(args: CreateChannelMemberInput!): ChannelMember!
-  updateMyMemberForChannel(args: UpdateChannelMemberInput!): ChannelMember!
-  deleteMyMemberForChannel(channelMemberId: String!): ChannelMember!
+  createRequestWaitingFriends(args: CreateUserRelationInput!): UserRelation!
+  acceptFriendRequest(args: UpdateUserRelationInput!): UserRelation!
+  refuseFriendRequest(args: UpdateUserRelationInput!): UserRelation!
+  blockRelation(args: UpdateUserRelationInput!): UserRelation!
+  removeRelation(args: UpdateUserRelationInput!): UserRelation!
+  createChannel(args: CreateChannelInput!): Boolean!
+  updateChannel(args: UpdateChannelInput!): Boolean!
+  deleteChannel(args: DeleteChannelInput!): Boolean!
+  createMemberForChannel(args: CreateMemberForChannelInput!): ChannelMember!
+  updateMyMemberForChannel(args: UpdateMyMemberForChannelInput!): ChannelMember!
+  deleteMyMemberForChannel(args: DeleteMyMemberForChannelInput!): ChannelMember!
   createMessageForChannel(args: CreateMessageForChannelInput!): ChannelMessage!
-  updateMyMessageForChannel(args: UpdateMessageForChannelInput!): ChannelMessage!
-  deleteMyMessageForChannel(channelMessageId: String!): ChannelMessage!
+  updateMyMessageForChannel(args: UpdateMyMessageForChannelInput!): ChannelMessage!
+  deleteMyMessageForChannel(args: DeleteMyMessageForChannelInput!): ChannelMessage!
   createGame(args: CreateGameInput!): GameData!
   updateGame(args: UpdateGameInput!): GameData!
   joinGame(args: JoinGameInput!): GameData!
@@ -125,6 +154,15 @@ input UpdateMyUserInput {
   id: String!
 }
 
+input CreateUserRelationInput {
+  userTargetId: String!
+  type: EUserRealtionType!
+}
+
+input UpdateUserRelationInput {
+  userTargetid: String!
+}
+
 input CreateChannelInput {
   name: String!
   avatarUrl: String
@@ -140,14 +178,20 @@ input UpdateChannelInput {
   channelType: EChannelType
 }
 
-input CreateChannelMemberInput {
-  channelId: String!
-  type: EChannelMemberType!
+input DeleteChannelInput {
+  id: String!
 }
 
-input UpdateChannelMemberInput {
+input CreateMemberForChannelInput {
   channelId: String!
-  type: EChannelMemberType!
+}
+
+input UpdateMyMemberForChannelInput {
+  channelId: String!
+}
+
+input DeleteMyMemberForChannelInput {
+  channelId: String!
 }
 
 input CreateMessageForChannelInput {
@@ -155,7 +199,13 @@ input CreateMessageForChannelInput {
   channelId: String!
 }
 
-input UpdateMessageForChannelInput {
+input UpdateMyMessageForChannelInput {
+  id: String!
+  channelId: String!
+  message: String!
+}
+
+input DeleteMyMessageForChannelInput {
   id: String!
   channelId: String!
   message: String!
