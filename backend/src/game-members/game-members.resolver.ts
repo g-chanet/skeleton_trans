@@ -17,25 +17,6 @@ export class GameMembersResolver {
   //**************************************************//
   //  MUTATION
   //**************************************************//
-
-  @Mutation(() => GameMember)
-  @UseGuards(GqlAuthGuard)
-  async joinGame(
-    @CtxUser() user: User,
-    @Args('args') args: CreateGameMemberInput,
-  ) {
-    return await this.gameMembersService.create({ ...args, userId: user.id });
-  }
-
-  @Mutation(() => GameMember)
-  @UseGuards(GqlAuthGuard)
-  async leaveGame(
-    @CtxUser() user: User,
-    @Args('gameId', { type: () => String }) gameId: string,
-  ) {
-    return await this.gameMembersService.delete(gameId, user.id);
-  }
-
   @Mutation(() => GameMember)
   @UseGuards(GqlAuthGuard)
   async updateGameMemberForGame(
