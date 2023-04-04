@@ -1,6 +1,5 @@
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service'
+import { Injectable } from '@nestjs/common'
 
 @Injectable()
 export class ChannelMembersService {
@@ -10,15 +9,15 @@ export class ChannelMembersService {
   //**************************************************//
 
   create() {
-    return `This action add`;
+    return `This action add`
   }
 
   update(id: string) {
-    return `This action updates a #${id}`;
+    return `This action updates a #${id}`
   }
 
   remove(id: string) {
-    return `This action removes a #${id}`;
+    return `This action removes a #${id}`
   }
 
   //**************************************************//
@@ -33,7 +32,7 @@ export class ChannelMembersService {
           userId,
         },
       },
-    });
+    })
   }
 
   findAll() {}
@@ -41,6 +40,6 @@ export class ChannelMembersService {
   async findOne(channelId: string, userId: string) {
     return await this.prisma.channelMember.findUnique({
       where: { channelId_userId: { userId, channelId } },
-    });
+    })
   }
 }

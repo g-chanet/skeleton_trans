@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { EChannelMemberType } from '@prisma/client';
-import { ChannelMembersService } from 'src/channel-members/channel-members.service';
-import { ChannelsService } from './channels.service';
+import { Injectable } from '@nestjs/common'
+import { EChannelMemberType } from '@prisma/client'
+import { ChannelMembersService } from 'src/channel-members/channel-members.service'
+import { ChannelsService } from './channels.service'
 
 @Injectable()
 export class ChannelsSecurity {
@@ -11,24 +11,18 @@ export class ChannelsSecurity {
   ) {}
 
   async channelRW(channelId: string, userId: string): Promise<Boolean> {
-    const channel = await this.channelsService.findOne(channelId);
-    if (!channel) return false;
+    const channel = await this.channelsService.findOne(channelId)
+    if (!channel) return false
     const member = await this.channelMembersService.findMember(
       channelId,
       userId,
-    );
+    )
     if (member === undefined || member.type === EChannelMemberType.Banned)
-      return false;
-    return true;
+      return false
+    return true
   }
 
-  async channelR(channelId: string, userId?: string) {
-    const channel = await this.channelsService.findOne(channelId);
-    if (!channel) return false;
-    if (userId)
-      const member = await this.channelMembersService.findMember(
-        channelId,
-        userId,
-      );
+  channelR(channelId: string, userId?: string) {
+    return false
   }
 }

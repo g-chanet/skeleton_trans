@@ -1,9 +1,9 @@
-import { GqlAuthGuard } from './guards/gql-auth.guard';
-import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { AuthService } from './auth.service';
-import * as DTO from './dto/auth.input';
-import { UserToken } from './entities/user-token';
+import { GqlAuthGuard } from './guards/gql-auth.guard'
+import { UseGuards } from '@nestjs/common'
+import { Args, Mutation, Resolver } from '@nestjs/graphql'
+import { AuthService } from './auth.service'
+import * as DTO from './dto/auth.input'
+import { UserToken } from './entities/user-token'
 
 @Resolver()
 export class AuthResolver {
@@ -16,12 +16,12 @@ export class AuthResolver {
   // EMAIL + PASSWORD
   @Mutation(() => UserToken)
   signInLocal(@Args(`args`) args: DTO.SignInLocalInput) {
-    return this.authService.signInLocal(args);
+    return this.authService.signInLocal(args)
   }
 
   @Mutation(() => UserToken)
   signUpLocal(@Args(`args`) args: DTO.SignUpLocalInput) {
-    return this.authService.signUpLocal(args);
+    return this.authService.signUpLocal(args)
   }
 
   //**************************************************//
@@ -31,25 +31,25 @@ export class AuthResolver {
   // GOOGLE ACCOUNT
   @Mutation(() => Boolean)
   signInGoogle() {
-    return true;
+    return true
   }
 
   // GITHUB ACCOUNT
   @Mutation(() => Boolean)
   signInGithub() {
-    return true;
+    return true
   }
 
   // 42 ACCOUNT
   @Mutation(() => Boolean)
   signIn42() {
-    return true;
+    return true
   }
 
   // DISCORD ACCOUNT
   @Mutation(() => Boolean)
   signInDiscord() {
-    return true;
+    return true
   }
 
   //**************************************************//
@@ -59,6 +59,6 @@ export class AuthResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
   logout() {
-    return true;
+    return true
   }
 }

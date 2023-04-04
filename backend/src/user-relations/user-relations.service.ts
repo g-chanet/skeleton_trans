@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
 @Injectable()
 export class UserRelationsService {
   //**************************************************//
@@ -6,25 +6,25 @@ export class UserRelationsService {
   //**************************************************//
 
   create() {
-    return `This action add`;
+    return `This action add`
   }
 
   update(id: string) {
-    return `This action updates a #${id}`;
+    return `This action updates a #${id}`
   }
 
   remove(id: string) {
-    return `This action removes a #${id}`;
+    return `This action removes a #${id}`
   }
   //**************************************************//
   //  QUERY
   //**************************************************//
 
   findAll() {
-    return `This action returns all`;
+    return `This action returns all`
   }
 
   findOne(id: string) {
-    return `This action returns a #${id}`;
+    return `This action returns a #${id}`
   }
 }

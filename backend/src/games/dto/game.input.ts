@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql'
 
 //**************************************************//
 //  MUTATION
@@ -7,25 +7,25 @@ import { Field, InputType } from '@nestjs/graphql';
 @InputType()
 export class CreateGameInput {
   @Field(() => [String])
-  userIds: string[];
+  userIds: string[]
 }
 
 @InputType()
 export class UpdateGameInput {
   @Field(() => String)
-  id: string;
+  id: string
 }
 
 @InputType()
 export class JoinGameInput {
   @Field(() => String)
-  id: string;
+  id: string
 }
 
 @InputType()
 export class LeaveGameInput {
   @Field(() => String)
-  id: string;
+  id: string
 }
 
 //**************************************************//

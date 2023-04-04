@@ -1,16 +1,16 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field, Int } from '@nestjs/graphql'
 
 @ObjectType()
 export class UserPresence {
   @Field(() => String)
-  id: string;
-  
+  id: string
+
   @Field(() => String)
-  userId: String;
+  userId: String
 
   @Field(() => Date)
-  connectedAt: Date;
+  connectedAt: Date
 
   @Field(() => Date)
-  disconnectedAt: Date;
+  disconnectedAt: Date
 }

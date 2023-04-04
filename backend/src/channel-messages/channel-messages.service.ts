@@ -1,7 +1,7 @@
-import { ChannelMembersService } from './../channel-members/channel-members.service';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { EChannelMemberType, Prisma } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { ChannelMembersService } from './../channel-members/channel-members.service'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { EChannelMemberType, Prisma } from '@prisma/client'
+import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
 export class ChannelMessagesService {
@@ -16,10 +16,14 @@ export class ChannelMessagesService {
   async create(data: Prisma.ChannelMessageUncheckedCreateInput) {
     return await this.prisma.channelMessage.create({
       data,
-    });
+    })
   }
 
-  async update(id: string, userId: string, data: Prisma.ChannelMessageUncheckedUpdateInput) {
+  async update(
+    id: string,
+    userId: string,
+    data: Prisma.ChannelMessageUncheckedUpdateInput,
+  ) {
     return await this.prisma.channelMessage.update({
       where: {
         id_userId: {
@@ -28,7 +32,7 @@ export class ChannelMessagesService {
         },
       },
       data,
-    });
+    })
   }
 
   async delete(id: string, userId: string) {
@@ -39,7 +43,7 @@ export class ChannelMessagesService {
           userId,
         },
       },
-    });
+    })
   }
 
   //**************************************************//
@@ -47,16 +51,16 @@ export class ChannelMessagesService {
   //**************************************************//
 
   async findAll() {
-    return await this.prisma.channelMessage.findMany({});
+    return await this.prisma.channelMessage.findMany({})
   }
 
   async findOne(id_userId: Prisma.ChannelMessageIdUserIdCompoundUniqueInput) {
     return await this.prisma.channelMessage.findUnique({
       where: { id_userId },
-    });
+    })
   }
 
   async findAllForChannel(channelId: string) {
-    return await this.prisma.channelMessage.findMany({ where: { channelId } });
+    return await this.prisma.channelMessage.findMany({ where: { channelId } })
   }
 }

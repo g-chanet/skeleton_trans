@@ -1,12 +1,12 @@
-import { UseGuards } from '@nestjs/common';
-import { GameData } from './entities/game-data.entity';
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { GamesService } from './games.service';
-import { Game } from './entities/game.entity';
-import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
-import { User } from 'src/users/entities/user.entity';
-import { CtxUser } from 'src/auth/decorators/ctx-user.decorator';
-import * as DTO from './dto/game.input';
+import { UseGuards } from '@nestjs/common'
+import { GameData } from './entities/game-data.entity'
+import { Resolver, Mutation, Args } from '@nestjs/graphql'
+import { GamesService } from './games.service'
+import { Game } from './entities/game.entity'
+import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard'
+import { User } from 'src/users/entities/user.entity'
+import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
+import * as DTO from './dto/game.input'
 
 @Resolver(() => Game)
 @UseGuards(GqlAuthGuard)
@@ -28,22 +28,22 @@ export class GamesResolver {
           })),
         },
       },
-    });
+    })
   }
 
   @Mutation(() => GameData)
   updateGame(@CtxUser() user: User, @Args(`args`) args: DTO.UpdateGameInput) {
-    return this.gamesService.update(args.id, args);
+    return this.gamesService.update(args.id, args)
   }
 
   @Mutation(() => GameData)
   joinGame(@CtxUser() user: User, @Args(`args`) args: DTO.JoinGameInput) {
-    return this.gamesService.playerJoin(args.id, user);
+    return this.gamesService.playerJoin(args.id, user)
   }
 
   @Mutation(() => Boolean)
   leaveGame(@CtxUser() user: User, @Args(`args`) args: DTO.LeaveGameInput) {
-    return this.gamesService.playerLeave(args.id, user);
+    return this.gamesService.playerLeave(args.id, user)
   }
 
   //**************************************************//

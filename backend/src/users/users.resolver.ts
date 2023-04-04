@@ -1,10 +1,10 @@
-import { GqlAuthGuard } from './../auth/guards/gql-auth.guard';
-import { UseGuards } from '@nestjs/common';
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { UsersService } from './users.service';
-import { UserPublic, User } from './entities/user.entity';
-import * as DTO from './dto/user.input';
-import { CtxUser } from 'src/auth/decorators/ctx-user.decorator';
+import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
+import { UseGuards } from '@nestjs/common'
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
+import { UsersService } from './users.service'
+import { UserPublic, User } from './entities/user.entity'
+import * as DTO from './dto/user.input'
+import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 
 @Resolver()
 export class UsersResolver {
@@ -20,13 +20,13 @@ export class UsersResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.UpdateMyUserInput,
   ) {
-    return this.usersService.update(user.id, args);
+    return this.usersService.update(user.id, args)
   }
 
   @Mutation(() => Boolean)
   @UseGuards(GqlAuthGuard)
   deleteMyUser(@CtxUser() user: User) {
-    return this.usersService.delete(user.id);
+    return this.usersService.delete(user.id)
   }
 
   //**************************************************//
@@ -36,12 +36,12 @@ export class UsersResolver {
   @Query(() => User)
   @UseGuards(GqlAuthGuard)
   findMyUser(@CtxUser() user: User) {
-    return user;
+    return user
   }
 
   @Query(() => UserPublic)
   findUser(@Args(`args`) args: DTO.FindUserInput) {
-    return this.usersService.findOne(args.id);
+    return this.usersService.findOne(args.id)
   }
 
   //**************************************************//

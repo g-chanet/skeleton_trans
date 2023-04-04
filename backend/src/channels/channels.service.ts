@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
+import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
 export class ChannelsService {
@@ -9,15 +10,15 @@ export class ChannelsService {
   //**************************************************//
 
   async create(data: Prisma.ChannelCreateInput) {
-    return await this.prisma.channel.create({data});
+    return await this.prisma.channel.create({ data })
   }
 
   async update(id: string, data: Prisma.ChannelUpdateInput) {
-    return await this.prisma.channel.update({ where: { id }, data });
+    return await this.prisma.channel.update({ where: { id }, data })
   }
 
   async remove(id: string) {
-    return await this.prisma.channel.delete({ where: { id } });
+    return await this.prisma.channel.delete({ where: { id } })
   }
 
   //**************************************************//
@@ -25,10 +26,10 @@ export class ChannelsService {
   //**************************************************//
 
   async findAll() {
-    return await this.prisma.channel.findMany({});
+    return await this.prisma.channel.findMany({})
   }
 
   async findOne(id: string) {
-    return await this.prisma.channel.findFirst({ where : { id } });
+    return await this.prisma.channel.findFirst({ where: { id } })
   }
 }

@@ -104,13 +104,9 @@ model ChannelMessage {
   channelMember ChannelMember @relation(fields: [channelId, userId], references: [channelId, userId], onDelete: Cascade)
   channelId     String
   userId        String
-<<<<<<< HEAD
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
-=======
-  createdAt     DateTime      @default(now())
->>>>>>> origin/rbony
 
   @@id([id, userId])
 }

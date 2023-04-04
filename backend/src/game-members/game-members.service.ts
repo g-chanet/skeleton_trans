@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from 'src/prisma/prisma.service'
+import { Prisma } from '@prisma/client'
 
 @Injectable()
 export class GameMembersService {
@@ -10,7 +10,7 @@ export class GameMembersService {
   //**************************************************//
 
   async create(data: Prisma.GameMemberUncheckedCreateInput) {
-    return await this.prisma.gameMember.create({ data });
+    return await this.prisma.gameMember.create({ data })
   }
 
   async update(
@@ -26,13 +26,13 @@ export class GameMembersService {
         },
       },
       data,
-    });
+    })
   }
 
   async delete(gameId: string, userId: string) {
     return await this.prisma.gameMember.delete({
       where: { gameId_userId: { gameId, userId } },
-    });
+    })
   }
 
   //**************************************************//
@@ -40,7 +40,7 @@ export class GameMembersService {
   //**************************************************//
 
   async findAllForGame(gameId: string) {
-    return await this.prisma.gameMember.findMany({ where: { gameId } });
+    return await this.prisma.gameMember.findMany({ where: { gameId } })
   }
 
   async findOne(
@@ -48,6 +48,6 @@ export class GameMembersService {
   ) {
     return await this.prisma.gameMember.findUnique({
       where: { gameId_userId },
-    });
+    })
   }
 }

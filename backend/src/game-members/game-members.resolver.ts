@@ -1,14 +1,14 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { GameMembersService } from './game-members.service';
-import { GameMember } from './entities/game-member.entity';
+import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
+import { GameMembersService } from './game-members.service'
+import { GameMember } from './entities/game-member.entity'
 import {
   CreateGameMemberInput,
   UpdateGameMemberInput,
-} from './dto/game-member.input';
-import { CtxUser } from 'src/auth/decorators/ctx-user.decorator';
-import { User } from '@prisma/client';
-import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
+} from './dto/game-member.input'
+import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
+import { User } from '@prisma/client'
+import { UseGuards } from '@nestjs/common'
+import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard'
 
 @Resolver(() => GameMember)
 export class GameMembersResolver {
@@ -21,9 +21,9 @@ export class GameMembersResolver {
   @UseGuards(GqlAuthGuard)
   async updateGameMemberForGame(
     @CtxUser() user: User,
-    @Args('args') args: UpdateGameMemberInput,
+    @Args(`args`) args: UpdateGameMemberInput,
   ) {
-    return await this.gameMembersService.update(args.gameId, user.id, args);
+    return await this.gameMembersService.update(args.gameId, user.id, args)
   }
 
   //**************************************************//
