@@ -20,18 +20,12 @@ type UserToken {
   user: User!
 }
 
-type GameMember {
-  id: String!
-}
-
-type GameData {
-  id: String!
-  gameMembers: [GameMember!]!
-}
-
 type Query {
   findMyUser: User!
   findUser(args: FindUserInput!): UserPublic!
+  findChannel(id: String!): Channel!
+  findAllChannels: [Channel!]!
+  findAllChannelMessagesForChannel: [ChannelMessage!]!
 }
 
 input FindUserInput {
@@ -41,11 +35,7 @@ input FindUserInput {
 type Mutation {
   updateMyUser(args: UpdateMyUserInput!): Boolean!
   deleteMyUser: Boolean!
-  createGame(args: CreateGameInput!): GameData!
-  updateGame(args: UpdateGameInput!): GameData!
-  joinGame(args: JoinGameInput!): GameData!
-  leaveGame(args: LeaveGameInput!): Boolean!
-  signInLocal(args: SignInLocalInput!): UserToken!
+  signInLocal(args: signInLocalInput!): UserToken!
   signUpLocal(args: SignUpLocalInput!): UserToken!
   signInGoogle: Boolean!
   signInGithub: Boolean!
@@ -56,6 +46,21 @@ type Mutation {
 
 input UpdateMyUserInput {
   id: String!
+}
+
+input CreateChannelInput {
+  name: String!
+  avatarUrl: String
+  password: String
+  channelType: EChannelType!
+}
+
+input UpdateChannelInput {
+  id: String!
+  name: String
+  avatarUrl: String
+  password: String
+  channelType: EChannelType
 }
 
 input CreateGameInput {
