@@ -1,0 +1,156 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserPublic {
+  id: String!
+  username: String!
+  avatarUrl: String
+}
+
+type User {
+  id: String!
+  username: String!
+  avatarUrl: String
+  doubleAuth: Boolean!
+}
+
+type UserToken {
+  token: String!
+  user: User!
+}
+
+type GameMember {
+  gameId: String!
+  userId: String!
+}
+
+type GameData {
+  id: String!
+  gameMembers: [GameMember!]!
+}
+
+type ChannelMessage {
+  id: String!
+  message: String!
+  channelId: String!
+  userId: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Channel {
+  id: String!
+  name: String!
+  avatarUrl: String
+  password: String
+  channelType: EChannelType!
+  createdAt: DateTime!
+}
+
+enum EChannelType {
+  Public
+  Protected
+  Private
+}
+
+type Query {
+  findMyUser: User!
+  findUser(args: FindUserInput!): UserPublic!
+  findChannel(id: String!): Channel!
+  findAllChannels: [Channel!]!
+  findAllChannelMessagesForChannel(channelId: String!): [ChannelMessage!]!
+}
+
+input FindUserInput {
+  id: String!
+}
+
+type Mutation {
+  updateMyUser(args: UpdateMyUserInput!): Boolean!
+  deleteMyUser: Boolean!
+  createChannel(CreateChannelInput: CreateChannelInput!): Boolean!
+  updateChannel(UpdateChannelInput: UpdateChannelInput!): Boolean!
+  deleteChannel(id: String!): Boolean!
+  createMessageForChannel(args: CreateMessageForChannelInput!): ChannelMessage!
+  updateMyMessageForChannel(args: UpdateMessageForChannelInput!): ChannelMessage!
+  deleteMyMessageForChannel(channelMessageId: String!): ChannelMessage!
+  createGame(args: CreateGameInput!): GameData!
+  updateGame(args: UpdateGameInput!): GameData!
+  joinGame(args: JoinGameInput!): GameData!
+  leaveGame(args: LeaveGameInput!): Boolean!
+  updateGameMemberForGame(args: UpdateGameMemberInput!): GameMember!
+  signInLocal(args: SignInLocalInput!): UserToken!
+  signUpLocal(args: SignUpLocalInput!): UserToken!
+  signInGoogle: Boolean!
+  signInGithub: Boolean!
+  signIn42: Boolean!
+  signInDiscord: Boolean!
+  logout: Boolean!
+}
+
+input UpdateMyUserInput {
+  id: String!
+}
+
+input CreateChannelInput {
+  name: String!
+  avatarUrl: String
+  password: String
+  channelType: EChannelType!
+}
+
+input UpdateChannelInput {
+  id: String!
+  name: String
+  avatarUrl: String
+  password: String
+  channelType: EChannelType
+}
+
+input CreateMessageForChannelInput {
+  message: String!
+  channelId: String!
+}
+
+input UpdateMessageForChannelInput {
+  id: String!
+  channelId: String!
+  message: String!
+}
+
+input CreateGameInput {
+  userIds: [String!]!
+}
+
+input UpdateGameInput {
+  id: String!
+}
+
+input JoinGameInput {
+  id: String!
+}
+
+input LeaveGameInput {
+  id: String!
+}
+
+input UpdateGameMemberInput {
+  gameId: String!
+}
+
+input SignInLocalInput {
+  password: String!
+  emailOrUsername: String!
+}
+
+input SignUpLocalInput {
+  password: String!
+  email: String!
+  username: String!
+}

@@ -1,7 +1,5 @@
 import { ObjectType, Field, registerEnumType } from '@nestjs/graphql'
 import { EChannelType } from '@prisma/client'
-import { ChannelMember } from 'src/channel-members/entities/channel-member.entity'
-import { ChannelMessage } from 'src/channel-messages/entities/channel-message.entity'
 
 @ObjectType()
 export class Channel {

@@ -1,14 +1,10 @@
-import { ChannelMembersService } from './../channel-members/channel-members.service'
-import { Injectable, UnauthorizedException } from '@nestjs/common'
-import { EChannelMemberType, Prisma } from '@prisma/client'
+import { Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
 export class ChannelMessagesService {
-  constructor(
-    private prisma: PrismaService,
-    private channelMembersService: ChannelMembersService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
   //**************************************************//
   //  MUTATION
   //**************************************************//
