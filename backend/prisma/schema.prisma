@@ -166,7 +166,7 @@ enum EUserPresenceStatus {
 
 enum EUserRelationType {
   WaitingAccept
-  WaitingConfirm
+  PendingAccept
   Friend
   Blocked
 }

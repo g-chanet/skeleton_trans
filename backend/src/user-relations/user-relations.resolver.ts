@@ -5,10 +5,7 @@ import { UseGuards } from '@nestjs/common'
 import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from 'src/users/entities/user.entity'
-import {
-  CreateUserRelationInput,
-  UpdateUserRelationInput,
-} from './dto/user-relation.input'
+import * as DTO from './dto/user-relation.input'
 
 @Resolver(() => UserRelation)
 export class UserRelationsResolver {
@@ -18,25 +15,23 @@ export class UserRelationsResolver {
   //  MUTATION
   //**************************************************//
 
-  // protect if the request already exist ?
   @Mutation(() => UserRelation)
   @UseGuards(GqlAuthGuard)
-  async createRequestWaitingFriends(
+  async createRequestFriend(
     @CtxUser() user: User,
-    @Args(`args`) args: CreateUserRelationInput,
+    @Args(`args`) args: DTO.CreateRequestFriendInput,
   ) {
-    return await this.userRelationsService.create({
-      ...args,
-      userOwnerId: user.id,
-    })
+    return await this.userRelationsService.createRequestFriend(
+      user.id,
+      args.userTargetId,
+    )
   }
 
-  // set up gards if the user relation is blocked ?
   @Mutation(() => UserRelation)
   @UseGuards(GqlAuthGuard)
   async acceptFriendRequest(
     @CtxUser() user: User,
-    @Args(`args`) args: UpdateUserRelationInput,
+    @Args(`args`) args: DTO.UpdateUserRelationInput,
   ) {
     return await this.userRelationsService.acceptPendingRelation(
       user.id,
@@ -48,9 +43,9 @@ export class UserRelationsResolver {
   @UseGuards(GqlAuthGuard)
   async refuseFriendRequest(
     @CtxUser() user: User,
-    @Args(`args`) args: UpdateUserRelationInput,
+    @Args(`args`) args: DTO.UpdateUserRelationInput,
   ) {
-    return await this.userRelationsService.RefusePendingRelation(
+    return await this.userRelationsService.refusePendingRelation(
       user.id,
       args.userTargetid,
     )
@@ -60,18 +55,21 @@ export class UserRelationsResolver {
   @UseGuards(GqlAuthGuard)
   async blockRelation(
     @CtxUser() user: User,
-    @Args(`args`) args: UpdateUserRelationInput,
+    @Args(`args`) args: DTO.UpdateUserRelationInput,
   ) {
-    return await this.userRelationsService.block(user.id, args.userTargetid)
+    return await this.userRelationsService.blockRelation(
+      user.id,
+      args.userTargetid,
+    )
   }
 
   @Mutation(() => UserRelation)
   @UseGuards(GqlAuthGuard)
-  async removeRelation(
+  async removeFriend(
     @CtxUser() user: User,
-    @Args(`args`) args: UpdateUserRelationInput,
+    @Args(`args`) args: DTO.UpdateUserRelationInput,
   ) {
-    return await this.userRelationsService.deleteBoth(
+    return await this.userRelationsService.removeFriend(
       user.id,
       args.userTargetid,
     )
