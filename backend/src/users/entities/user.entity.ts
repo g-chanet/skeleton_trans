@@ -1,19 +1,19 @@
-import { ObjectType, Field } from '@nestjs/graphql';
+import { ObjectType, Field } from '@nestjs/graphql'
 
 @ObjectType()
 export class UserPublic {
   @Field(() => String)
-  id: string;
+  id: string
 
   @Field(() => String)
-  username: string;
+  username: string
 
   @Field(() => String, { nullable: true })
-  avatarUrl?: string;
+  avatarUrl?: string
 }
 
 @ObjectType()
 export class User extends UserPublic {
   @Field(() => Boolean)
-  doubleAuth: boolean;
+  doubleAuth: boolean
 }

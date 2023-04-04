@@ -12,22 +12,18 @@ export class ChannelsResolver {
   //**************************************************//
 
   @Mutation(() => Boolean)
-  async createChannel(
-    @Args(`CreateChannelInput`) args: DTO.CreateChannelInput,
-  ) {
+  async createChannel(@Args(`args`) args: DTO.CreateChannelInput) {
     return (await this.channelsService.create(args)) !== null
   }
 
   @Mutation(() => Boolean)
-  async updateChannel(
-    @Args(`UpdateChannelInput`) args: DTO.UpdateChannelInput,
-  ) {
+  async updateChannel(@Args(`args`) args: DTO.UpdateChannelInput) {
     return (await this.channelsService.update(args.id, args)) !== null
   }
 
   @Mutation(() => Boolean)
-  async deleteChannel(@Args(`id`, { type: () => String }) id: string) {
-    return (await this.channelsService.remove(id)) !== null
+  async deleteChannel(@Args(`args`) args: DTO.DeleteChannelInput) {
+    return (await this.channelsService.delete(args.id)) !== null
   }
 
   //**************************************************//
@@ -35,8 +31,8 @@ export class ChannelsResolver {
   //**************************************************//
 
   @Query(() => Channel)
-  async findChannel(@Args(`id`, { type: () => String }) id: string) {
-    return await this.channelsService.findOne(id)
+  async findChannel(@Args(`args`) args: DTO.FindChannelInput) {
+    return await this.channelsService.findOne(args.id)
   }
 
   @Query(() => [Channel])

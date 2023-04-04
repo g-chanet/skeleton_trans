@@ -13,7 +13,7 @@ export class GameMatchmakingMembersService {
     return await this.prisma.gameMatchmakingMember.create({ data })
   }
 
-  async remove(userId: string) {
+  async delete(userId: string) {
     return await this.prisma.gameMatchmakingMember.delete({ where: { userId } })
   }
 

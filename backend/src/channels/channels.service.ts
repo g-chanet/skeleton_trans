@@ -17,7 +17,7 @@ export class ChannelsService {
     return await this.prisma.channel.update({ where: { id }, data })
   }
 
-  async remove(id: string) {
+  async delete(id: string) {
     return await this.prisma.channel.delete({ where: { id } })
   }
 

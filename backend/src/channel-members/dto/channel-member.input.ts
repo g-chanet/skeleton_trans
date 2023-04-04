@@ -1,30 +1,35 @@
 import { Field, InputType } from '@nestjs/graphql'
-import { EChannelMemberType } from '@prisma/client'
 //**************************************************//
 //  MUTATION
 //**************************************************//
 
 @InputType()
-export class CreateChannelMemberInput {
+export class CreateMemberForChannelInput {
   @Field(() => String)
   channelId: string
-
-  @Field(() => EChannelMemberType)
-  type: EChannelMemberType
 }
 
 @InputType()
-export class UpdateChannelMemberInput {
+export class UpdateMyMemberForChannelInput {
   @Field(() => String)
   channelId: string
+}
 
-  @Field(() => EChannelMemberType)
-  type: EChannelMemberType
+@InputType()
+export class DeleteMyMemberForChannelInput {
+  @Field(() => String)
+  channelId: string
 }
 
 //**************************************************//
 //  QUERY
 //**************************************************//
+
+@InputType()
+export class FindAllChannelMembersForChannelInput {
+  @Field(() => String)
+  channelId: string
+}
 
 //**************************************************//
 //  SUBSCRIPTION

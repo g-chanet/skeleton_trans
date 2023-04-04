@@ -27,7 +27,7 @@ export class GameMatchmakingMembersResolver {
   @Mutation(() => GameMatchmakingMember)
   @UseGuards(GqlAuthGuard)
   async leaveGameMatchmakingMember(@CtxUser() user: User) {
-    return await this.gameMatchmakingMembersService.remove(user.id)
+    return await this.gameMatchmakingMembersService.delete(user.id)
   }
 
   //**************************************************//

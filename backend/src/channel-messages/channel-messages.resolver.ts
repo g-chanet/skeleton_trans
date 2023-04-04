@@ -33,7 +33,7 @@ export class ChannelMessagesResolver {
   @UseGuards(GqlAuthGuard)
   async updateMyMessageForChannel(
     @CtxUser() user: User,
-    @Args(`args`) args: DTO.UpdateMessageForChannelInput,
+    @Args(`args`) args: DTO.UpdateMyMessageForChannelInput,
   ) {
     return await this.channelMessagesService.update(args.id, user.id, args)
   }
@@ -42,9 +42,9 @@ export class ChannelMessagesResolver {
   @UseGuards(GqlAuthGuard)
   async deleteMyMessageForChannel(
     @CtxUser() user: User,
-    @Args(`channelMessageId`, { type: () => String }) channelMessageId: string,
+    @Args(`args`) args: DTO.DeleteMyMessageForChannelInput,
   ) {
-    return await this.channelMessagesService.delete(channelMessageId, user.id)
+    return await this.channelMessagesService.delete(args.id, user.id)
   }
 
   //**************************************************//
@@ -53,12 +53,11 @@ export class ChannelMessagesResolver {
 
   @Query(() => [ChannelMessage])
   async findAllChannelMessagesForChannel(
-    @Args(`channelId`, { type: () => String }) channelId: string,
+    @Args(`args`) args: DTO.FindAllMessagesForChannelInput,
   ) {
-    return await this.channelMessagesService.findAllForChannel(channelId)
+    return await this.channelMessagesService.findAllForChannel(args.channelId)
   }
 
-  //findAllChannelMessagesForChannel (ChannelMessage[])
   //**************************************************//
   //  SUBSCRIPTION
   //**************************************************//

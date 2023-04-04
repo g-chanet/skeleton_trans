@@ -19,7 +19,7 @@ export class ChannelMembersResolver {
   @UseGuards(GqlAuthGuard)
   async createMemberForChannel(
     @CtxUser() user: User,
-    @Args(`args`) args: DTO.CreateChannelMemberInput,
+    @Args(`args`) args: DTO.CreateMemberForChannelInput,
   ) {
     return await this.channelMembersService.create({
       ...args,
@@ -31,7 +31,7 @@ export class ChannelMembersResolver {
   @UseGuards(GqlAuthGuard)
   async updateMyMemberForChannel(
     @CtxUser() user: User,
-    @Args(`args`) args: DTO.UpdateChannelMemberInput,
+    @Args(`args`) args: DTO.UpdateMyMemberForChannelInput,
   ) {
     return await this.channelMembersService.update(
       user.id,
@@ -44,9 +44,9 @@ export class ChannelMembersResolver {
   @UseGuards(GqlAuthGuard)
   async deleteMyMemberForChannel(
     @CtxUser() user: User,
-    @Args(`channelMemberId`, { type: () => String }) channelMemberId: string,
+    @Args(`args`) args: DTO.DeleteMyMemberForChannelInput,
   ) {
-    return await this.channelMembersService.remove(user.id, channelMemberId)
+    return await this.channelMembersService.delete(user.id, args.channelId)
   }
 
   //**************************************************//
@@ -55,9 +55,11 @@ export class ChannelMembersResolver {
 
   @Query(() => [ChannelMember])
   async findAllChannelMembersForChannel(
-    @Args(`channelId`, { type: () => String }) channelId: string,
+    @Args(`args`) args: DTO.FindAllChannelMembersForChannelInput,
   ) {
-    return await this.channelMembersService.findAll({ where: { channelId } })
+    return await this.channelMembersService.findAll({
+      where: { channelId: args.channelId },
+    })
   }
 
   //**************************************************//

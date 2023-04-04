@@ -38,9 +38,21 @@ export class UpdateChannelInput {
   channelType?: EChannelType
 }
 
+@InputType()
+export class DeleteChannelInput {
+  @Field(() => String)
+  id: string
+}
+
 //**************************************************//
 //  QUERY
 //**************************************************//
+
+@InputType()
+export class FindChannelInput {
+  @Field(() => String)
+  id: string
+}
 
 //**************************************************//
 //  SUBSCRIPTION

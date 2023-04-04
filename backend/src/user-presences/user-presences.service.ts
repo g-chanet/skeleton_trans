@@ -17,7 +17,7 @@ export class UserPresencesService {
     return await this.prisma.userPresence.update({ where: { id }, data })
   }
 
-  async remove(id: string) {
+  async delete(id: string) {
     return await this.prisma.userPresence.delete({ where: { id } })
   }
 

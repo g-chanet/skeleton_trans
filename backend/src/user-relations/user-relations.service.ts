@@ -13,9 +13,10 @@ export class UserRelationsService {
     return `This action updates a #${id}`
   }
 
-  remove(id: string) {
+  delete(id: string) {
     return `This action removes a #${id}`
   }
+
   //**************************************************//
   //  QUERY
   //**************************************************//
