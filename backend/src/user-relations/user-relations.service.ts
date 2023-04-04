@@ -168,6 +168,27 @@ export class UserRelationsService {
   //  QUERY
   //**************************************************//
 
+  async findAllForUser(userOwnerId: string) {
+    return await this.prisma.userRelation.findMany({
+      where: { userOwnerId },
+    })
+  }
+
+  async findOne(userOwnerId: string, userTargetId: string) {
+    return await this.prisma.userRelation.findUnique({
+      where: {
+        userOwnerId_userTargetId: {
+          userOwnerId: userOwnerId,
+          userTargetId,
+        },
+      },
+    })
+  }
+
+  //**************************************************//
+  //  UTILS
+  //**************************************************//
+
   private async findRelation(
     userAId: string,
     userBId: string,
@@ -181,20 +202,5 @@ export class UserRelationsService {
       },
     })
     return relation?.type
-  }
-
-  async findAll() {
-    return await this.prisma.userRelation.findMany({})
-  }
-
-  async findOne(userOwnerId: string, userTargetId: string) {
-    return await this.prisma.userRelation.findUnique({
-      where: {
-        userOwnerId_userTargetId: {
-          userOwnerId: userOwnerId,
-          userTargetId,
-        },
-      },
-    })
   }
 }
