@@ -1,32 +1,35 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserPresencesService {
+  constructor(private prisma: PrismaService) {}
   //**************************************************//
   //  MUTATION
   //**************************************************//
 
-  create() {
-    return `This action add`;
+  async create(data: Prisma.UserPresenceUncheckedCreateInput) {
+    return await this.prisma.userPresence.create({ data });
   }
 
-  update(id: string) {
-    return `This action updates a #${id}`;
+  async update(id: string, data: Prisma.UserPresenceUncheckedUpdateInput) {
+    return await this.prisma.userPresence.update({ where: { id }, data });
   }
 
-  remove(id: string) {
-    return `This action removes a #${id}`;
+  async remove(id: string) {
+    return await this.prisma.userPresence.delete({ where: { id } });
   }
 
   //**************************************************//
   //  QUERY
   //**************************************************//
 
-  findAll() {
-    return `This action returns all`;
+  async findAll() {
+    return await this.prisma.userPresence.findMany({});
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id}`;
+  async findOne(id: string) {
+    return await this.prisma.userPresence.findFirst({ where: { id } });
   }
 }
