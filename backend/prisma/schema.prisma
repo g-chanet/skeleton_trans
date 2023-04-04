@@ -97,14 +97,18 @@ model ChannelMember {
 }
 
 model ChannelMessage {
-  id            String        @id @default(nanoid())
+  id            String        @default(nanoid())
   message       String
   channel       Channel       @relation(fields: [channelId], references: [id], onDelete: Cascade)
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   channelMember ChannelMember @relation(fields: [channelId, userId], references: [channelId, userId], onDelete: Cascade)
   channelId     String
   userId        String
-  createdAt     DateTime      @default(now())
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@id([id, userId])
 }
 
 //**************************************************//
@@ -130,10 +134,12 @@ model GameMember {
 }
 
 model GameStat {
-  id        String   @id @default(nanoid())
+  id        String   @default(nanoid())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   createdAt DateTime @default(now())
+
+  @@id([id, userId])
 }
 
 model GameMatchmakingMember {

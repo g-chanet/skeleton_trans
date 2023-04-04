@@ -1,7 +1,9 @@
+import { PrismaService } from 'src/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class ChannelMembersService {
+  constructor(private prisma: PrismaService) {}
   //**************************************************//
   //  MUTATION
   //**************************************************//
@@ -22,11 +24,22 @@ export class ChannelMembersService {
   //  QUERY
   //**************************************************//
 
-  findAll() {
-    return `This action returns all`;
+  async findMember(channelId: string, userId: string) {
+    return await this.prisma.channelMember.findUnique({
+      where: {
+        channelId_userId: {
+          channelId,
+          userId,
+        },
+      },
+    });
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id}`;
+  findAll() {}
+
+  async findOne(channelId: string, userId: string) {
+    return await this.prisma.channelMember.findUnique({
+      where: { channelId_userId: { userId, channelId } },
+    });
   }
 }

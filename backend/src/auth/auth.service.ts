@@ -61,7 +61,6 @@ export class AuthService {
   }
 
   async validateUser(userId: string) {
-    console.log(`validateUser`);
     return await this.usersService.findOne(userId);
   }
 

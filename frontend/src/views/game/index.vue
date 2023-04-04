@@ -1,16 +1,13 @@
 <template>
-  <div>
+  <div @mousemove="onMousemove">
     GAME
-    {{ gameId }}
+    {{ pos }}
   </div>
-  <button @click="send"> TEST SOCKET </button>
-  <button @click="sendQuery"> TEST QUERY </button>
-  {{ result?.findMyUser }}
 </template>
 
 <script setup lang="ts">
 import { socket } from "@/services/socketIo"
-import { onMounted, onUnmounted } from "vue"
+import { onMounted, onUnmounted, ref } from "vue"
 import { useRoute } from "vue-router"
 import { useFindMyUserQuery } from "@/graphql/graphql-operations"
 
@@ -24,19 +21,25 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  socket.emit(`leave_room`, gameId)
+  socket.emit(`leave_room`)
 })
 
-socket.on(`update_room`, () => {
-  console.log(`OnUpdateRoom`)
+const pos = ref(0)
+socket.on(`update_room`, (position: number) => {
+  pos.value = position
 })
 
-const send = () => {
-  socket.emit(`update_room`, 84)
-}
+// const send = (e: MouseEvent) => {
+//   socket.emit(`update_room`, e.clientY)
+// }
 
 const sendQuery = () => {
   refetch()
+}
+
+const onMousemove = (event: MouseEvent) => {
+  console.log(`Test update_room`, event.clientX)
+  socket.emit(`update_room`, event.clientX)
 }
 
 </script>

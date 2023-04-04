@@ -1,4 +1,3 @@
-import { UseGuards } from '@nestjs/common';
 import {
   MessageBody,
   SubscribeMessage,
@@ -9,7 +8,6 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { WsAuthGuard } from 'src/auth/guards/ws-auth.guard';
 import { GamesService } from './games.service';
 
 @WebSocketGateway()
@@ -39,23 +37,32 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() roomId: string,
   ) {
+    this.leaveCurrentRoom(socket);
+    socket.data.currentRoomId = roomId;
     socket.join(roomId);
   }
 
   @SubscribeMessage(`leave_room`)
-  handleLeaveRoom(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() roomId: string,
-  ) {
-    socket.leave(roomId);
+  handleLeaveRoom(@ConnectedSocket() socket: Socket) {
+    this.leaveCurrentRoom(socket);
   }
 
-  @UseGuards(WsAuthGuard)
   @SubscribeMessage(`update_room`)
   handleUpdate(
     @ConnectedSocket() socket: Socket,
     @MessageBody() position: number,
   ) {
-    this.server.to(socket.rooms[0]).emit(`update_room`, position);
+    const { currentRoomId } = socket.data;
+    this.server.to(currentRoomId).emit(`update_room`, position);
+  }
+
+  //**************************************************//
+  //  UTILS
+  //**************************************************//
+
+  private leaveCurrentRoom(socket: Socket) {
+    if (socket.data.currentRoomId === null) return;
+    socket.leave(socket.data.currentRoomId);
+    delete socket.data.currentRoomId;
   }
 }
