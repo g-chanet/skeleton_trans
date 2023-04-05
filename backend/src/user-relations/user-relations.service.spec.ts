@@ -45,9 +45,9 @@ describe(`UserRelationsService`, () => {
 
     describe(`Test de la demande d'ami`, () => {
       it(`Envoie de la demande`, async () => {
-        await userRelationsService.createRequestFriend(userA.id, u.serB.id)
+        await userRelationsService.createRequestFriend(userA.id, userB.id)
       })
-      it(`La relation du UserA vers UserB a bien été créer`, async () => {
+      it(`La relation du UserA vers UserB a bien été créée`, async () => {
         relationA = await userRelationsService.findOne(userA.id, userB.id)
         expect(relationA).toBeDefined()
       })
