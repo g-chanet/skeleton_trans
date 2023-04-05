@@ -68,19 +68,29 @@ describe(`UserRelationsService`, () => {
       })
     })
     describe(`Test de l'acceptation d'amitié`, () => {
-      beforeAll(async () => {})
+      beforeAll(async () => {
+        //TODO
+      })
     })
     describe(`Test du refus d'amitié`, () => {
-      beforeAll(async () => {})
+      beforeAll(async () => {
+        //TODO
+      })
     })
     describe(`Test du bloquage de relation`, () => {
-      beforeAll(async () => {})
+      beforeAll(async () => {
+        //TODO
+      })
     })
     describe(`Test du déblocage de relation`, () => {
-      beforeAll(async () => {})
+      beforeAll(async () => {
+        //TODO
+      })
     })
     describe(`Test de la suppression d'amitié `, () => {
-      beforeAll(async () => {})
+      beforeAll(async () => {
+        //TODO
+      })
     })
 
     afterAll(async () => {

@@ -120,14 +120,15 @@ input FindAllMessagesForChannelInput {
 type Mutation {
   updateMyUser(args: UpdateMyUserInput!): Boolean!
   deleteMyUser: Boolean!
+  commentAdded(newComment: String!): Boolean!
   createRequestFriend(args: CreateRequestFriendInput!): UserRelation!
   acceptFriendRequest(args: UpdateUserRelationInput!): UserRelation!
   refuseFriendRequest(args: UpdateUserRelationInput!): UserRelation!
   blockRelation(args: UpdateUserRelationInput!): UserRelation!
   removeFriend(args: UpdateUserRelationInput!): UserRelation!
-  createChannel(args: CreateChannelInput!): Boolean!
-  updateChannel(args: UpdateChannelInput!): Boolean!
-  deleteChannel(args: DeleteChannelInput!): Boolean!
+  createChannel(args: CreateChannelInput!): Channel!
+  updateChannel(args: UpdateChannelInput!): Channel!
+  deleteChannel(args: DeleteChannelInput!): Channel!
   createMemberForChannel(args: CreateMemberForChannelInput!): ChannelMember!
   updateMyMemberForChannel(args: UpdateMyMemberForChannelInput!): ChannelMember!
   deleteMyMemberForChannel(args: DeleteMyMemberForChannelInput!): ChannelMember!
@@ -239,4 +240,13 @@ input SignUpLocalInput {
   password: String!
   email: String!
   username: String!
+}
+
+type Subscription {
+  onUpdateChannel(args: OnChannelInput!): Channel!
+  onDeleteChannel(args: OnChannelInput!): Channel!
+}
+
+input OnChannelInput {
+  id: String!
 }

@@ -31,9 +31,12 @@
     "@nestjs/platform-socket.io": "^9.3.12",
     "@nestjs/websockets": "^9.3.12",
     "@prisma/client": "^4.10.1",
+    "@types/passport-github2": "^1.2.5",
     "bcrypt": "^5.1.0",
     "cookie-parser": "^1.4.6",
     "graphql": "^16.6.0",
+    "graphql-subscriptions": "^2.0.0",
+    "graphql-ws": "^5.12.1",
     "passport": "^0.6.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth2": "^0.2.0",
@@ -79,7 +82,9 @@
       "ts"
     ],
     "rootDir": "./",
-    "modulePaths":["<rootDir>"],
+    "modulePaths": [
+      "<rootDir>"
+    ],
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"

@@ -15,6 +15,7 @@ import { ChannelMembersModule } from './channel-members/channel-members.module'
 import { ChannelsModule } from './channels/channels.module'
 import { UserRelationsModule } from './user-relations/user-relations.module'
 import { AppGateway } from './app.gateway'
+import { PubSubModule } from './pub-sub/pub-sub.module'
 
 @Module({
   imports: [
@@ -22,6 +23,14 @@ import { AppGateway } from './app.gateway'
       driver: ApolloDriver,
       playground: false,
       autoSchemaFile: `schema.gql`,
+      subscriptions: {
+        'graphql-ws': {
+          path: `/graphql`,
+          onConnect: (context: any) => {
+            console.log(`OnConnect`)
+          },
+        },
+      },
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
     PrismaModule,
@@ -35,6 +44,7 @@ import { AppGateway } from './app.gateway'
     GameMembersModule,
     GameMatchmakingMembersModule,
     AuthModule,
+    PubSubModule,
   ],
   providers: [AppGateway],
   // controllers: [AppController],
