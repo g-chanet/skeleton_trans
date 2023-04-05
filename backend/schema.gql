@@ -126,9 +126,9 @@ type Mutation {
   refuseFriendRequest(args: UpdateUserRelationInput!): UserRelation!
   blockRelation(args: UpdateUserRelationInput!): UserRelation!
   removeFriend(args: UpdateUserRelationInput!): UserRelation!
-  createChannel(args: CreateChannelInput!): Boolean!
-  updateChannel(args: UpdateChannelInput!): Boolean!
-  deleteChannel(args: DeleteChannelInput!): Boolean!
+  createChannel(args: CreateChannelInput!): Channel!
+  updateChannel(args: UpdateChannelInput!): Channel!
+  deleteChannel(args: DeleteChannelInput!): Channel!
   createMemberForChannel(args: CreateMemberForChannelInput!): ChannelMember!
   updateMyMemberForChannel(args: UpdateMyMemberForChannelInput!): ChannelMember!
   deleteMyMemberForChannel(args: DeleteMyMemberForChannelInput!): ChannelMember!
@@ -243,5 +243,10 @@ input SignUpLocalInput {
 }
 
 type Subscription {
-  sss: String!
+  onUpdateChannel(args: OnChannelInput!): Channel!
+  onDeleteChannel(args: OnChannelInput!): Channel!
+}
+
+input OnChannelInput {
+  id: String!
 }

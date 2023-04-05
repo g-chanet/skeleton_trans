@@ -1,4 +1,4 @@
-import { Args, Mutation, Resolver, Subscription } from '@nestjs/graphql'
+import { Args, Mutation, Resolver } from '@nestjs/graphql'
 import { UserPresencesService } from './user-presences.service'
 import { UserPresence } from './entities/user-presence.entity'
 import { PubSub } from 'graphql-subscriptions'
@@ -14,6 +14,14 @@ export class UserPresencesResolver {
   //  MUTATION
   //**************************************************//
 
+  @Mutation(() => Boolean)
+  async commentAdded(
+    @Args(`newComment`, { type: () => String }) newComment: string,
+  ) {
+    await this.pubSub.publish(`postAdded`, newComment)
+    return true
+  }
+
   //**************************************************//
   //  QUERY
   //**************************************************//
@@ -21,21 +29,4 @@ export class UserPresencesResolver {
   //**************************************************//
   //  SUBSCRIPTION
   //**************************************************//
-
-  @Mutation(() => Boolean)
-  async commentAdded(
-    @Args(`newComment`, { type: () => String }) newComment: string,
-  ) {
-    const pr = new UserPresence()
-    pr.id = `42`
-    pr.connectedAt = new Date()
-    pr.userId = `48`
-    await this.pubSub.publish(`postAdded`, { sss: `Ho` })
-    return true
-  }
-
-  @Subscription(() => String)
-  sss() {
-    return this.pubSub.asyncIterator(`postAdded`)
-  }
 }
