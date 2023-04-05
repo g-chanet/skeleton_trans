@@ -5,7 +5,7 @@ CREATE TYPE "EUserLanguage" AS ENUM ('Default', 'Fr', 'En');
 CREATE TYPE "EUserPresenceStatus" AS ENUM ('Default', 'NotDisturb', 'Invisible');
 
 -- CreateEnum
-CREATE TYPE "EUserRelationType" AS ENUM ('WaitingAccept', 'WaitingConfirm', 'Friend', 'Blocked');
+CREATE TYPE "EUserRelationType" AS ENUM ('WaitingAccept', 'PendingAccept', 'Friend', 'Blocked');
 
 -- CreateEnum
 CREATE TYPE "EChannelType" AS ENUM ('Public', 'Protected', 'Private');
