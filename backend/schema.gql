@@ -120,6 +120,7 @@ input FindAllMessagesForChannelInput {
 type Mutation {
   updateMyUser(args: UpdateMyUserInput!): Boolean!
   deleteMyUser: Boolean!
+  commentAdded(newComment: String!): Boolean!
   createRequestFriend(args: CreateRequestFriendInput!): UserRelation!
   acceptFriendRequest(args: UpdateUserRelationInput!): UserRelation!
   refuseFriendRequest(args: UpdateUserRelationInput!): UserRelation!
@@ -239,4 +240,8 @@ input SignUpLocalInput {
   password: String!
   email: String!
   username: String!
+}
+
+type Subscription {
+  sss: String!
 }

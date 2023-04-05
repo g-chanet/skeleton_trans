@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
-import { Strategy, VerifyCallback } from 'passport-google-oauth2'
+import { Strategy } from 'passport-google-oauth2'
 import { AuthService } from '../auth.service'
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
