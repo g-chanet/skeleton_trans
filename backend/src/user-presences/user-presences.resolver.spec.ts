@@ -1,19 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UserPresencesResolver } from './user-presences.resolver';
-import { UserPresencesService } from './user-presences.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { UserPresencesResolver } from './user-presences.resolver'
+import { UserPresencesService } from './user-presences.service'
 
-describe('UserPresencesResolver', () => {
-  let resolver: UserPresencesResolver;
+describe(`UserPresencesResolver`, () => {
+  let resolver: UserPresencesResolver
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [UserPresencesResolver, UserPresencesService],
-    }).compile();
+    }).compile()
 
-    resolver = module.get<UserPresencesResolver>(UserPresencesResolver);
-  });
+    resolver = module.get<UserPresencesResolver>(UserPresencesResolver)
+  })
 
-  it('should be defined', () => {
-    expect(resolver).toBeDefined();
-  });
-});
+  it(`should be defined`, () => {
+    expect(resolver).toBeDefined()
+  })
+})

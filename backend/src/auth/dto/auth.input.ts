@@ -1,28 +1,28 @@
-import { InputType, Field } from '@nestjs/graphql';
+import { InputType, Field } from '@nestjs/graphql'
 
 //**************************************************//
 //  MUTATION
 //**************************************************//
 
 @InputType()
-export class signInLocalInput {
+export class SignInLocalInput {
   @Field(() => String)
-  password: string;
+  password: string
 
   @Field(() => String)
-  emailOrUsername: string;
+  emailOrUsername: string
 }
 
 @InputType()
 export class SignUpLocalInput {
   @Field(() => String)
-  password: string;
+  password: string
 
   @Field(() => String)
-  email: string;
+  email: string
 
   @Field(() => String)
-  username: string;
+  username: string
 }
 
 //**************************************************//

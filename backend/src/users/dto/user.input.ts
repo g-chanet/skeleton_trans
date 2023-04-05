@@ -1,4 +1,4 @@
-import { InputType, Field } from '@nestjs/graphql';
+import { InputType, Field } from '@nestjs/graphql'
 
 //**************************************************//
 //  MUTATION
@@ -7,7 +7,7 @@ import { InputType, Field } from '@nestjs/graphql';
 @InputType()
 export class UpdateMyUserInput {
   @Field(() => String)
-  id: string;
+  id: string
 }
 
 //**************************************************//
@@ -17,7 +17,7 @@ export class UpdateMyUserInput {
 @InputType()
 export class FindUserInput {
   @Field(() => String)
-  id: string;
+  id: string
 }
 
 //**************************************************//

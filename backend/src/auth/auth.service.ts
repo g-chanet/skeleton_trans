@@ -2,13 +2,13 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt/dist';
-import { UsersService } from 'src/users/users.service';
-import { AuthHelper } from './auth.helper';
-import * as DTO from './dto/auth.input';
-import { JwtDto } from './dto/jwt.dto';
-import { UserToken } from './entities/user-token';
+} from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt/dist'
+import { UsersService } from 'src/users/users.service'
+import { AuthHelper } from './auth.helper'
+import * as DTO from './dto/auth.input'
+import { JwtDto } from './dto/jwt.dto'
+import { UserToken } from './entities/user-token'
 
 @Injectable()
 export class AuthService {
@@ -24,19 +24,19 @@ export class AuthService {
   async signInLocal({
     emailOrUsername,
     password,
-  }: DTO.signInLocalInput): Promise<UserToken> {
+  }: DTO.SignInLocalInput): Promise<UserToken> {
     const user =
       (await this.usersService.findOneByEmail(emailOrUsername)) ||
-      (await this.usersService.findOneByUsername(emailOrUsername));
+      (await this.usersService.findOneByUsername(emailOrUsername))
 
     if (user === null) {
-      throw new UnauthorizedException(`Invalid credentials`);
+      throw new UnauthorizedException(`Invalid credentials`)
     }
     if ((await AuthHelper.validate(password, user.password)) === false) {
-      throw new UnauthorizedException(`Invalid password`);
+      throw new UnauthorizedException(`Invalid password`)
     }
 
-    return { user, token: this.signToken(user.id) };
+    return { user, token: this.signToken(user.id) }
   }
 
   async signUpLocal({
@@ -45,23 +45,23 @@ export class AuthService {
     password,
   }: DTO.SignUpLocalInput): Promise<UserToken> {
     if (await this.usersService.findOneByUsername(username)) {
-      throw new BadRequestException(`Cannot register with '${username}'`);
+      throw new BadRequestException(`Cannot register with '${username}'`)
     }
     if (await this.usersService.findOneByEmail(email)) {
-      throw new BadRequestException(`Cannot register with '${email}'`);
+      throw new BadRequestException(`Cannot register with '${email}'`)
     }
 
     const user = await this.usersService.create({
       username,
       password: await AuthHelper.hash(password),
       email,
-    });
+    })
 
-    return { user, token: this.signToken(user.id) };
+    return { user, token: this.signToken(user.id) }
   }
 
   async validateUser(userId: string) {
-    return await this.usersService.findOne(userId);
+    return await this.usersService.findOne(userId)
   }
 
   //**************************************************//
@@ -69,7 +69,7 @@ export class AuthService {
   //**************************************************//
 
   private signToken(userId: string) {
-    const payload: JwtDto = { userId };
-    return this.jwtService.sign(payload);
+    const payload: JwtDto = { userId }
+    return this.jwtService.sign(payload)
   }
 }

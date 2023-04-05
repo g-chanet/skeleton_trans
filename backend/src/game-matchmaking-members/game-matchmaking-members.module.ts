@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
-import { GameMatchmakingMembersService } from './game-matchmaking-members.service';
-import { GameMatchmakingMembersResolver } from './game-matchmaking-members.resolver';
+import { Module } from '@nestjs/common'
+import { GameMatchmakingMembersService } from './game-matchmaking-members.service'
+import { GameMatchmakingMembersResolver } from './game-matchmaking-members.resolver'
 
 @Module({
   providers: [GameMatchmakingMembersResolver, GameMatchmakingMembersService],
+  imports: [],
 })
 export class GameMatchmakingMembersModule {}

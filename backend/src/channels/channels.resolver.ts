@@ -1,33 +1,38 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { ChannelsService } from './channels.service';
-import { Channel } from './entities/channel.entity';
-import { CreateChannelInput, UpdateChannelInput } from './dto/channel.input';
-import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
-import { UseGuards } from '@nestjs/common';
-import { CtxUser } from 'src/auth/decorators/ctx-user.decorator';
-import { User } from '@prisma/client';
+import * as DTO from './dto/channel.input'
+import { Resolver, Query, Mutation, Args, Subscription } from '@nestjs/graphql'
+import { ChannelsService } from './channels.service'
+import { Channel } from './entities/channel.entity'
+import { PubSub } from 'graphql-subscriptions'
 
-@Resolver(() => Channel)
+@Resolver(Channel)
 export class ChannelsResolver {
-  constructor(private readonly channelsService: ChannelsService) {}
+  constructor(
+    private readonly channelsService: ChannelsService,
+    private readonly pubSub: PubSub,
+  ) {}
 
   //**************************************************//
   //  MUTATION
   //**************************************************//
 
-  @Mutation(()=> Boolean)
-  async createChannel (@Args('CreateChannelInput') args: CreateChannelInput) {
-    return (await this.channelsService.create(args)) !== null;
+  @Mutation(() => Channel)
+  async createChannel(@Args(`args`) args: DTO.CreateChannelInput) {
+    const channel = await this.channelsService.create(args)
+    return channel
   }
 
-  @Mutation(()=> Boolean)
-  async updateChannel (@Args('UpdateChannelInput') args: UpdateChannelInput) {
-    return (await this.channelsService.update(args.id, args)) !== null;
+  @Mutation(() => Channel)
+  async updateChannel(@Args(`args`) args: DTO.UpdateChannelInput) {
+    const channel = await this.channelsService.update(args.id, args)
+    this.pubSub.publish(`onUpdateChannel`, channel)
+    return channel
   }
 
-  @Mutation(()=> Boolean)
-  async deleteChannel (@Args('id', { type: () => String }) id: string) {
-    return (await this.channelsService.remove(id)) !== null;
+  @Mutation(() => Channel)
+  async deleteChannel(@Args(`args`) args: DTO.DeleteChannelInput) {
+    const channel = await this.channelsService.delete(args.id)
+    this.pubSub.publish(`onUpdateChannel`, channel)
+    return channel
   }
 
   //**************************************************//
@@ -35,23 +40,36 @@ export class ChannelsResolver {
   //**************************************************//
 
   @Query(() => Channel)
-  async findChannel(@Args('id', { type: () => String }) id: string) {
-    return await this.channelsService.findOne(id);
+  async findChannel(@Args(`args`) args: DTO.FindChannelInput) {
+    return await this.channelsService.findOne(args.id)
   }
 
   @Query(() => [Channel])
   async findAllChannels() {
-    return await this.channelsService.findAll();
+    return await this.channelsService.findAll()
   }
 
   //**************************************************//
   //  SUBSCRIPTION
   //**************************************************//
 
-  //onUpdateChannel (Channel)
-  //onDeleteChannel (Channel)
-  //onCreatePublicChannel (Channel)
-  //onUpdatePublicChannel (Channel)
-  //onDeletePublicChannel (Channel)
+  @Subscription(() => Channel, {
+    filter(payload: Channel, variables: DTO.OnChannelInput) {
+      return payload.id === variables.id
+    },
+    resolve: (value) => value,
+  })
+  onUpdateChannel(@Args(`args`) args: DTO.OnChannelInput) {
+    return this.pubSub.asyncIterator(`onUpdateChannel`)
+  }
 
+  @Subscription(() => Channel, {
+    filter(payload: Channel, variables: DTO.OnChannelInput) {
+      return payload.id === variables.id
+    },
+    resolve: (value) => value,
+  })
+  onDeleteChannel(@Args(`args`) args: DTO.OnChannelInput) {
+    return this.pubSub.asyncIterator(`onDeleteChannel`)
+  }
 }

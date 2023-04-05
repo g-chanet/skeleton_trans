@@ -5,7 +5,7 @@ CREATE TYPE "EUserLanguage" AS ENUM ('Default', 'Fr', 'En');
 CREATE TYPE "EUserPresenceStatus" AS ENUM ('Default', 'NotDisturb', 'Invisible');
 
 -- CreateEnum
-CREATE TYPE "EUserRelationType" AS ENUM ('WaitingAccept', 'WaitingConfirm', 'Friend', 'Blocked');
+CREATE TYPE "EUserRelationType" AS ENUM ('WaitingAccept', 'PendingAccept', 'Friend', 'Blocked');
 
 -- CreateEnum
 CREATE TYPE "EChannelType" AS ENUM ('Public', 'Protected', 'Private');
@@ -82,9 +82,10 @@ CREATE TABLE "ChannelMessage" (
     "message" TEXT NOT NULL,
     "channelId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "ChannelMessage_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "ChannelMessage_pkey" PRIMARY KEY ("id","userId")
 );
 
 -- CreateTable
@@ -112,7 +113,7 @@ CREATE TABLE "GameStat" (
     "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "GameStat_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "GameStat_pkey" PRIMARY KEY ("id","userId")
 );
 
 -- CreateTable
