@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, `jwt`) {
         },
       ]),
       secretOrKey: JWT_SECRET_KEY,
-    })
+    }
   }
 
   async validate(payload: JwtDto) {
