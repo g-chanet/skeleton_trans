@@ -2,7 +2,7 @@ export class GoogleAuthDto {
 	userId: string;
 	firstname: string;
 	lastname: string;
-	picture: any;
+	picture: string;
 	accessToken: string;
 	refreshToken: string;
   }
