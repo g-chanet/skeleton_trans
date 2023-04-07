@@ -14,6 +14,10 @@
     "codegen:watch": "npm run codegen -- --watch"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.4.0",
+    "@fortawesome/free-brands-svg-icons": "^6.4.0",
+    "@fortawesome/free-solid-svg-icons": "^6.4.0",
+    "@fortawesome/vue-fontawesome": "^3.0.3",
     "@vue/apollo-composable": "^4.0.0-beta.4",
     "apollo-boost": "^0.4.9",
     "apollo-cache-inmemory": "^1.6.6",

@@ -3,6 +3,10 @@ import { Resolver, Query, Mutation, Args, Subscription } from '@nestjs/graphql'
 import { ChannelsService } from './channels.service'
 import { Channel } from './entities/channel.entity'
 import { PubSub } from 'graphql-subscriptions'
+import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard'
+import { UseGuards } from '@nestjs/common'
+import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
+import { User } from 'src/users/entities/user.entity'
 
 @Resolver(Channel)
 export class ChannelsResolver {
@@ -16,20 +20,33 @@ export class ChannelsResolver {
   //**************************************************//
 
   @Mutation(() => Channel)
-  async createChannel(@Args(`args`) args: DTO.CreateChannelInput) {
+  @UseGuards(GqlAuthGuard)
+  async createChannel(
+    @CtxUser() user: User,
+    @Args(`args`) args: DTO.CreateChannelInput,
+  ) {
     const channel = await this.channelsService.create(args)
     return channel
   }
 
   @Mutation(() => Channel)
-  async updateChannel(@Args(`args`) args: DTO.UpdateChannelInput) {
+  @UseGuards(GqlAuthGuard)
+  async updateChannel(
+    @CtxUser() user: User,
+    @Args(`args`) args: DTO.UpdateChannelInput,
+  ) {
     const channel = await this.channelsService.update(args.id, args)
     this.pubSub.publish(`onUpdateChannel`, channel)
     return channel
   }
 
   @Mutation(() => Channel)
-  async deleteChannel(@Args(`args`) args: DTO.DeleteChannelInput) {
+  @UseGuards(GqlAuthGuard)
+  // @RequirePermissions(Permission.CHANNEL_READWRITE)
+  async deleteChannel(
+    @CtxUser() user: User,
+    @Args(`args`) args: DTO.DeleteChannelInput,
+  ) {
     const channel = await this.channelsService.delete(args.id)
     this.pubSub.publish(`onUpdateChannel`, channel)
     return channel

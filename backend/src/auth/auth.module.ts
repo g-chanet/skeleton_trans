@@ -4,10 +4,8 @@ import { AuthResolver } from './auth.resolver'
 import { AuthController } from './auth.controller'
 import { UsersModule } from 'src/users/users.module'
 import { PassportModule } from '@nestjs/passport'
-import { GqlAuthGuard } from './guards/gql-auth.guard'
 import { JwtStrategy } from './strategies/jwt.strategy'
 import { JwtModule } from '@nestjs/jwt'
-import { WsAuthGuard } from './guards/ws-auth.guard'
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
@@ -21,13 +19,7 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
       session: true,
     }),
   ],
-  providers: [
-    AuthService,
-    AuthResolver,
-    JwtStrategy,
-    GqlAuthGuard,
-    WsAuthGuard,
-  ],
+  providers: [AuthService, AuthResolver, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

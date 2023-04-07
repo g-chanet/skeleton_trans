@@ -14,10 +14,104 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  DateTime: any;
+};
+
+export type Channel = {
+  __typename?: 'Channel';
+  avatarUrl?: Maybe<Scalars['String']>;
+  channelType: EChannelType;
+  createdAt: Scalars['DateTime'];
+  id: Scalars['String'];
+  name: Scalars['String'];
+  password?: Maybe<Scalars['String']>;
+};
+
+export type ChannelMember = {
+  __typename?: 'ChannelMember';
+  channelId: Scalars['String'];
+  createdAt: Scalars['DateTime'];
+  muted: Scalars['DateTime'];
+  type: EChannelMemberType;
+  updatedAt: Scalars['DateTime'];
+  userId: Scalars['String'];
+};
+
+export type ChannelMessage = {
+  __typename?: 'ChannelMessage';
+  channelId: Scalars['String'];
+  createdAt: Scalars['DateTime'];
+  id: Scalars['String'];
+  message: Scalars['String'];
+  updatedAt: Scalars['DateTime'];
+  userId: Scalars['String'];
+};
+
+export type CreateChannelInput = {
+  avatarUrl?: InputMaybe<Scalars['String']>;
+  channelType: EChannelType;
+  name: Scalars['String'];
+  password?: InputMaybe<Scalars['String']>;
 };
 
 export type CreateGameInput = {
   userIds: Array<Scalars['String']>;
+};
+
+export type CreateMemberForChannelInput = {
+  channelId: Scalars['String'];
+};
+
+export type CreateMessageForChannelInput = {
+  channelId: Scalars['String'];
+  message: Scalars['String'];
+};
+
+export type CreateRequestFriendInput = {
+  userTargetId: Scalars['String'];
+};
+
+export type DeleteChannelInput = {
+  id: Scalars['String'];
+};
+
+export type DeleteMyMemberForChannelInput = {
+  channelId: Scalars['String'];
+};
+
+export type DeleteMyMessageForChannelInput = {
+  channelId: Scalars['String'];
+  id: Scalars['String'];
+  message: Scalars['String'];
+};
+
+export enum EChannelMemberType {
+  Admin = 'Admin',
+  Banned = 'Banned',
+  Default = 'Default',
+  Invited = 'Invited',
+  Owner = 'Owner'
+}
+
+export enum EChannelType {
+  Private = 'Private',
+  Protected = 'Protected',
+  Public = 'Public'
+}
+
+export enum EUserRealtionType {
+  Blocked = 'Blocked',
+  Friend = 'Friend',
+  PendingAccept = 'PendingAccept',
+  WaitingAccept = 'WaitingAccept'
+}
+
+export type FindAllMessagesForChannelInput = {
+  channelId: Scalars['String'];
+};
+
+export type FindChannelInput = {
+  id: Scalars['String'];
 };
 
 export type FindUserInput = {
@@ -30,9 +124,15 @@ export type GameData = {
   id: Scalars['String'];
 };
 
+export type GameMatchmakingMember = {
+  __typename?: 'GameMatchmakingMember';
+  userId: Scalars['String'];
+};
+
 export type GameMember = {
   __typename?: 'GameMember';
-  id: Scalars['String'];
+  gameId: Scalars['String'];
+  userId: Scalars['String'];
 };
 
 export type JoinGameInput = {
@@ -45,24 +145,92 @@ export type LeaveGameInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  acceptFriendRequest: UserRelation;
+  blockRelation: UserRelation;
+  commentAdded: Scalars['Boolean'];
+  createChannel: Channel;
   createGame: GameData;
+  createMemberForChannel: ChannelMember;
+  createMessageForChannel: ChannelMessage;
+  createRequestFriend: UserRelation;
+  deleteChannel: Channel;
+  deleteMyMemberForChannel: ChannelMember;
+  deleteMyMessageForChannel: ChannelMessage;
   deleteMyUser: Scalars['Boolean'];
   joinGame: GameData;
+  joinGameMatchmakingMember: GameMatchmakingMember;
   leaveGame: Scalars['Boolean'];
+  leaveGameMatchmakingMember: GameMatchmakingMember;
   logout: Scalars['Boolean'];
+  refuseFriendRequest: UserRelation;
+  removeFriend: UserRelation;
   signIn42: Scalars['Boolean'];
   signInDiscord: Scalars['Boolean'];
   signInGithub: Scalars['Boolean'];
   signInGoogle: Scalars['Boolean'];
   signInLocal: UserToken;
   signUpLocal: UserToken;
+  updateChannel: Channel;
   updateGame: GameData;
+  updateGameMemberForGame: GameMember;
+  updateMyMemberForChannel: ChannelMember;
+  updateMyMessageForChannel: ChannelMessage;
   updateMyUser: Scalars['Boolean'];
+};
+
+
+export type MutationAcceptFriendRequestArgs = {
+  args: UpdateUserRelationInput;
+};
+
+
+export type MutationBlockRelationArgs = {
+  args: UpdateUserRelationInput;
+};
+
+
+export type MutationCommentAddedArgs = {
+  newComment: Scalars['String'];
+};
+
+
+export type MutationCreateChannelArgs = {
+  args: CreateChannelInput;
 };
 
 
 export type MutationCreateGameArgs = {
   args: CreateGameInput;
+};
+
+
+export type MutationCreateMemberForChannelArgs = {
+  args: CreateMemberForChannelInput;
+};
+
+
+export type MutationCreateMessageForChannelArgs = {
+  args: CreateMessageForChannelInput;
+};
+
+
+export type MutationCreateRequestFriendArgs = {
+  args: CreateRequestFriendInput;
+};
+
+
+export type MutationDeleteChannelArgs = {
+  args: DeleteChannelInput;
+};
+
+
+export type MutationDeleteMyMemberForChannelArgs = {
+  args: DeleteMyMemberForChannelInput;
+};
+
+
+export type MutationDeleteMyMessageForChannelArgs = {
+  args: DeleteMyMessageForChannelInput;
 };
 
 
@@ -76,6 +244,16 @@ export type MutationLeaveGameArgs = {
 };
 
 
+export type MutationRefuseFriendRequestArgs = {
+  args: UpdateUserRelationInput;
+};
+
+
+export type MutationRemoveFriendArgs = {
+  args: UpdateUserRelationInput;
+};
+
+
 export type MutationSignInLocalArgs = {
   args: SignInLocalInput;
 };
@@ -86,8 +264,28 @@ export type MutationSignUpLocalArgs = {
 };
 
 
+export type MutationUpdateChannelArgs = {
+  args: UpdateChannelInput;
+};
+
+
 export type MutationUpdateGameArgs = {
   args: UpdateGameInput;
+};
+
+
+export type MutationUpdateGameMemberForGameArgs = {
+  args: UpdateGameMemberInput;
+};
+
+
+export type MutationUpdateMyMemberForChannelArgs = {
+  args: UpdateMyMemberForChannelInput;
+};
+
+
+export type MutationUpdateMyMessageForChannelArgs = {
+  args: UpdateMyMessageForChannelInput;
 };
 
 
@@ -95,10 +293,28 @@ export type MutationUpdateMyUserArgs = {
   args: UpdateMyUserInput;
 };
 
+export type OnChannelInput = {
+  id: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
+  findAllChannelMembersForChannel: Array<GameMatchmakingMember>;
+  findAllChannelMessagesForChannel: Array<ChannelMessage>;
+  findAllChannels: Array<Channel>;
+  findChannel: Channel;
   findMyUser: User;
   findUser: UserPublic;
+};
+
+
+export type QueryFindAllChannelMessagesForChannelArgs = {
+  args: FindAllMessagesForChannelInput;
+};
+
+
+export type QueryFindChannelArgs = {
+  args: FindChannelInput;
 };
 
 
@@ -117,12 +333,54 @@ export type SignUpLocalInput = {
   username: Scalars['String'];
 };
 
+export type Subscription = {
+  __typename?: 'Subscription';
+  onDeleteChannel: Channel;
+  onUpdateChannel: Channel;
+};
+
+
+export type SubscriptionOnDeleteChannelArgs = {
+  args: OnChannelInput;
+};
+
+
+export type SubscriptionOnUpdateChannelArgs = {
+  args: OnChannelInput;
+};
+
+export type UpdateChannelInput = {
+  avatarUrl?: InputMaybe<Scalars['String']>;
+  channelType?: InputMaybe<EChannelType>;
+  id: Scalars['String'];
+  name?: InputMaybe<Scalars['String']>;
+  password?: InputMaybe<Scalars['String']>;
+};
+
 export type UpdateGameInput = {
   id: Scalars['String'];
 };
 
+export type UpdateGameMemberInput = {
+  gameId: Scalars['String'];
+};
+
+export type UpdateMyMemberForChannelInput = {
+  channelId: Scalars['String'];
+};
+
+export type UpdateMyMessageForChannelInput = {
+  channelId: Scalars['String'];
+  id: Scalars['String'];
+  message: Scalars['String'];
+};
+
 export type UpdateMyUserInput = {
   id: Scalars['String'];
+};
+
+export type UpdateUserRelationInput = {
+  userTargetid: Scalars['String'];
 };
 
 export type User = {
@@ -140,6 +398,16 @@ export type UserPublic = {
   username: Scalars['String'];
 };
 
+export type UserRelation = {
+  __typename?: 'UserRelation';
+  createdAt: Scalars['DateTime'];
+  id: Scalars['String'];
+  type: EUserRealtionType;
+  updatedAt: Scalars['DateTime'];
+  userOwnerId: Scalars['String'];
+  userTargetId: Scalars['String'];
+};
+
 export type UserToken = {
   __typename?: 'UserToken';
   token: Scalars['String'];
@@ -151,7 +419,7 @@ export type SignInLocalMutationVariables = Exact<{
 }>;
 
 
-export type SignInLocalMutation = { __typename?: 'Mutation', signInLocal: { __typename?: 'UserToken', token: string, user: { __typename?: 'User', doubleAuth: boolean, avatarUrl?: string | null, id: string, username: string } } };
+export type SignInLocalMutation = { __typename?: 'Mutation', signInLocal: { __typename?: 'UserToken', token: string, user: { __typename?: 'User', avatarUrl?: string | null, doubleAuth: boolean, id: string, username: string } } };
 
 export type SignUpLocalMutationVariables = Exact<{
   args: SignUpLocalInput;
@@ -171,8 +439,8 @@ export const SignInLocalDocument = gql`
   signInLocal(args: $args) {
     token
     user {
-      doubleAuth
       avatarUrl
+      doubleAuth
       id
       username
     }

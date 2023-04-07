@@ -2,8 +2,8 @@ mutation SignInLocal($args: SignInLocalInput!) {
   signInLocal(args: $args) {
     token
     user {
-      doubleAuth
       avatarUrl
+      doubleAuth
       id
       username
     }
