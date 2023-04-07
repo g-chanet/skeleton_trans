@@ -34,6 +34,10 @@ export class UsersService {
     return this.prisma.user.findMany(args)
   }
 
+  findOneByExternalOAuthId(id: string) {
+    const user = this.prisma.user.findUnique({ where : {id}})
+  }
+
   findOneByUsername(username: string) {
     return this.prisma.user.findUnique({ where: { username } })
   }
