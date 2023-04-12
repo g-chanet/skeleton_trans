@@ -7,7 +7,7 @@ import { EChannelMemberType } from '@prisma/client';
 @InputType()
 export class createChannelMemberInput {
     @Field(() => String)
-    channelId : string;
+    UserId : string;
   
     @Field(() => EChannelMemberType)
     type : EChannelMemberType;
@@ -16,14 +16,13 @@ export class createChannelMemberInput {
 @InputType()
 export class updateChannelMemberInput {
     @Field(() => String)
-    channelId : string;
+    channelMemberId : string;
 
     @Field(() => String)
     userId : string;
   
     @Field(() => EChannelMemberType)
     type : EChannelMemberType;
-    //sudo ?
 }
 
 //**************************************************//

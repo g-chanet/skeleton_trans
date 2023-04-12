@@ -18,7 +18,7 @@ export class ChannelMembersService {
     return await this.prisma.channelMember.update({ where: { userId }, data });
   }
 
-  async remove(userId: string) {
+  async remove(userId: string, channelId: string) {
     return await this.prisma.channelMember.delete({ where: { userId } });
   }
 

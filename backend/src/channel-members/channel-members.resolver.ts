@@ -1,26 +1,6 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { ChannelMembersService } from './channel-members.service';
 import { ChannelMember } from './entities/channel-member.entity';
-
-@Resolver(() => ChannelMember)
-export class ChannelMembersResolver {
-  constructor(private readonly channelMembersService: ChannelMembersService) {}
-
-  //**************************************************//
-  //  MUTATION
-  //**************************************************//
-
-  //**************************************************//
-  //  QUERY
-  //**************************************************//
-
-  //**************************************************//
-  //  SUBSCRIPTION
-  //**************************************************//
-}
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { ChannelMembersService } from './channel-members.service';
-import { ChannelMember } from './entities/channel-member.entity';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from './../auth/guards/gql-auth.guard';
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator';
@@ -61,7 +41,7 @@ export class ChannelMembersResolver {
     @CtxUser() user: User,
     @Args('channelMemberId', { type: () => String }) channelMemberId: string,
   ) {
-    return await this.channelMembersService.remove(channelMemberId);
+    return await this.channelMembersService.remove(user.id, channelMemberId);
   }
 
   //**************************************************//
