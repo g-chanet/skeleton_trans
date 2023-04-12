@@ -37,6 +37,7 @@
     "graphql": "^16.6.0",
     "graphql-subscriptions": "^2.0.0",
     "graphql-ws": "^5.12.1",
+    "nanoid": "^4.0.2",
     "passport": "^0.6.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth2": "^0.2.0",

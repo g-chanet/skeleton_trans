@@ -35,7 +35,7 @@ export class UsersService {
   }
 
   findOneByExternalOAuthId(id: string) {
-    const user = this.prisma.user.findUnique({ where : {id}})
+    return this.prisma.user.findUnique({ where: { id } })
   }
 
   findOneByUsername(username: string) {
@@ -44,5 +44,9 @@ export class UsersService {
 
   findOneByEmail(email: string) {
     return this.prisma.user.findUnique({ where: { email } })
+  }
+
+  findOneByDiscordId(discordId: string) {
+    return this.prisma.user.findUnique({ where: { discordId } })
   }
 }

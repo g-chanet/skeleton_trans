@@ -23,10 +23,11 @@ model User {
   email    String  @unique
   username String  @unique
 
-  githubId   String?
-  googleId   String?
-  school42Id String?
-  discordId  String?
+  githubId   String?  @unique
+  googleId   String?  @unique
+  school42Id String?  @unique
+  discordId  String?  @unique
+  steamId    String?  @unique
 
   presenceStatus EUserPresenceStatus @default(Default)
   language       EUserLanguage       @default(Default)
