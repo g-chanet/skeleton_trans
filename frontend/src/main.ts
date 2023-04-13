@@ -17,7 +17,7 @@ import { fab } from "@fortawesome/free-brands-svg-icons"
 library.add(fas,fab)
 
 import App from './App.vue'
-import router from './router'
+import {router} from './router/index'
 
 
 const app = createApp(App)
