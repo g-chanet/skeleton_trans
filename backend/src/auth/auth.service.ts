@@ -64,6 +64,33 @@ export class AuthService {
     return await this.usersService.findOne(userId)
   }
 
+  async googleLogin(req) {
+    if (!req._user)
+      throw new BadRequestException(`Cannot get user info from google`)
+    let dbUser = await this.usersService.findOneByEmail(req._user.mail)
+    // We enter login flow
+    if (dbUser) {
+      if (!dbUser.googleId) {
+        throw new UnauthorizedException(
+          `User is knowed but did not signed up with Google`,
+        )
+      }
+    } else if (!dbUser) {
+      // We enter signin flow
+      const username = await this.findAvailableUsername(req._user.username)
+      // lots of possible fields to add, need to change User class
+      dbUser = await this.usersService.create({
+        username: username,
+        email: req._user.mail,
+        avatarUrl: req._user.picture,
+        googleId: req._user.mail,
+      })
+    }
+    if (!dbUser) {
+      throw new BadRequestException(`lé où l'user ?`)
+    }
+    return { dbUser, token: this.signToken(dbUser.id) }
+  }
   //**************************************************//
   //  UTILS
   //**************************************************//
@@ -71,5 +98,19 @@ export class AuthService {
   private signToken(userId: string) {
     const payload: JwtDto = { userId }
     return this.jwtService.sign(payload)
+  }
+
+  private async findAvailableUsername(baseUserName: string) {
+    let localUserName = baseUserName
+
+    if (await this.usersService.findOneByUsername(baseUserName)) {
+      let counter = 1
+      while (await this.usersService.findOneByUsername(localUserName)) {
+        localUserName = baseUserName + counter
+        counter++
+      }
+    }
+
+    return localUserName
   }
 }

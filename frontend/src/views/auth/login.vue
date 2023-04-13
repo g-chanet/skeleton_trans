@@ -32,6 +32,7 @@
 import { ref } from 'vue'
 import { useSignInLocalMutation } from "@/graphql/graphql-operations"
 import { ElMessage } from 'element-plus'
+import { METHOD_TYPES } from '@babel/types'
 
 const { mutate, onDone, onError } = useSignInLocalMutation()
 
@@ -63,7 +64,7 @@ const onSubmitForm = () => {
 }
 
 const onConnectWithGoogle = () => {
-
+  window.open(`/auth/google`)
 }
 
 </script>
