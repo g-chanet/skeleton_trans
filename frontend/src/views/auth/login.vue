@@ -18,8 +18,8 @@
 
       <div class="o-auth">
 
-        <el-button0 @click="onConnectWithGoogle" class="bt" circle><font-awesome-icon
-            :icon="['fab', 'google']" /></el-button0>
+        <el-button @click="onConnectWithGoogle" class="bt" circle><font-awesome-icon
+            :icon="['fab', 'google']" /></el-button>
         <el-button class="bt" circle><font-awesome-icon :icon="['fab', 'discord']" /></el-button>
         <el-button class="bt" circle><font-awesome-icon :icon="['fab', 'github']" /></el-button>
         <el-button class="bt" circle>42</el-button>
