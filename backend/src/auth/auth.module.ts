@@ -6,6 +6,7 @@ import { UsersModule } from 'src/users/users.module'
 import { PassportModule } from '@nestjs/passport'
 import { JwtStrategy } from './strategies/jwt.strategy'
 import { JwtModule } from '@nestjs/jwt'
+import { GoogleStrategy } from './strategies/google.strategy'
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
@@ -19,7 +20,7 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
       session: true,
     }),
   ],
-  providers: [AuthService, AuthResolver, JwtStrategy],
+  providers: [AuthService, AuthResolver, JwtStrategy, GoogleStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}
