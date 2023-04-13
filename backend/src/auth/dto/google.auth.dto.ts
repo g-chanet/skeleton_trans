@@ -1,8 +1,10 @@
 export class GoogleAuthDto {
-	userId: string;
-	firstname: string;
-	lastname: string;
-	picture: string;
-	accessToken: string;
-	refreshToken: string;
-  }
+  provider: string
+  mail: string
+  username: string
+  firstname: string
+  lastname: string
+  picture: string
+  locale: string
+  authType: string
+}

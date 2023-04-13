@@ -9,6 +9,7 @@ import { AuthHelper } from './auth.helper'
 import * as DTO from './dto/auth.input'
 import { JwtDto } from './dto/jwt.dto'
 import { UserToken } from './entities/user-token'
+import { GoogleAuthDto } from './dto/google.auth.dto'
 
 @Injectable()
 export class AuthService {
@@ -64,10 +65,10 @@ export class AuthService {
     return await this.usersService.findOne(userId)
   }
 
-  async googleLogin(req) {
-    if (!req._user)
+  async googleLogin(payload: GoogleAuthDto) {
+    if (!payload)
       throw new BadRequestException(`Cannot get user info from google`)
-    let dbUser = await this.usersService.findOneByEmail(req._user.mail)
+    let dbUser = await this.usersService.findOneByEmail(payload.mail)
     // We enter login flow
     if (dbUser) {
       if (!dbUser.googleId) {
@@ -77,13 +78,13 @@ export class AuthService {
       }
     } else if (!dbUser) {
       // We enter signin flow
-      const username = await this.findAvailableUsername(req._user.username)
+      const username = await this.findAvailableUsername(payload.username)
       // lots of possible fields to add, need to change User class
       dbUser = await this.usersService.create({
         username: username,
-        email: req._user.mail,
-        avatarUrl: req._user.picture,
-        googleId: req._user.mail,
+        email: payload.mail,
+        avatarUrl: payload.picture,
+        googleId: payload.mail,
       })
     }
     if (!dbUser) {
