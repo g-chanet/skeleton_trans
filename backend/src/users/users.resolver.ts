@@ -40,11 +40,11 @@ export class UsersResolver {
   }
 
   @Query(() => UserPublic)
-  findUser(@Args(`args`) args: DTO.FindUserInput) {
-    return this.usersService.findOne(args.id)
+  async findUser(@Args(`args`) args: DTO.FindUserInput) {
+    return await this.usersService.findOne(args.id)
   }
-
-  //**************************************************//
-  //  SUBSCRIPTION
-  //**************************************************//
 }
+
+//**************************************************//
+//  SUBSCRIPTION
+//**************************************************//

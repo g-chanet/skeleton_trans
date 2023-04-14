@@ -10,39 +10,43 @@ export class UsersService {
   //  MUTATION
   //**************************************************//
 
-  create(data: Prisma.UserCreateInput) {
-    return this.prisma.user.create({ data })
+  async create(data: Prisma.UserCreateInput) {
+    return await this.prisma.user.create({ data })
   }
 
-  update(id: string, data: Prisma.UserUpdateInput) {
-    return this.prisma.user.update({ where: { id }, data })
+  async update(id: string, data: Prisma.UserUpdateInput) {
+    return await this.prisma.user.update({ where: { id }, data })
   }
 
-  delete(id: string) {
-    return this.prisma.user.delete({ where: { id } })
+  async delete(id: string) {
+    return await this.prisma.user.delete({ where: { id } })
+  }
+
+  async deleteAll() {
+    return await this.prisma.user.deleteMany({})
   }
 
   //**************************************************//
   //  QUERY
   //**************************************************//
 
-  findOne(id: string) {
-    return this.prisma.user.findUnique({ where: { id } })
+  async findOne(id: string) {
+    return await this.prisma.user.findUnique({ where: { id } })
   }
 
-  findAll(args: Prisma.UserFindManyArgs) {
-    return this.prisma.user.findMany(args)
+  async findAll(args: Prisma.UserFindManyArgs) {
+    return await this.prisma.user.findMany(args)
   }
 
-  findOneByExternalOAuthId(id: string) {
-    const user = this.prisma.user.findUnique({ where : {id}})
+  async findOneByExternalOAuthId(id: string) {
+    return await this.prisma.user.findUnique({ where: { id } })
   }
 
-  findOneByUsername(username: string) {
-    return this.prisma.user.findUnique({ where: { username } })
+  async findOneByUsername(username: string) {
+    return await this.prisma.user.findUnique({ where: { username } })
   }
 
-  findOneByEmail(email: string) {
-    return this.prisma.user.findUnique({ where: { email } })
+  async findOneByEmail(email: string) {
+    return await this.prisma.user.findUnique({ where: { email } })
   }
 }
