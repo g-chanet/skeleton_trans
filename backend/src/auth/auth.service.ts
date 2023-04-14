@@ -58,8 +58,6 @@ export class AuthService {
       email,
     })
 
-    user.
-
     return { user, token: this.signToken(user.id) }
   }
 
