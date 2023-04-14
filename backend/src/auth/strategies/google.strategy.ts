@@ -42,6 +42,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, `google`) {
       locale: profileJson.language,
       authType: `oauth`,
     }
+    req._user = userData
     await this.authService.googleLogin(userData)
     return done(null, userData)
   }
