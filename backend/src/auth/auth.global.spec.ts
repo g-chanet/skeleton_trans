@@ -346,7 +346,7 @@ describe(`AuthService`, () => {
 
 const DiscordStrategy = require('passport-discord').Strategy;
 const passport = require('passport');
-const DiscordUser = require('../../../prisma/schema.prisma');
+const DiscordUser = require('backend/prisma/schema.prisma');
 
 describe('Discord Authentication', () => {
   const user = {
