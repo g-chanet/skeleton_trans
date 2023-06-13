@@ -6,6 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service'
 import { User } from '@prisma/client'
 import { UnauthorizedException } from '@nestjs/common'
 
+
 describe(`AuthService`, () => {
   let authService: AuthService
   let usersService: UsersService
@@ -339,12 +340,13 @@ describe(`AuthService`, () => {
   })
 })
 
-/*
-Je sais pas ce que je fais mais vla quelques tests pour l'auth Discord bébou vicou
+/***************************************************************************/
+                           /*  DISCORD AUTH SPEC */
+/***************************************************************************/
 
 const DiscordStrategy = require('passport-discord').Strategy;
 const passport = require('passport');
-const User = require('../../prisma/schema.prisma');
+const User = require('../../../prisma/schema.prisma');
 
 describe('Discord Authentication', () => {
   const user = {
@@ -442,4 +444,3 @@ describe('Discord Authentication', () => {
     expect(doneCallback).toHaveBeenCalledWith(null, expect.any(User));
   });
 });
-*/
