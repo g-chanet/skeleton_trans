@@ -346,7 +346,7 @@ describe(`AuthService`, () => {
 
 const DiscordStrategy = require('passport-discord').Strategy;
 const passport = require('passport');
-const discordTestUser = User;
+const User = require('../../../prisma/schema.prisma');
 
 describe('Discord Authentication', () => {
   const user = {
@@ -366,7 +366,7 @@ describe('Discord Authentication', () => {
   passport.use = useMock;
 
   const findOneMock = jest.fn();
-  User.findOne = findOneMock;
+  DiscordUser.findOne = findOneMock;
 
   const discordStrategyMock = jest.fn();
   DiscordStrategy.mockImplementationOnce(discordStrategyMock);
@@ -413,14 +413,14 @@ describe('Discord Authentication', () => {
 
     authController.discordCallback(req, accessToken, refreshToken, doneCallback);
 
-    expect(User.findOne).toHaveBeenCalledWith({ 'discord.id': user.discord.id });
-    expect(User.create).toHaveBeenCalledWith({
+    expect(DiscordUser.findOne).toHaveBeenCalledWith({ 'discord.id': user.discord.id });
+    expect(DiscordUser.create).toHaveBeenCalledWith({
       discord: user.discord,
       accessToken,
       refreshToken
     });
 
-    expect(doneCallback).toHaveBeenCalledWith(null, expect.any(User));
+    expect(doneCallback).toHaveBeenCalledWith(null, expect.any(DiscordUser));
   });
 
   test('Si le user est déjà dans la db, il se fait bien update', () => {
@@ -434,13 +434,13 @@ describe('Discord Authentication', () => {
 
     authController.discordCallback(req, accessToken, refreshToken, doneCallback);
 
-    expect(User.findOne).toHaveBeenCalledWith({ 'discord.id': user.discord.id });
-    expect(User.findByIdAndUpdate).toHaveBeenCalledWith(user.discord.id, {
+    expect(DiscordUser.findOne).toHaveBeenCalledWith({ 'discord.id': user.discord.id });
+    expect(DiscordUser.findByIdAndUpdate).toHaveBeenCalledWith(user.discord.id, {
       discord: user.discord,
       accessToken,
       refreshToken
     }, { new: true });
 
-    expect(doneCallback).toHaveBeenCalledWith(null, expect.any(User));
+    expect(doneCallback).toHaveBeenCalledWith(null, expect.any(DiscordUser));
   });
 });
