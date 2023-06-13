@@ -20,7 +20,8 @@
 
         <el-button @click="onConnectWithGoogle" class="bt" circle><font-awesome-icon
             :icon="['fab', 'google']" /></el-button>
-        <el-button class="bt" circle><font-awesome-icon :icon="['fab', 'discord']" /></el-button>
+        <el-button @click="onConnectWithDiscord" class="bt" circle><font-awesome-icon
+            :icon="['fab', 'discord']" /></el-button>
         <el-button class="bt" circle><font-awesome-icon :icon="['fab', 'github']" /></el-button>
         <el-button class="bt" circle>42</el-button>
       </div>
@@ -64,6 +65,10 @@ const onSubmitForm = () => {
 
 const onConnectWithGoogle = () => {
   window.open(`/auth/google`)
+}
+
+const onConnectWithDiscord = () => {
+  window.open(`/auth/discord`)
 }
 
 </script>

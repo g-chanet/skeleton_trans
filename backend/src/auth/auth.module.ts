@@ -7,6 +7,7 @@ import { PassportModule } from '@nestjs/passport'
 import { JwtStrategy } from './strategies/jwt.strategy'
 import { JwtModule } from '@nestjs/jwt'
 import { GoogleStrategy } from './strategies/google.strategy'
+import { DiscordStrategy } from './strategies/discord.strategy'
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
@@ -20,7 +21,7 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
       session: true,
     }),
   ],
-  providers: [AuthService, AuthResolver, JwtStrategy, GoogleStrategy],
+  providers: [AuthService, AuthResolver, JwtStrategy, GoogleStrategy, DiscordStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}
