@@ -69,7 +69,6 @@ const onConnectWithGoogle = () => {
 </script>
 
 <style scoped lang="sass">
-
 .full
   height: 100%
   width: 100%
