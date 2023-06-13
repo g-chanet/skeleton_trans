@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "@types/passport-discord": "^0.1.6",
+    "passport-discord-oauth2": "^1.0.0"
+  }
+}
