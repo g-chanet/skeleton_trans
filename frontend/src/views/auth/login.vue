@@ -25,6 +25,11 @@
         <el-button class="bt" circle><font-awesome-icon :icon="['fab', 'github']" /></el-button>
         <el-button class="bt" circle>42</el-button>
       </div>
+      <el-divider>
+        <el-icon>Or</el-icon>
+      </el-divider>
+        <router-link to="/signup"> Create Account</router-link>
+        <router-view></router-view>
     </div>
   </div>
 </template>
@@ -33,6 +38,9 @@
 import { ref } from 'vue'
 import { useSignInLocalMutation } from "@/graphql/graphql-operations"
 import { ElMessage } from 'element-plus'
+import { useAuthStore } from '@/stores/auth';
+import { storeKeyNameFromField } from 'apollo-utilities';
+import { router } from '@/router';
 
 const { mutate, onDone, onError } = useSignInLocalMutation()
 
@@ -65,6 +73,9 @@ const onSubmitForm = () => {
 
 const onConnectWithGoogle = () => {
   window.open(`/auth/google`)
+  /*const store = useAuthStore()
+  store.setConnected(data.user, data.token)
+  router.push("/home")*/
 }
 
 const onConnectWithDiscord = () => {
