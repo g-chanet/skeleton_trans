@@ -4,23 +4,28 @@ import { AuthResolver } from './auth.resolver'
 import { AuthController } from './auth.controller'
 import { UsersModule } from 'src/users/users.module'
 import { PassportModule } from '@nestjs/passport'
-import { JwtStrategy } from './strategies/jwt.strategy'
-import { JwtModule } from '@nestjs/jwt'
+import { LocalStrategy } from './strategies/local.strategy'
 import { GoogleStrategy } from './strategies/google.strategy'
-
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
+import { SessionSerializer } from './utils/Serializer'
 
 @Module({
   imports: [
     UsersModule,
-    JwtModule.register({
-      secret: JWT_SECRET_KEY,
-    }),
     PassportModule.register({
       session: true,
     }),
   ],
-  providers: [AuthService, AuthResolver, JwtStrategy, GoogleStrategy],
+  providers: [
+    AuthService,
+    AuthResolver,
+    LocalStrategy,
+    GoogleStrategy,
+    SessionSerializer,
+    {
+      provide: `AUTH_SERVICE`,
+      useClass: AuthService,
+    },
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

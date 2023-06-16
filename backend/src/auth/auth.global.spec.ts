@@ -1,9 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthService } from './auth.service'
 import { UsersService } from 'src/users/users.service'
-import { JwtModule } from '@nestjs/jwt'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { User } from '@prisma/client'
 import { UnauthorizedException } from '@nestjs/common'
 
 describe(`AuthService`, () => {
@@ -14,12 +12,6 @@ describe(`AuthService`, () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [AuthService, UsersService, PrismaService],
-      imports: [
-        JwtModule.register({
-          secret: process.env.JWT_SECRET_KEY,
-          signOptions: { expiresIn: `1h` },
-        }),
-      ],
     }).compile()
 
     authService = module.get<AuthService>(AuthService)
@@ -46,16 +38,13 @@ describe(`AuthService`, () => {
         jest.spyOn(usersService, `findOneByEmail`).mockResolvedValueOnce(null)
 
         const result = await authService.signUpLocal(input)
-        const returnedUser = result.user as User
-
-        expect(returnedUser.username).toEqual(input.username)
-        expect(returnedUser.email).toEqual(input.email)
-        expect(returnedUser.password).toHaveLength
-        expect(returnedUser.githubId).toEqual(null)
-        expect(returnedUser.googleId).toEqual(null)
-        expect(returnedUser.school42Id).toEqual(null)
-        expect(returnedUser.discordId).toEqual(null)
-        expect(result.token).toHaveLength
+        expect(result.username).toEqual(input.username)
+        expect(result.email).toEqual(input.email)
+        expect(result.password).toHaveLength
+        expect(result.githubId).toEqual(null)
+        expect(result.googleId).toEqual(null)
+        expect(result.school42Id).toEqual(null)
+        expect(result.discordId).toEqual(null)
       }
     })
 
@@ -72,17 +61,15 @@ describe(`AuthService`, () => {
           )
 
           const result = await authService.signInLocal(input)
-          const returnedUser = result.user as User
 
-          expect(returnedUser.username).toHaveLength
-          expect(returnedUser.email).toEqual(input.emailOrUsername)
-          expect(returnedUser.password).toHaveLength
-          expect(returnedUser.githubId).toEqual(null)
-          expect(returnedUser.googleId).toEqual(null)
-          expect(returnedUser.school42Id).toEqual(null)
-          expect(returnedUser.discordId).toEqual(null)
-          expect(result.token).toHaveLength
-          expect(returnedUser.id).toEqual(associatedUser.id)
+          expect(result.username).toHaveLength
+          expect(result.email).toEqual(input.emailOrUsername)
+          expect(result.password).toHaveLength
+          expect(result.githubId).toEqual(null)
+          expect(result.googleId).toEqual(null)
+          expect(result.school42Id).toEqual(null)
+          expect(result.discordId).toEqual(null)
+          expect(result.id).toEqual(associatedUser.id)
         }
       })
 
@@ -105,16 +92,13 @@ describe(`AuthService`, () => {
               .mockResolvedValueOnce(null)
 
             const result = await authService.googleLogin(input)
-            const returnedUser = result.dbUser as User
-
-            expect(returnedUser.username).toEqual(input.username)
-            expect(returnedUser.email).toEqual(input.mail)
-            expect(returnedUser.password).toEqual(null)
-            expect(returnedUser.githubId).toEqual(null)
-            expect(returnedUser.googleId).toEqual(input.mail)
-            expect(returnedUser.school42Id).toEqual(null)
-            expect(returnedUser.discordId).toEqual(null)
-            expect(result.token).toHaveLength
+            expect(result.username).toEqual(input.username)
+            expect(result.email).toEqual(input.mail)
+            expect(result.password).toEqual(null)
+            expect(result.githubId).toEqual(null)
+            expect(result.googleId).toEqual(input.mail)
+            expect(result.school42Id).toEqual(null)
+            expect(result.discordId).toEqual(null)
           }
         })
       })
@@ -136,17 +120,15 @@ describe(`AuthService`, () => {
             const associatedUser = await usersService.findOneByEmail(input.mail)
 
             const result = await authService.googleLogin(input)
-            const returnedUser = result.dbUser as User
 
-            expect(returnedUser.username).toEqual(input.username)
-            expect(returnedUser.email).toEqual(input.mail)
-            expect(returnedUser.password).toEqual(null)
-            expect(returnedUser.githubId).toEqual(null)
-            expect(returnedUser.googleId).toEqual(input.mail)
-            expect(returnedUser.school42Id).toEqual(null)
-            expect(returnedUser.discordId).toEqual(null)
-            expect(result.token).toHaveLength
-            expect(returnedUser.id).toEqual(associatedUser.id)
+            expect(result.username).toEqual(input.username)
+            expect(result.email).toEqual(input.mail)
+            expect(result.password).toEqual(null)
+            expect(result.githubId).toEqual(null)
+            expect(result.googleId).toEqual(input.mail)
+            expect(result.school42Id).toEqual(null)
+            expect(result.discordId).toEqual(null)
+            expect(result.id).toEqual(associatedUser.id)
           }
         })
       })
@@ -284,18 +266,15 @@ describe(`AuthService`, () => {
               .mockResolvedValueOnce(null)
 
             const result = await authService.googleLogin(input)
-            const returnedUser = result.dbUser as User
-
             //here we check if the given username will be different on the db
             //we have no other users with the given mail, but another user with the same username
-            expect(returnedUser.username).not.toBe(input.username)
-            expect(returnedUser.email).toEqual(input.mail)
-            expect(returnedUser.password).toEqual(null)
-            expect(returnedUser.githubId).toEqual(null)
-            expect(returnedUser.googleId).toEqual(input.mail)
-            expect(returnedUser.school42Id).toEqual(null)
-            expect(returnedUser.discordId).toEqual(null)
-            expect(result.token).toHaveLength
+            expect(result.username).not.toBe(input.username)
+            expect(result.email).toEqual(input.mail)
+            expect(result.password).toEqual(null)
+            expect(result.githubId).toEqual(null)
+            expect(result.googleId).toEqual(input.mail)
+            expect(result.school42Id).toEqual(null)
+            expect(result.discordId).toEqual(null)
           }
         })
 

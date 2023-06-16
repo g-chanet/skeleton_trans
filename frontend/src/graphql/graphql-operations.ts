@@ -168,8 +168,8 @@ export type Mutation = {
   signInDiscord: Scalars['Boolean'];
   signInGithub: Scalars['Boolean'];
   signInGoogle: Scalars['Boolean'];
-  signInLocal: UserToken;
-  signUpLocal: UserToken;
+  signInLocal: User;
+  signUpLocal: User;
   updateChannel: Channel;
   updateGame: GameData;
   updateGameMemberForGame: GameMember;
@@ -408,25 +408,19 @@ export type UserRelation = {
   userTargetId: Scalars['String'];
 };
 
-export type UserToken = {
-  __typename?: 'UserToken';
-  token: Scalars['String'];
-  user: User;
-};
-
 export type SignInLocalMutationVariables = Exact<{
   args: SignInLocalInput;
 }>;
 
 
-export type SignInLocalMutation = { __typename?: 'Mutation', signInLocal: { __typename?: 'UserToken', token: string, user: { __typename?: 'User', avatarUrl?: string | null, doubleAuth: boolean, id: string, username: string } } };
+export type SignInLocalMutation = { __typename?: 'Mutation', signInLocal: { __typename?: 'User', avatarUrl?: string | null, doubleAuth: boolean, id: string, username: string } };
 
 export type SignUpLocalMutationVariables = Exact<{
   args: SignUpLocalInput;
 }>;
 
 
-export type SignUpLocalMutation = { __typename?: 'Mutation', signUpLocal: { __typename?: 'UserToken', token: string, user: { __typename?: 'User', id: string, username: string, avatarUrl?: string | null, doubleAuth: boolean } } };
+export type SignUpLocalMutation = { __typename?: 'Mutation', signUpLocal: { __typename?: 'User', id: string, username: string, avatarUrl?: string | null, doubleAuth: boolean } };
 
 export type FindMyUserQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -437,13 +431,10 @@ export type FindMyUserQuery = { __typename?: 'Query', findMyUser: { __typename?:
 export const SignInLocalDocument = gql`
     mutation SignInLocal($args: SignInLocalInput!) {
   signInLocal(args: $args) {
-    token
-    user {
-      avatarUrl
-      doubleAuth
-      id
-      username
-    }
+    avatarUrl
+    doubleAuth
+    id
+    username
   }
 }
     `;
@@ -472,13 +463,10 @@ export type SignInLocalMutationCompositionFunctionResult = VueApolloComposable.U
 export const SignUpLocalDocument = gql`
     mutation SignUpLocal($args: SignUpLocalInput!) {
   signUpLocal(args: $args) {
-    token
-    user {
-      id
-      username
-      avatarUrl
-      doubleAuth
-    }
+    id
+    username
+    avatarUrl
+    doubleAuth
   }
 }
     `;

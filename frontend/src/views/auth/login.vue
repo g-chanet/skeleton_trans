@@ -2,7 +2,12 @@
   <div class="full">
     <div class="form-container">
       Login
-      <el-form :model="form" label-position="top" @submit.prevent="onSubmitForm" :style="{ width: '100%' }">
+      <el-form
+        :model="form"
+        label-position="top"
+        @submit.prevent="onSubmitForm"
+        :style="{ width: '100%' }"
+      >
         <el-form-item>
           <el-input v-model="form.emailOrUsername" placeholder="Email" />
         </el-form-item>
@@ -15,11 +20,10 @@
         <el-icon>Or</el-icon>
       </el-divider>
 
-
       <div class="o-auth">
-
-        <el-button @click="onConnectWithGoogle" class="bt" circle><font-awesome-icon
-            :icon="['fab', 'google']" /></el-button>
+        <el-button @click="onConnectWithGoogle" class="bt" circle
+          ><font-awesome-icon :icon="['fab', 'google']"
+        /></el-button>
         <el-button class="bt" circle><font-awesome-icon :icon="['fab', 'discord']" /></el-button>
         <el-button class="bt" circle><font-awesome-icon :icon="['fab', 'github']" /></el-button>
         <el-button class="bt" circle>42</el-button>
@@ -30,7 +34,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useSignInLocalMutation } from "@/graphql/graphql-operations"
+import { useSignInLocalMutation } from '@/graphql/graphql-operations'
 import { ElMessage } from 'element-plus'
 
 const { mutate, onDone, onError } = useSignInLocalMutation()
@@ -40,21 +44,19 @@ const form = ref({
   password: ``
 })
 
-
 onDone((e) => {
   ElMessage({
     showClose: true,
     message: `Congrats, this is a success message.`,
-    type: `success`,
+    type: `success`
   })
 })
 
 onError((e) => {
-
   ElMessage({
     showClose: true,
     message: `Oops, this is a error message.`,
-    type: `error`,
+    type: `error`
   })
 })
 
@@ -62,10 +64,9 @@ const onSubmitForm = () => {
   mutate({ args: form.value })
 }
 
-const onConnectWithGoogle = () => {
-  window.open(`/auth/google`)
+const onConnectWithGoogle = async () => {
+  window.location.href = `/auth/google`
 }
-
 </script>
 
 <style scoped lang="sass">

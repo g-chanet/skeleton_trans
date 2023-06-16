@@ -15,11 +15,6 @@ type User {
   doubleAuth: Boolean!
 }
 
-type UserToken {
-  token: String!
-  user: User!
-}
-
 type GameMatchmakingMember {
   userId: String!
 }
@@ -142,8 +137,8 @@ type Mutation {
   updateGameMemberForGame(args: UpdateGameMemberInput!): GameMember!
   joinGameMatchmakingMember: GameMatchmakingMember!
   leaveGameMatchmakingMember: GameMatchmakingMember!
-  signInLocal(args: SignInLocalInput!): UserToken!
-  signUpLocal(args: SignUpLocalInput!): UserToken!
+  signInLocal(args: SignInLocalInput!): User!
+  signUpLocal(args: SignUpLocalInput!): User!
   signInGoogle: Boolean!
   signInGithub: Boolean!
   signIn42: Boolean!
