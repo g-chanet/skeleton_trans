@@ -1,24 +1,18 @@
 mutation SignInLocal($args: SignInLocalInput!) {
   signInLocal(args: $args) {
-    token
-    user {
-      avatarUrl
-      doubleAuth
-      id
-      username
-    }
+    avatarUrl
+    doubleAuth
+    id
+    username
   }
 }
 
 mutation SignUpLocal($args: SignUpLocalInput!) {
   signUpLocal(args: $args) {
-    token
-    user {
-      id
-      username
-      avatarUrl
-      doubleAuth
-    }
+    id
+    username
+    avatarUrl
+    doubleAuth
   }
 }
 
@@ -29,4 +23,8 @@ query FindMyUser {
     id
     username
   }
+}
+
+mutation Logout {
+  logout
 }

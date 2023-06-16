@@ -2,7 +2,12 @@
   <div class="full">
     <div class="form-container">
       Login
-      <el-form :model="form" label-position="top" @submit.prevent="onSubmitForm" :style="{ width: '100%' }">
+      <el-form
+        :model="form"
+        label-position="top"
+        @submit.prevent="onSubmitForm"
+        :style="{ width: '100%' }"
+      >
         <el-form-item>
           <el-input v-model="form.emailOrUsername" placeholder="Email" />
         </el-form-item>
@@ -15,32 +20,29 @@
         <el-icon>Or</el-icon>
       </el-divider>
 
-
       <div class="o-auth">
-
-        <el-button @click="onConnectWithGoogle" class="bt" circle><font-awesome-icon
-            :icon="['fab', 'google']" /></el-button>
-        <el-button @click="onConnectWithDiscord" class="bt" circle><font-awesome-icon
-            :icon="['fab', 'discord']" /></el-button>
+        <el-button @click="onConnectWithGoogle" class="bt" circle
+          ><font-awesome-icon :icon="['fab', 'google']"
+        /></el-button>
+        <el-button @click="onConnectWithDiscord" class="bt" circle
+          ><font-awesome-icon :icon="['fab', 'discord']"
+        /></el-button>
         <el-button class="bt" circle><font-awesome-icon :icon="['fab', 'github']" /></el-button>
         <el-button class="bt" circle>42</el-button>
       </div>
       <el-divider>
         <el-icon>Or</el-icon>
       </el-divider>
-        <router-link to="/signup"> Create Account</router-link>
-        <router-view></router-view>
+      <router-link to="/signup"> Create Account</router-link>
+      <router-view></router-view>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useSignInLocalMutation } from "@/graphql/graphql-operations"
+import { useSignInLocalMutation } from '@/graphql/graphql-operations'
 import { ElMessage } from 'element-plus'
-import { useAuthStore } from '@/stores/auth';
-import { storeKeyNameFromField } from 'apollo-utilities';
-import { router } from '@/router';
 
 const { mutate, onDone, onError } = useSignInLocalMutation()
 
@@ -49,21 +51,19 @@ const form = ref({
   password: ``
 })
 
-
 onDone((e) => {
   ElMessage({
     showClose: true,
     message: `Congrats, this is a success message.`,
-    type: `success`,
+    type: `success`
   })
 })
 
 onError((e) => {
-
   ElMessage({
     showClose: true,
     message: `Oops, this is a error message.`,
-    type: `error`,
+    type: `error`
   })
 })
 
@@ -72,16 +72,12 @@ const onSubmitForm = () => {
 }
 
 const onConnectWithGoogle = () => {
-  window.open(`/auth/google`)
-  /*const store = useAuthStore()
-  store.setConnected(data.user, data.token)
-  router.push("/home")*/
+  window.location.href = `/auth/google`
 }
 
 const onConnectWithDiscord = () => {
   window.open(`/auth/discord`)
 }
-
 </script>
 
 <style scoped lang="sass">

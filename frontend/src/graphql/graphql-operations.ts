@@ -168,8 +168,8 @@ export type Mutation = {
   signInDiscord: Scalars['Boolean'];
   signInGithub: Scalars['Boolean'];
   signInGoogle: Scalars['Boolean'];
-  signInLocal: UserToken;
-  signUpLocal: UserToken;
+  signInLocal: User;
+  signUpLocal: User;
   updateChannel: Channel;
   updateGame: GameData;
   updateGameMemberForGame: GameMember;
@@ -408,42 +408,38 @@ export type UserRelation = {
   userTargetId: Scalars['String'];
 };
 
-export type UserToken = {
-  __typename?: 'UserToken';
-  token: Scalars['String'];
-  user: User;
-};
-
 export type SignInLocalMutationVariables = Exact<{
   args: SignInLocalInput;
 }>;
 
 
-export type SignInLocalMutation = { __typename?: 'Mutation', signInLocal: { __typename?: 'UserToken', token: string, user: { __typename?: 'User', avatarUrl?: string | null, doubleAuth: boolean, id: string, username: string } } };
+export type SignInLocalMutation = { __typename?: 'Mutation', signInLocal: { __typename?: 'User', avatarUrl?: string | null, doubleAuth: boolean, id: string, username: string } };
 
 export type SignUpLocalMutationVariables = Exact<{
   args: SignUpLocalInput;
 }>;
 
 
-export type SignUpLocalMutation = { __typename?: 'Mutation', signUpLocal: { __typename?: 'UserToken', token: string, user: { __typename?: 'User', id: string, username: string, avatarUrl?: string | null, doubleAuth: boolean } } };
+export type SignUpLocalMutation = { __typename?: 'Mutation', signUpLocal: { __typename?: 'User', id: string, username: string, avatarUrl?: string | null, doubleAuth: boolean } };
 
 export type FindMyUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type FindMyUserQuery = { __typename?: 'Query', findMyUser: { __typename?: 'User', doubleAuth: boolean, avatarUrl?: string | null, id: string, username: string } };
 
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = { __typename?: 'Mutation', logout: boolean };
+
 
 export const SignInLocalDocument = gql`
     mutation SignInLocal($args: SignInLocalInput!) {
   signInLocal(args: $args) {
-    token
-    user {
-      avatarUrl
-      doubleAuth
-      id
-      username
-    }
+    avatarUrl
+    doubleAuth
+    id
+    username
   }
 }
     `;
@@ -472,13 +468,10 @@ export type SignInLocalMutationCompositionFunctionResult = VueApolloComposable.U
 export const SignUpLocalDocument = gql`
     mutation SignUpLocal($args: SignUpLocalInput!) {
   signUpLocal(args: $args) {
-    token
-    user {
-      id
-      username
-      avatarUrl
-      doubleAuth
-    }
+    id
+    username
+    avatarUrl
+    doubleAuth
   }
 }
     `;
@@ -534,3 +527,26 @@ export function useFindMyUserLazyQuery(options: VueApolloComposable.UseQueryOpti
   return VueApolloComposable.useLazyQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options);
 }
 export type FindMyUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindMyUserQuery, FindMyUserQueryVariables>;
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout
+}
+    `;
+
+/**
+ * __useLogoutMutation__
+ *
+ * To run a mutation, you first call `useLogoutMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useLogoutMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useLogoutMutation();
+ */
+export function useLogoutMutation(options: VueApolloComposable.UseMutationOptions<LogoutMutation, LogoutMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<LogoutMutation, LogoutMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options);
+}
+export type LogoutMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<LogoutMutation, LogoutMutationVariables>;
