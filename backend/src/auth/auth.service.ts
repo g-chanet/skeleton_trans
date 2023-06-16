@@ -3,20 +3,15 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common'
-import { JwtService } from '@nestjs/jwt/dist'
 import { UsersService } from 'src/users/users.service'
 import { AuthHelper } from './auth.helper'
 import * as DTO from './dto/auth.input'
-import { JwtDto } from './dto/jwt.dto'
-import { UserToken } from './entities/user-token'
 import { GoogleAuthDto } from './dto/google.auth.dto'
+import { User } from '@prisma/client'
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   //**************************************************//
   //  MUTATION
@@ -25,7 +20,7 @@ export class AuthService {
   async signInLocal({
     emailOrUsername,
     password,
-  }: DTO.SignInLocalInput): Promise<UserToken> {
+  }: DTO.SignInLocalInput): Promise<User> {
     const user =
       (await this.usersService.findOneByEmail(emailOrUsername)) ||
       (await this.usersService.findOneByUsername(emailOrUsername))
@@ -37,14 +32,15 @@ export class AuthService {
       throw new UnauthorizedException(`Invalid password`)
     }
 
-    return { user, token: this.signToken(user.id) }
+    delete user.password
+    return user
   }
 
   async signUpLocal({
     username,
     email,
     password,
-  }: DTO.SignUpLocalInput): Promise<UserToken> {
+  }: DTO.SignUpLocalInput): Promise<User> {
     if (await this.usersService.findOneByUsername(username)) {
       throw new BadRequestException(`Cannot register with '${username}'`)
     }
@@ -57,11 +53,27 @@ export class AuthService {
       password: await AuthHelper.hash(password),
       email,
     })
-
-    return { user, token: this.signToken(user.id) }
+    delete user.password
+    return user
   }
 
-  async validateUser(userId: string) {
+  async validateUser(emailOrUsername: string, password: string) {
+    const user =
+      (await this.usersService.findOneByEmail(emailOrUsername)) ||
+      (await this.usersService.findOneByUsername(emailOrUsername))
+
+    if (user === null) {
+      throw new UnauthorizedException(`Invalid credentials`)
+    }
+    if ((await AuthHelper.validate(password, user.password)) === false) {
+      throw new UnauthorizedException(`Invalid password`)
+    }
+
+    delete user.password
+    return user
+  }
+
+  async validateUserId(userId: string) {
     return await this.usersService.findOne(userId)
   }
 
@@ -90,16 +102,11 @@ export class AuthService {
     if (!dbUser) {
       throw new BadRequestException(`lé où l'user ?`)
     }
-    return { dbUser, token: this.signToken(dbUser.id) }
+    return dbUser
   }
   //**************************************************//
   //  UTILS
   //**************************************************//
-
-  private signToken(userId: string) {
-    const payload: JwtDto = { userId }
-    return this.jwtService.sign(payload)
-  }
 
   private async findAvailableUsername(baseUserName: string) {
     let localUserName = baseUserName

@@ -40,13 +40,9 @@ export class UsersResolver {
   }
 
   @Query(() => UserPublic)
+  @UseGuards(GqlAuthGuard)
   async findUser(@Args(`args`) args: DTO.FindUserInput) {
     return await this.usersService.findOne(args.id)
-  }
-
-  @Query(() => UserPublic)
-  async findAllUser() {
-    return await this.usersService.findAll({})
   }
 }
 

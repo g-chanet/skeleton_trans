@@ -1,6 +1,6 @@
-import gql from 'graphql-tag';
-import * as VueApolloComposable from '@vue/apollo-composable';
-import * as VueCompositionApi from 'vue';
+import gql from 'graphql-tag'
+import * as VueApolloComposable from '@vue/apollo-composable'
+import * as VueCompositionApi from 'vue'
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -18,136 +18,136 @@ export type Scalars = {
 };
 
 export type Channel = {
-  __typename?: 'Channel';
-  avatarUrl?: Maybe<Scalars['String']>;
+  __typename?: `Channel`;
+  avatarUrl?: Maybe<Scalars[`String`]>;
   channelType: EChannelType;
-  createdAt: Scalars['DateTime'];
-  id: Scalars['String'];
-  name: Scalars['String'];
-  password?: Maybe<Scalars['String']>;
+  createdAt: Scalars[`DateTime`];
+  id: Scalars[`String`];
+  name: Scalars[`String`];
+  password?: Maybe<Scalars[`String`]>;
 };
 
 export type ChannelMember = {
-  __typename?: 'ChannelMember';
-  channelId: Scalars['String'];
-  createdAt: Scalars['DateTime'];
-  muted: Scalars['DateTime'];
+  __typename?: `ChannelMember`;
+  channelId: Scalars[`String`];
+  createdAt: Scalars[`DateTime`];
+  muted: Scalars[`DateTime`];
   type: EChannelMemberType;
-  updatedAt: Scalars['DateTime'];
-  userId: Scalars['String'];
+  updatedAt: Scalars[`DateTime`];
+  userId: Scalars[`String`];
 };
 
 export type ChannelMessage = {
-  __typename?: 'ChannelMessage';
-  channelId: Scalars['String'];
-  createdAt: Scalars['DateTime'];
-  id: Scalars['String'];
-  message: Scalars['String'];
-  updatedAt: Scalars['DateTime'];
-  userId: Scalars['String'];
+  __typename?: `ChannelMessage`;
+  channelId: Scalars[`String`];
+  createdAt: Scalars[`DateTime`];
+  id: Scalars[`String`];
+  message: Scalars[`String`];
+  updatedAt: Scalars[`DateTime`];
+  userId: Scalars[`String`];
 };
 
 export type CreateChannelInput = {
-  avatarUrl?: InputMaybe<Scalars['String']>;
+  avatarUrl?: InputMaybe<Scalars[`String`]>;
   channelType: EChannelType;
-  name: Scalars['String'];
-  password?: InputMaybe<Scalars['String']>;
+  name: Scalars[`String`];
+  password?: InputMaybe<Scalars[`String`]>;
 };
 
 export type CreateGameInput = {
-  userIds: Array<Scalars['String']>;
+  userIds: Array<Scalars[`String`]>;
 };
 
 export type CreateMemberForChannelInput = {
-  channelId: Scalars['String'];
+  channelId: Scalars[`String`];
 };
 
 export type CreateMessageForChannelInput = {
-  channelId: Scalars['String'];
-  message: Scalars['String'];
+  channelId: Scalars[`String`];
+  message: Scalars[`String`];
 };
 
 export type CreateRequestFriendInput = {
-  userTargetId: Scalars['String'];
+  userTargetId: Scalars[`String`];
 };
 
 export type DeleteChannelInput = {
-  id: Scalars['String'];
+  id: Scalars[`String`];
 };
 
 export type DeleteMyMemberForChannelInput = {
-  channelId: Scalars['String'];
+  channelId: Scalars[`String`];
 };
 
 export type DeleteMyMessageForChannelInput = {
-  channelId: Scalars['String'];
-  id: Scalars['String'];
-  message: Scalars['String'];
+  channelId: Scalars[`String`];
+  id: Scalars[`String`];
+  message: Scalars[`String`];
 };
 
 export enum EChannelMemberType {
-  Admin = 'Admin',
-  Banned = 'Banned',
-  Default = 'Default',
-  Invited = 'Invited',
-  Owner = 'Owner'
+  Admin = `Admin`,
+  Banned = `Banned`,
+  Default = `Default`,
+  Invited = `Invited`,
+  Owner = `Owner`
 }
 
 export enum EChannelType {
-  Private = 'Private',
-  Protected = 'Protected',
-  Public = 'Public'
+  Private = `Private`,
+  Protected = `Protected`,
+  Public = `Public`
 }
 
 export enum EUserRealtionType {
-  Blocked = 'Blocked',
-  Friend = 'Friend',
-  PendingAccept = 'PendingAccept',
-  WaitingAccept = 'WaitingAccept'
+  Blocked = `Blocked`,
+  Friend = `Friend`,
+  PendingAccept = `PendingAccept`,
+  WaitingAccept = `WaitingAccept`
 }
 
 export type FindAllMessagesForChannelInput = {
-  channelId: Scalars['String'];
+  channelId: Scalars[`String`];
 };
 
 export type FindChannelInput = {
-  id: Scalars['String'];
+  id: Scalars[`String`];
 };
 
 export type FindUserInput = {
-  id: Scalars['String'];
+  id: Scalars[`String`];
 };
 
 export type GameData = {
-  __typename?: 'GameData';
+  __typename?: `GameData`;
   gameMembers: Array<GameMember>;
-  id: Scalars['String'];
+  id: Scalars[`String`];
 };
 
 export type GameMatchmakingMember = {
-  __typename?: 'GameMatchmakingMember';
-  userId: Scalars['String'];
+  __typename?: `GameMatchmakingMember`;
+  userId: Scalars[`String`];
 };
 
 export type GameMember = {
-  __typename?: 'GameMember';
-  gameId: Scalars['String'];
-  userId: Scalars['String'];
+  __typename?: `GameMember`;
+  gameId: Scalars[`String`];
+  userId: Scalars[`String`];
 };
 
 export type JoinGameInput = {
-  id: Scalars['String'];
+  id: Scalars[`String`];
 };
 
 export type LeaveGameInput = {
-  id: Scalars['String'];
+  id: Scalars[`String`];
 };
 
 export type Mutation = {
-  __typename?: 'Mutation';
+  __typename?: `Mutation`;
   acceptFriendRequest: UserRelation;
   blockRelation: UserRelation;
-  commentAdded: Scalars['Boolean'];
+  commentAdded: Scalars[`Boolean`];
   createChannel: Channel;
   createGame: GameData;
   createMemberForChannel: ChannelMember;
@@ -156,26 +156,26 @@ export type Mutation = {
   deleteChannel: Channel;
   deleteMyMemberForChannel: ChannelMember;
   deleteMyMessageForChannel: ChannelMessage;
-  deleteMyUser: Scalars['Boolean'];
+  deleteMyUser: Scalars[`Boolean`];
   joinGame: GameData;
   joinGameMatchmakingMember: GameMatchmakingMember;
-  leaveGame: Scalars['Boolean'];
+  leaveGame: Scalars[`Boolean`];
   leaveGameMatchmakingMember: GameMatchmakingMember;
-  logout: Scalars['Boolean'];
+  logout: Scalars[`Boolean`];
   refuseFriendRequest: UserRelation;
   removeFriend: UserRelation;
-  signIn42: Scalars['Boolean'];
-  signInDiscord: Scalars['Boolean'];
-  signInGithub: Scalars['Boolean'];
-  signInGoogle: Scalars['Boolean'];
-  signInLocal: UserToken;
-  signUpLocal: UserToken;
+  signIn42: Scalars[`Boolean`];
+  signInDiscord: Scalars[`Boolean`];
+  signInGithub: Scalars[`Boolean`];
+  signInGoogle: Scalars[`Boolean`];
+  signInLocal: User;
+  signUpLocal: User;
   updateChannel: Channel;
   updateGame: GameData;
   updateGameMemberForGame: GameMember;
   updateMyMemberForChannel: ChannelMember;
   updateMyMessageForChannel: ChannelMessage;
-  updateMyUser: Scalars['Boolean'];
+  updateMyUser: Scalars[`Boolean`];
 };
 
 
@@ -190,7 +190,7 @@ export type MutationBlockRelationArgs = {
 
 
 export type MutationCommentAddedArgs = {
-  newComment: Scalars['String'];
+  newComment: Scalars[`String`];
 };
 
 
@@ -294,11 +294,11 @@ export type MutationUpdateMyUserArgs = {
 };
 
 export type OnChannelInput = {
-  id: Scalars['String'];
+  id: Scalars[`String`];
 };
 
 export type Query = {
-  __typename?: 'Query';
+  __typename?: `Query`;
   findAllChannelMembersForChannel: Array<GameMatchmakingMember>;
   findAllChannelMessagesForChannel: Array<ChannelMessage>;
   findAllChannels: Array<Channel>;
@@ -323,18 +323,18 @@ export type QueryFindUserArgs = {
 };
 
 export type SignInLocalInput = {
-  emailOrUsername: Scalars['String'];
-  password: Scalars['String'];
+  emailOrUsername: Scalars[`String`];
+  password: Scalars[`String`];
 };
 
 export type SignUpLocalInput = {
-  email: Scalars['String'];
-  password: Scalars['String'];
-  username: Scalars['String'];
+  email: Scalars[`String`];
+  password: Scalars[`String`];
+  username: Scalars[`String`];
 };
 
 export type Subscription = {
-  __typename?: 'Subscription';
+  __typename?: `Subscription`;
   onDeleteChannel: Channel;
   onUpdateChannel: Channel;
 };
@@ -350,68 +350,62 @@ export type SubscriptionOnUpdateChannelArgs = {
 };
 
 export type UpdateChannelInput = {
-  avatarUrl?: InputMaybe<Scalars['String']>;
+  avatarUrl?: InputMaybe<Scalars[`String`]>;
   channelType?: InputMaybe<EChannelType>;
-  id: Scalars['String'];
-  name?: InputMaybe<Scalars['String']>;
-  password?: InputMaybe<Scalars['String']>;
+  id: Scalars[`String`];
+  name?: InputMaybe<Scalars[`String`]>;
+  password?: InputMaybe<Scalars[`String`]>;
 };
 
 export type UpdateGameInput = {
-  id: Scalars['String'];
+  id: Scalars[`String`];
 };
 
 export type UpdateGameMemberInput = {
-  gameId: Scalars['String'];
+  gameId: Scalars[`String`];
 };
 
 export type UpdateMyMemberForChannelInput = {
-  channelId: Scalars['String'];
+  channelId: Scalars[`String`];
 };
 
 export type UpdateMyMessageForChannelInput = {
-  channelId: Scalars['String'];
-  id: Scalars['String'];
-  message: Scalars['String'];
+  channelId: Scalars[`String`];
+  id: Scalars[`String`];
+  message: Scalars[`String`];
 };
 
 export type UpdateMyUserInput = {
-  id: Scalars['String'];
+  id: Scalars[`String`];
 };
 
 export type UpdateUserRelationInput = {
-  userTargetid: Scalars['String'];
+  userTargetid: Scalars[`String`];
 };
 
 export type User = {
-  __typename?: 'User';
-  avatarUrl?: Maybe<Scalars['String']>;
-  doubleAuth: Scalars['Boolean'];
-  id: Scalars['String'];
-  username: Scalars['String'];
+  __typename?: `User`;
+  avatarUrl?: Maybe<Scalars[`String`]>;
+  doubleAuth: Scalars[`Boolean`];
+  id: Scalars[`String`];
+  username: Scalars[`String`];
 };
 
 export type UserPublic = {
-  __typename?: 'UserPublic';
-  avatarUrl?: Maybe<Scalars['String']>;
-  id: Scalars['String'];
-  username: Scalars['String'];
+  __typename?: `UserPublic`;
+  avatarUrl?: Maybe<Scalars[`String`]>;
+  id: Scalars[`String`];
+  username: Scalars[`String`];
 };
 
 export type UserRelation = {
-  __typename?: 'UserRelation';
-  createdAt: Scalars['DateTime'];
-  id: Scalars['String'];
+  __typename?: `UserRelation`;
+  createdAt: Scalars[`DateTime`];
+  id: Scalars[`String`];
   type: EUserRealtionType;
-  updatedAt: Scalars['DateTime'];
-  userOwnerId: Scalars['String'];
-  userTargetId: Scalars['String'];
-};
-
-export type UserToken = {
-  __typename?: 'UserToken';
-  token: Scalars['String'];
-  user: User;
+  updatedAt: Scalars[`DateTime`];
+  userOwnerId: Scalars[`String`];
+  userTargetId: Scalars[`String`];
 };
 
 export type SignInLocalMutationVariables = Exact<{
@@ -419,34 +413,31 @@ export type SignInLocalMutationVariables = Exact<{
 }>;
 
 
-export type SignInLocalMutation = { __typename?: 'Mutation', signInLocal: { __typename?: 'UserToken', token: string, user: { __typename?: 'User', avatarUrl?: string | null, doubleAuth: boolean, id: string, username: string } } };
+export type SignInLocalMutation = { __typename?: `Mutation`, signInLocal: { __typename?: `User`, avatarUrl?: string | null, doubleAuth: boolean, id: string, username: string } };
 
 export type SignUpLocalMutationVariables = Exact<{
   args: SignUpLocalInput;
 }>;
 
 
-export type SignUpLocalMutation = { __typename?: 'Mutation', signUpLocal: { __typename?: 'UserToken', token: string, user: { __typename?: 'User', id: string, username: string, avatarUrl?: string | null, doubleAuth: boolean } } };
+export type SignUpLocalMutation = { __typename?: `Mutation`, signUpLocal: { __typename?: `User`, id: string, username: string, avatarUrl?: string | null, doubleAuth: boolean } };
 
 export type FindMyUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindMyUserQuery = { __typename?: 'Query', findMyUser: { __typename?: 'User', doubleAuth: boolean, avatarUrl?: string | null, id: string, username: string } };
+export type FindMyUserQuery = { __typename?: `Query`, findMyUser: { __typename?: `User`, doubleAuth: boolean, avatarUrl?: string | null, id: string, username: string } };
 
 
 export const SignInLocalDocument = gql`
     mutation SignInLocal($args: SignInLocalInput!) {
   signInLocal(args: $args) {
-    token
-    user {
-      avatarUrl
-      doubleAuth
-      id
-      username
-    }
+    avatarUrl
+    doubleAuth
+    id
+    username
   }
 }
-    `;
+    `
 
 /**
  * __useSignInLocalMutation__
@@ -466,22 +457,19 @@ export const SignInLocalDocument = gql`
  * });
  */
 export function useSignInLocalMutation(options: VueApolloComposable.UseMutationOptions<SignInLocalMutation, SignInLocalMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<SignInLocalMutation, SignInLocalMutationVariables>> = {}) {
-  return VueApolloComposable.useMutation<SignInLocalMutation, SignInLocalMutationVariables>(SignInLocalDocument, options);
+  return VueApolloComposable.useMutation<SignInLocalMutation, SignInLocalMutationVariables>(SignInLocalDocument, options)
 }
 export type SignInLocalMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<SignInLocalMutation, SignInLocalMutationVariables>;
 export const SignUpLocalDocument = gql`
     mutation SignUpLocal($args: SignUpLocalInput!) {
   signUpLocal(args: $args) {
-    token
-    user {
-      id
-      username
-      avatarUrl
-      doubleAuth
-    }
+    id
+    username
+    avatarUrl
+    doubleAuth
   }
 }
-    `;
+    `
 
 /**
  * __useSignUpLocalMutation__
@@ -501,7 +489,7 @@ export const SignUpLocalDocument = gql`
  * });
  */
 export function useSignUpLocalMutation(options: VueApolloComposable.UseMutationOptions<SignUpLocalMutation, SignUpLocalMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<SignUpLocalMutation, SignUpLocalMutationVariables>> = {}) {
-  return VueApolloComposable.useMutation<SignUpLocalMutation, SignUpLocalMutationVariables>(SignUpLocalDocument, options);
+  return VueApolloComposable.useMutation<SignUpLocalMutation, SignUpLocalMutationVariables>(SignUpLocalDocument, options)
 }
 export type SignUpLocalMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<SignUpLocalMutation, SignUpLocalMutationVariables>;
 export const FindMyUserDocument = gql`
@@ -513,7 +501,7 @@ export const FindMyUserDocument = gql`
     username
   }
 }
-    `;
+    `
 
 /**
  * __useFindMyUserQuery__
@@ -528,9 +516,9 @@ export const FindMyUserDocument = gql`
  * const { result, loading, error } = useFindMyUserQuery();
  */
 export function useFindMyUserQuery(options: VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options);
+  return VueApolloComposable.useQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options)
 }
 export function useFindMyUserLazyQuery(options: VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options);
+  return VueApolloComposable.useLazyQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options)
 }
 export type FindMyUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindMyUserQuery, FindMyUserQueryVariables>;

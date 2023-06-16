@@ -16,6 +16,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, `google`) {
     private readonly usersService: UsersService,
     private prisma: PrismaService,
   ) {
+    console.log(`oui`)
     super({
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
@@ -42,8 +43,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, `google`) {
       locale: profileJson.language,
       authType: `oauth`,
     }
-    req._user = userData
-    await this.authService.googleLogin(userData)
-    return done(null, userData)
+    return done(null, await this.authService.googleLogin(userData))
   }
 }

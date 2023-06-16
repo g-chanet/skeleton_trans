@@ -38,9 +38,10 @@
 import { ref } from 'vue'
 import { useSignInLocalMutation } from "@/graphql/graphql-operations"
 import { ElMessage } from 'element-plus'
-import { useAuthStore } from '@/stores/auth';
-import { storeKeyNameFromField } from 'apollo-utilities';
-import { router } from '@/router';
+import axios from 'axios'
+import { useAuthStore } from '@/stores/auth'
+import { storeKeyNameFromField } from 'apollo-utilities'
+import { router } from '@/router'
 
 const { mutate, onDone, onError } = useSignInLocalMutation()
 
@@ -72,10 +73,7 @@ const onSubmitForm = () => {
 }
 
 const onConnectWithGoogle = () => {
-  window.open(`/auth/google`)
-  /*const store = useAuthStore()
-  store.setConnected(data.user, data.token)
-  router.push("/home")*/
+  window.location.href = `/auth/google`
 }
 
 const onConnectWithDiscord = () => {

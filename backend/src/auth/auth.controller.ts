@@ -1,25 +1,37 @@
-import { Controller, Request, UseGuards, Get } from '@nestjs/common'
+import { Controller, Request, UseGuards, Get, Req, Res } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { GoogleOAuthGuard } from './guards/google-auth.guard'
-import { DiscordOAuthGuard } from './guards/discord-auth.guard'
+import { LoggedInGuard } from './guards/logged-in.guard'
 
 @Controller(`auth`)
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Get(`google`)
   @UseGuards(GoogleOAuthGuard)
-  async googleAuth(@Request() req) { }
+  googleAuth(@Request() req) {}
 
   @Get(`google-redirect`)
   @UseGuards(GoogleOAuthGuard)
-  googleAuthRedirect(@Request() req) { }
+  googleAuthRedirect(@Request() req, @Res() res) {
+    res.redirect(`${process.env.FRONTEND_URL}/`)
+    return req.red
+  }
 
-  @Get(`discord`)
-  @UseGuards(DiscordOAuthGuard)
-  async discordAuth(@Request() req) { }
+  @Get(`status`)
+  status(@Req() req) {
+    if (req.isAuthenticated) {
+      return { msg: `Authenticated` }
+    } else {
+      return { msg: `Not Authenticated` }
+    }
+  }
 
-  @Get(`discord-redirect`)
-  @UseGuards(DiscordOAuthGuard)
-  discordAuthRedirect(@Request() req) { }
+  @Get(`logout`)
+  @UseGuards(LoggedInGuard)
+  logout(@Request() req, @Res() res) {
+    req.session.destroy()
+    res.clearCookie(`connect.sid`)
+    return { msg: `logout` }
+  }
 }

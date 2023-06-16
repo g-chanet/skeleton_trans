@@ -12,4 +12,9 @@ export class GqlAuthGuard extends AuthGuard(`jwt`) {
     const ctx = GqlExecutionContext.create(context)
     return ctx.getContext().req
   }
+
+  canActivate(context: ExecutionContext): Promise<boolean> {
+    const ctx = GqlExecutionContext.create(context)
+    return ctx.getContext().req.isAuthenticated()
+  }
 }
