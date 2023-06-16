@@ -24,3 +24,7 @@ query FindMyUser {
     username
   }
 }
+
+mutation Logout {
+  logout
+}

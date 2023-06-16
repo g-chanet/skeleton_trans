@@ -1,10 +1,11 @@
 import { GqlAuthGuard } from './guards/gql-auth.guard'
-import { UseGuards, Req } from '@nestjs/common'
+import { UseGuards } from '@nestjs/common'
 import { Args, Mutation, Resolver } from '@nestjs/graphql'
 import { AuthService } from './auth.service'
 import * as DTO from './dto/auth.input'
 import { LocalGuard } from './guards/local-auth.guard'
 import { User } from 'src/users/entities/user.entity'
+import { CtxSession } from './decorators/ctx-session.decorator'
 
 @Resolver()
 export class AuthResolver {
@@ -60,8 +61,9 @@ export class AuthResolver {
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
-  logout(@Req() req) {
-    req.logout()
+  logout(@CtxSession() session) {
+    console.log(`======================@session()`, session)
+    session.destroy()
     return true
   }
 }

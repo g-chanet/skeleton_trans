@@ -1,7 +1,6 @@
 import { Controller, Request, UseGuards, Get, Req, Res } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { GoogleOAuthGuard } from './guards/google-auth.guard'
-import { LoggedInGuard } from './guards/logged-in.guard'
 
 @Controller(`auth`)
 export class AuthController {
@@ -14,7 +13,7 @@ export class AuthController {
   @Get(`google-redirect`)
   @UseGuards(GoogleOAuthGuard)
   googleAuthRedirect(@Request() req, @Res() res) {
-    res.redirect(`${process.env.FRONTEND_URL}/`)
+    res.redirect(`${process.env.FRONTEND_URL}`)
     return req.red
   }
 
@@ -25,13 +24,5 @@ export class AuthController {
     } else {
       return { msg: `Not Authenticated` }
     }
-  }
-
-  @Get(`logout`)
-  @UseGuards(LoggedInGuard)
-  logout(@Request() req, @Res() res) {
-    req.session.destroy()
-    res.clearCookie(`connect.sid`)
-    return { msg: `logout` }
   }
 }
