@@ -6,7 +6,7 @@ import { UsersModule } from 'src/users/users.module'
 import { PassportModule } from '@nestjs/passport'
 import { LocalStrategy } from './strategies/local.strategy'
 import { GoogleStrategy } from './strategies/google.strategy'
-import { SessionSerializer } from './utils/Serializer'
+import { SessionSerializer } from './utils/serializer'
 
 @Module({
   imports: [
