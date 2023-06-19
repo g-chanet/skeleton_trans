@@ -2,20 +2,19 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
-  PayloadTooLargeException,
 } from '@nestjs/common'
 import { UsersService } from 'src/users/users.service'
 import { AuthHelper } from './auth.helper'
 import * as DTO from './dto/auth.input'
 import { GoogleAuthDto } from './dto/google.auth.dto'
-import { EUserLanguage, User } from '@prisma/client'
+import { User } from '@prisma/client'
 import { DiscordAuthDto } from './dto/discord.auth.dto'
 import { TransOauthDto } from './dto/transOauth.dto'
-import { IsEmail, isEmail } from 'class-validator';
+import { isEmail } from 'class-validator'
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   //**************************************************//
   //  MUTATION
@@ -136,7 +135,9 @@ export class AuthService {
     // We enter login flow
     if (dbUser) {
       if (!dbUser.isOauth) {
-        throw new UnauthorizedException(`This email is already used by a non-Oauth account`)
+        throw new UnauthorizedException(
+          `This email is already used by a non-Oauth account`,
+        )
       }
     } else if (!dbUser) {
       // We enter signin flow
@@ -148,7 +149,7 @@ export class AuthService {
         avatarUrl: payload.avatar,
         providerName: payload.provider,
         providerId: payload.providerUserId,
-        isOauth: true
+        isOauth: true,
       })
     }
     if (!dbUser) {
@@ -174,36 +175,33 @@ export class AuthService {
     return localUserName
   }
 
-  private async sanitize(payload: TransOauthDto) {
-
+  private sanitize(payload: TransOauthDto) {
     if (!payload)
-        throw new UnauthorizedException(`an error occured : cannot get payload`)
+      throw new UnauthorizedException(`an error occured : cannot get payload`)
     if (!isEmail(payload.mail))
-        throw new UnauthorizedException(`the email provided is invalid`)
+      throw new UnauthorizedException(`the email provided is invalid`)
     if (!payload.provider)
-        throw new UnauthorizedException(`the oauth provider is unknow`)
+      throw new UnauthorizedException(`the oauth provider is unknow`)
     if (!payload.providerUserId)
-        throw new UnauthorizedException(`the provided account does not exists`)
+      throw new UnauthorizedException(`the provided account does not exists`)
   }
 
-  private async buildAvatarUri(payload: TransOauthDto)
-  {
-    let res = ""
-    if (payload.provider == `Discord`)
-    {
-      if (!payload.avatar)
-        return ""
-      res = `https://cdn.discordapp.com/avatars/` + payload.providerUserId + `/` + payload.avatar
-    }
-    else if (payload.provider == `Google` || payload.provider == `42`)
+  private buildAvatarUri(payload: TransOauthDto) {
+    let res = ``
+    if (payload.provider == `Discord`) {
+      if (!payload.avatar) return ``
+      res =
+        `https://cdn.discordapp.com/avatars/` +
+        payload.providerUserId +
+        `/` +
+        payload.avatar
+    } else if (payload.provider == `Google` || payload.provider == `42`)
       res = payload.avatar
     return res
   }
 
-  private async sanitizeForAccountCreation(payload: TransOauthDto)
-  {
-    if (!payload.firstname)
-      payload.firstname = payload.provider + " user"
+  private async sanitizeForAccountCreation(payload: TransOauthDto) {
+    if (!payload.firstname) payload.firstname = payload.provider + ` user`
     payload.avatar = await this.buildAvatarUri(payload)
     payload.username = await this.findAvailableUsername(payload.username)
   }

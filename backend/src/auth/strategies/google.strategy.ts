@@ -32,7 +32,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, `google`) {
     done: VerifyCallback,
   ) {
     const profileJson = profile._json
-    console.log(profileJson)
+    console.log(profile)
     const userData = {
       provider: `Google`,
       providerUserId: profileJson.sub,
