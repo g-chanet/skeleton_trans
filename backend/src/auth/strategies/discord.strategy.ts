@@ -25,16 +25,15 @@ export class DiscordStrategy extends PassportStrategy(Strategy, `discord`) {
     profile: any,
     done: VerifyCallback,
   ) {
+    console.log(profile)
     const userData = {
-      provider: profile.provider,
+      provider: `Discord`,
+      providerUserId: profile.id,
       mail: profile.email,
       username: profile.username,
-      global_name: profile.global_name,
-      discriminator: profile.discriminator,
       avatar: profile.avatar,
       locale: profile.locale,
-      authType: `oauth`,
     }
-    return done(null, await this.authService.discordLogin(userData))
+    return done(null, await this.authService.transOauthLogin(userData))
   }
 }

@@ -182,6 +182,8 @@ export class AuthService {
   private sanitize(payload: TransOauthDto) {
     if (!payload)
       throw new UnauthorizedException(`an error occured : cannot get payload`)
+    if (!payload.mail)
+      throw new UnauthorizedException(`the email provided is invalid`)
     if (!isEmail(payload.mail))
       throw new UnauthorizedException(`the email provided is invalid`)
     if (!payload.provider)
