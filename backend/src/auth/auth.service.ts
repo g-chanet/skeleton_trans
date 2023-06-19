@@ -8,6 +8,7 @@ import { AuthHelper } from './auth.helper'
 import * as DTO from './dto/auth.input'
 import { GoogleAuthDto } from './dto/google.auth.dto'
 import { User } from '@prisma/client'
+import { DiscordAuthDto } from './dto/discord.auth.dto'
 
 @Injectable()
 export class AuthService {
@@ -78,15 +79,12 @@ export class AuthService {
   }
 
   async googleLogin(payload: GoogleAuthDto) {
-    if (!payload)
-      throw new BadRequestException(`Cannot get user info from google`)
+    if (!payload) throw new BadRequestException(`Cannot get user info`)
     let dbUser = await this.usersService.findOneByEmail(payload.mail)
     // We enter login flow
     if (dbUser) {
       if (!dbUser.googleId) {
-        throw new UnauthorizedException(
-          `User is knowed but did not signed up with Google`,
-        )
+        throw new UnauthorizedException(`This email is already used`)
       }
     } else if (!dbUser) {
       // We enter signin flow
@@ -97,6 +95,31 @@ export class AuthService {
         email: payload.mail,
         avatarUrl: payload.picture,
         googleId: payload.mail,
+      })
+    }
+    if (!dbUser) {
+      throw new BadRequestException(`lé où l'user ?`)
+    }
+    return dbUser
+  }
+
+  async discordLogin(payload: DiscordAuthDto) {
+    if (!payload) throw new BadRequestException(`Cannot get user`)
+    let dbUser = await this.usersService.findOneByEmail(payload.mail)
+    // We enter login flow
+    if (dbUser) {
+      if (!dbUser.discordId) {
+        throw new UnauthorizedException(`This email is already used`)
+      }
+    } else if (!dbUser) {
+      // We enter signin flow
+      const username = await this.findAvailableUsername(payload.username)
+      // lots of possible fields to add, need to change User class
+      dbUser = await this.usersService.create({
+        username: username,
+        email: payload.mail,
+        avatarUrl: payload.avatar,
+        discordId: payload.mail,
       })
     }
     if (!dbUser) {

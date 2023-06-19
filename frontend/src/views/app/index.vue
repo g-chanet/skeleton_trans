@@ -17,9 +17,10 @@ import NavBar from './navBar/index.vue'
 
 <style scoped lang="sass">
 .container-app
-  height: 100%
-  width: 100
-  // background: rgb(233,172,99)
+  height: 95%
+  background: rgb(233,172,99)
+  border-radius: 20px
+  margin: 2.5%
   // background: linear-gradient(6deg, rgba(233,172,99,1) 0%, rgba(221,146,111,1) 100%)
   .aside
     width: 80px

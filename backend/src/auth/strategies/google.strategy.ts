@@ -16,7 +16,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, `google`) {
     private readonly usersService: UsersService,
     private prisma: PrismaService,
   ) {
-    console.log(`oui`)
     super({
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,

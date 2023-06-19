@@ -62,7 +62,6 @@ export class AuthResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
   logout(@CtxSession() session) {
-    console.log(`======================@session()`, session)
     session.destroy()
     return true
   }

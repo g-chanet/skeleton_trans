@@ -7,6 +7,7 @@ import { PassportModule } from '@nestjs/passport'
 import { LocalStrategy } from './strategies/local.strategy'
 import { GoogleStrategy } from './strategies/google.strategy'
 import { SessionSerializer } from './utils/serializer'
+import { DiscordStrategy } from './strategies/discord.strategy'
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SessionSerializer } from './utils/serializer'
     AuthResolver,
     LocalStrategy,
     GoogleStrategy,
+    DiscordStrategy,
     SessionSerializer,
     {
       provide: `AUTH_SERVICE`,
