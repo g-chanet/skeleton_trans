@@ -32,16 +32,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy, `google`) {
     done: VerifyCallback,
   ) {
     const profileJson = profile._json
+    console.log(profile)
     const userData = {
-      provider: profileJson.provider,
+      provider: `Google`,
+      providerUserId: profileJson.sub,
       mail: profileJson.email,
       username: profileJson.name,
-      firstname: profileJson.given_name,
-      lastname: profileJson.family_name,
-      picture: profileJson.picture,
+      avatar: profileJson.picture,
       locale: profileJson.language,
-      authType: `oauth`,
     }
-    return done(null, await this.authService.googleLogin(userData))
+    return done(null, await this.authService.transOauthLogin(userData))
   }
 }

@@ -8,6 +8,8 @@ import { LocalStrategy } from './strategies/local.strategy'
 import { GoogleStrategy } from './strategies/google.strategy'
 import { SessionSerializer } from './utils/serializer'
 import { DiscordStrategy } from './strategies/discord.strategy'
+import { GithubStrategy } from './strategies/github.strategy'
+import { School42Strategy } from './strategies/school42.strategy'
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { DiscordStrategy } from './strategies/discord.strategy'
     LocalStrategy,
     GoogleStrategy,
     DiscordStrategy,
+    GithubStrategy,
+    School42Strategy,
     SessionSerializer,
     {
       provide: `AUTH_SERVICE`,

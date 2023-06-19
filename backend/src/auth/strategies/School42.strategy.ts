@@ -1,5 +1,39 @@
 import { Injectable } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
+import { AuthService } from '../auth.service'
+import { Strategy, VerifyCallback } from 'passport-42'
+
+const SCHOOL42_CLIENT_ID = process.env.SCHOOL42_CLIENT_ID
+const SCHOOL42_CLIENT_SECRET = process.env.SCHOOL42_CLIENT_SECRET
 
 @Injectable()
-export class School42Strategy extends PassportStrategy(null) {}
+export class School42Strategy extends PassportStrategy(Strategy, `42`) {
+  constructor(private readonly authService: AuthService) {
+    super({
+      clientID: SCHOOL42_CLIENT_ID,
+      clientSecret: SCHOOL42_CLIENT_SECRET,
+      callbackURL: `http://localhost:3000/auth/42-redirect`,
+      scope: [],
+      passReqToCallback: true,
+    })
+  }
+  async validate(
+    req,
+    accessToken,
+    refreshToken,
+    profile: any,
+    done: VerifyCallback,
+  ) {
+    console.log(profile)
+    profile = profile._json
+    const userData = {
+      provider: `42`,
+      providerUserId: String(profile.id),
+      mail: profile.email,
+      username: profile.login,
+      avatar: profile.image.link,
+      locale: `fr`,
+    }
+    return done(null, await this.authService.transOauthLogin(userData))
+  }
+}
