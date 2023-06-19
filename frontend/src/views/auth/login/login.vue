@@ -57,18 +57,6 @@
       </el-divider>
 
       <div class="o-auth">
-<<<<<<< HEAD
-        <el-button @click="onConnectWithGoogle" class="bt" circle>
-          <font-awesome-icon :icon="['fab', 'google']" />
-        </el-button>
-        <el-button @click="onConnectWithDiscord" class="bt" circle>
-          <font-awesome-icon :icon="['fab', 'discord']" />
-        </el-button>
-        <el-button class="bt" circle>
-          <font-awesome-icon :icon="['fab', 'github']" />
-        </el-button>
-        <el-button class="bt" circle>42</el-button>
-=======
         <el-button @click="onConnectWithGoogle" class="bt" circle
           ><font-awesome-icon :icon="['fab', 'google']"
         /></el-button>
@@ -77,7 +65,6 @@
         /></el-button>
         <el-button @click="onConnectWithGithub" class="bt" circle><font-awesome-icon :icon="['fab', 'github']" /></el-button>
         <el-button @click="onConnectWithSchool42" class="bt" circle>42</el-button>
->>>>>>> b490243c529575d5beef04036767fdec1b18737e
       </div>
       <el-divider>
         <el-icon>Or</el-icon>
