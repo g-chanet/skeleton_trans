@@ -27,8 +27,8 @@
         <el-button @click="onConnectWithDiscord" class="bt" circle
           ><font-awesome-icon :icon="['fab', 'discord']"
         /></el-button>
-        <el-button class="bt" circle><font-awesome-icon :icon="['fab', 'github']" /></el-button>
-        <el-button class="bt" circle>42</el-button>
+        <el-button @click="onConnectWithGithub" class="bt" circle><font-awesome-icon :icon="['fab', 'github']" /></el-button>
+        <el-button @click="onConnectWithSchool42" class="bt" circle>42</el-button>
       </div>
       <el-divider>
         <el-icon>Or</el-icon>
@@ -78,6 +78,15 @@ const onConnectWithGoogle = () => {
 const onConnectWithDiscord = () => {
   window.location.href = `/auth/discord`
 }
+
+const onConnectWithGithub = () => {
+  window.location.href = `/auth/github`
+}
+
+const onConnectWithSchool42 = () => {
+  window.location.href = `/auth/42`
+}
+
 </script>
 
 <style scoped lang="sass">
