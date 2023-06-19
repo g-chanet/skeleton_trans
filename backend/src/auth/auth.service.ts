@@ -145,14 +145,14 @@ export class AuthService {
         )
     } else if (!dbUser) {
       // We enter signin flow
-      this.sanitizeForAccountCreation(payload)
+      const sanitizedPayload = await this.sanitizeForAccountCreation(payload)
       // lots of possible fields to add, need to change User class
       dbUser = await this.usersService.create({
-        username: payload.username,
-        email: payload.mail,
-        avatarUrl: payload.avatar,
-        providerName: payload.provider,
-        providerId: payload.providerUserId,
+        username: sanitizedPayload.username,
+        email: sanitizedPayload.mail,
+        avatarUrl: sanitizedPayload.avatar,
+        providerName: sanitizedPayload.provider,
+        providerId: sanitizedPayload.providerUserId,
         isOauth: true,
       })
     }
@@ -213,5 +213,6 @@ export class AuthService {
   private async sanitizeForAccountCreation(payload: TransOauthDto) {
     payload.avatar = await this.buildAvatarUri(payload)
     payload.username = await this.findAvailableUsername(payload.username)
+    return payload
   }
 }
