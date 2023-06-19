@@ -3,8 +3,6 @@ export class TransOauthDto {
   providerUserId: string
   mail: string
   username: string
-  firstname: string
-  lastname: string
   avatar: string
   locale: string
 }

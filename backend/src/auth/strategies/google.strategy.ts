@@ -38,8 +38,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, `google`) {
       providerUserId: profileJson.sub,
       mail: profileJson.email,
       username: profileJson.name,
-      firstname: profileJson.given_name,
-      lastname: profileJson.family_name,
       avatar: profileJson.picture,
       locale: profileJson.language,
     }

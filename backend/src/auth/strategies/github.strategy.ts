@@ -14,18 +14,26 @@ export class GithubStrategy extends PassportStrategy(Strategy, `github`) {
         clientID: GITHUB_CLIENT_ID,
         clientSecret: GITHUB_CLIENT_SECRET,
         callbackURL: `http://127.0.0.1:3000/auth/github-redirect`,
-        scope: [],
+        scope: [`read:user`, `read:email`],
         passReqToCallback: true,
-      },
-      function (
-        req,
-        accessToken,
-        refreshToken,
-        profile: any,
-        done: VerifyCallback,
-      ) {
-        console.log(profile)
-      },
-    )
+      })
+  }
+  async validate(
+    req,
+    accessToken,
+    refreshToken,
+    profile: any,
+    done: VerifyCallback,
+  ) {
+    console.log(profile)
+    const userData = {
+      provider: `Github`,
+      providerUserId: profile.id,
+      mail: profile.email,
+      username: profile.login,
+      avatar: profile.avatar_url, //dont work
+      locale: `fr`,
+    }
+    return done(null, await this.authService.transOauthLogin(userData))
   }
 }

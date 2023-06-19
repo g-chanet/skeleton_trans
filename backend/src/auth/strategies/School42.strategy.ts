@@ -16,16 +16,25 @@ export class School42Strategy extends PassportStrategy(Strategy, `42`) {
         callbackURL: `http://127.0.0.1:3000/auth/42-redirect`,
         scope: [],
         passReqToCallback: true,
-      },
-      function (
-        req,
-        accessToken,
-        refreshToken,
-        profile: any,
-        done: VerifyCallback,
-      ) {
-        console.log(profile)
-      },
-    )
+      })
+  }
+  async validate(
+    req,
+    accessToken,
+    refreshToken,
+    profile: any,
+    done: VerifyCallback,
+  ) {
+    console.log(profile)
+    profile = profile._json
+    const userData = {
+      provider: `42`,
+      providerUserId: String(profile.id),
+      mail: profile.email,
+      username: profile.login,
+      avatar: profile.image.link,
+      locale: `fr`,
+    }
+    return done(null, await this.authService.transOauthLogin(userData))
   }
 }

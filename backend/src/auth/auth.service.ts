@@ -195,13 +195,12 @@ export class AuthService {
         payload.providerUserId +
         `/` +
         payload.avatar
-    } else if (payload.provider == `Google` || payload.provider == `42`)
+    } else if (payload.provider == `Google` || payload.provider == `42` || payload.provider == `Github`)
       res = payload.avatar
     return res
   }
 
   private async sanitizeForAccountCreation(payload: TransOauthDto) {
-    if (!payload.firstname) payload.firstname = payload.provider + ` user`
     payload.avatar = await this.buildAvatarUri(payload)
     payload.username = await this.findAvailableUsername(payload.username)
   }
