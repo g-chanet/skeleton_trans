@@ -90,21 +90,48 @@ const onConnectWithDiscord = () => {
   display: flex
   align-items: center
   justify-content: center
-  .form-container
-    width: 400px
-    border: var(--el-border)
-    border-radius: var(--el-border-radius-base)
-    display: flex
-    flex-direction: column
-    padding: 20px
-    gap: 20px
-    justify-content: center
-    align-items: center
-    .bt-submit
-      width: 100%
-  .o-auth
-    display: flex
-    .bt
-      height: 40px
-      width: 40px
+
+.form-container
+  width: 400px
+  border: var(--el-border)
+  border-radius: var(--el-border-radius-base)
+  display: flex
+  flex-direction: column
+  padding: 20px
+  gap: 20px
+  justify-content: center
+  align-items: center
+  position: relative
+  overflow: hidden
+
+.form-container:before,
+.form-container:after
+  content: ""
+  position: absolute
+  width: calc(100% - 8px)
+  height: calc(100% - 6px)
+  border-radius: var(--el-border-radius-base)
+  border: 2px solid #00d4ff
+  animation: neon-border 1.5s linear infinite
+
+@keyframes neon-border
+  0%
+    transform: translate(-100%, -100%)
+  25%
+    transform: translate(100%, -100%)
+  50%
+    transform: translate(100%, 100%)
+  75%
+    transform: translate(-100%, 100%)
+  100%
+    transform: translate(-100%, -100%)
+
+.bt-submit
+  width: 100%
+
+.o-auth
+  display: flex
+  .bt
+    height: 40px
+    width: 40px
 </style>

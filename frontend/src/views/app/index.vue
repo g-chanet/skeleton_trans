@@ -32,11 +32,12 @@ import NavBar from './navBar/index.vue'
       right: 0
       bottom: 0
       background: rgb(255,255,255,0.1)
-      // background: linear-gradient(90deg,  rgba(28,28,30,0.9) 24%, rgba(64,69,73,1) 99%)
+      //background: linear-gradient(90deg,  rgba(28,28,30,0.9) 24%, rgba(64,69,73,1) 99%)
       border-top-left-radius: 20px
       border-bottom-left-radius: 20px
       backdrop-filter: blur(20px)
     .center-main
       position: relative
       padding: 20px
+      
 </style>
