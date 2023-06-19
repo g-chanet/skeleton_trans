@@ -1,6 +1,7 @@
 <template>
   <div class="full-app" v-loading.fullscreen.lock="onConnectQuery">
-    <router-view v-if="!onConnectQuery" />
+    <Background />
+    <router-view class='app-body' v-if="!onConnectQuery" />
   </div>
 </template>
 
@@ -8,6 +9,7 @@
 import { useFindMyUserQuery } from '@/graphql/graphql-operations'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import Background from './views/BackgroundRetroWave.vue'
 
 const router = useRouter()
 const onConnectQuery = ref(true)
@@ -36,6 +38,13 @@ onResult(() => {
   display: flex
   align-items: center
   justify-content: center
-  background: grey
+  background: black
+
+.app-body
+  position: fixed
+  top: 0
+  left: 0
+  height: 100%
+  width:100%
 
 </style>
