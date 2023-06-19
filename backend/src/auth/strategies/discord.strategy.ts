@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
-import { Strategy, VerifyCallback } from 'passport-discord'
+import { Strategy, VerifyCallback } from 'passport-discord-oauth2'
 import { AuthService } from '../auth.service'
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID

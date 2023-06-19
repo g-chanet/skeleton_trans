@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
 import { AuthService } from '../auth.service'
-import { Strategy, VerifyCallback } from 'passport-github'
+import { Strategy } from 'passport-github2'
+import { VerifyCallback } from 'passport-github'
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET
@@ -14,7 +15,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, `github`) {
         clientID: GITHUB_CLIENT_ID,
         clientSecret: GITHUB_CLIENT_SECRET,
         callbackURL: `http://127.0.0.1:3000/auth/github-redirect`,
-        scope: [`read:user`, `read:email`],
+        scope: [`read:user`, `read:email`, `user:email`],
         passReqToCallback: true,
       })
   }
@@ -26,14 +27,25 @@ export class GithubStrategy extends PassportStrategy(Strategy, `github`) {
     done: VerifyCallback,
   ) {
     console.log(profile)
+    const profilejson = profile._json
     const userData = {
       provider: `Github`,
-      providerUserId: profile.id,
-      mail: profile.email,
-      username: profile.login,
-      avatar: profile.avatar_url, //dont work
+      providerUserId: String(profilejson.id),
+      mail: await this.getGithubUserMail(profile.emails),
+      username: profilejson.login,
+      avatar: profilejson.avatar_url, //dont work
       locale: `fr`,
     }
     return done(null, await this.authService.transOauthLogin(userData))
+  }
+
+  async getGithubUserMail(emails)
+  {
+      if (emails[0].value)
+      {
+        return emails[0].value
+      }
+      else
+        throw new UnauthorizedException(`can't get github mail`)
   }
 }
