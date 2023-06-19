@@ -2,17 +2,20 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
+  PayloadTooLargeException,
 } from '@nestjs/common'
 import { UsersService } from 'src/users/users.service'
 import { AuthHelper } from './auth.helper'
 import * as DTO from './dto/auth.input'
 import { GoogleAuthDto } from './dto/google.auth.dto'
-import { User } from '@prisma/client'
+import { EUserLanguage, User } from '@prisma/client'
 import { DiscordAuthDto } from './dto/discord.auth.dto'
+import { TransOauthDto } from './dto/transOauth.dto'
+import { IsEmail, isEmail } from 'class-validator';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   //**************************************************//
   //  MUTATION
@@ -83,7 +86,7 @@ export class AuthService {
     let dbUser = await this.usersService.findOneByEmail(payload.mail)
     // We enter login flow
     if (dbUser) {
-      if (!dbUser.googleId) {
+      if (!dbUser.isOauth) {
         throw new UnauthorizedException(`This email is already used`)
       }
     } else if (!dbUser) {
@@ -94,7 +97,6 @@ export class AuthService {
         username: username,
         email: payload.mail,
         avatarUrl: payload.picture,
-        googleId: payload.mail,
       })
     }
     if (!dbUser) {
@@ -108,7 +110,7 @@ export class AuthService {
     let dbUser = await this.usersService.findOneByEmail(payload.mail)
     // We enter login flow
     if (dbUser) {
-      if (!dbUser.discordId) {
+      if (!dbUser.isOauth) {
         throw new UnauthorizedException(`This email is already used`)
       }
     } else if (!dbUser) {
@@ -119,7 +121,34 @@ export class AuthService {
         username: username,
         email: payload.mail,
         avatarUrl: payload.avatar,
-        discordId: payload.mail,
+      })
+    }
+    if (!dbUser) {
+      throw new BadRequestException(`lé où l'user ?`)
+    }
+    return dbUser
+  }
+
+  async transOauthLogin(payload: TransOauthDto) {
+    this.sanitize(payload)
+    // need to catch exceptions ?
+    let dbUser = await this.usersService.findOneByEmail(payload.mail)
+    // We enter login flow
+    if (dbUser) {
+      if (!dbUser.isOauth) {
+        throw new UnauthorizedException(`This email is already used by a non-Oauth account`)
+      }
+    } else if (!dbUser) {
+      // We enter signin flow
+      this.sanitizeForAccountCreation(payload)
+      // lots of possible fields to add, need to change User class
+      dbUser = await this.usersService.create({
+        username: payload.username,
+        email: payload.mail,
+        avatarUrl: payload.avatar,
+        providerName: payload.provider,
+        providerId: payload.providerUserId,
+        isOauth: true
       })
     }
     if (!dbUser) {
@@ -143,5 +172,39 @@ export class AuthService {
     }
 
     return localUserName
+  }
+
+  private async sanitize(payload: TransOauthDto) {
+
+    if (!payload)
+        throw new UnauthorizedException(`an error occured : cannot get payload`)
+    if (!isEmail(payload.mail))
+        throw new UnauthorizedException(`the email provided is invalid`)
+    if (!payload.provider)
+        throw new UnauthorizedException(`the oauth provider is unknow`)
+    if (!payload.providerUserId)
+        throw new UnauthorizedException(`the provided account does not exists`)
+  }
+
+  private async buildAvatarUri(payload: TransOauthDto)
+  {
+    let res = ""
+    if (payload.provider == `Discord`)
+    {
+      if (!payload.avatar)
+        return ""
+      res = `https://cdn.discordapp.com/avatars/` + payload.providerUserId + `/` + payload.avatar
+    }
+    else if (payload.provider == `Google` || payload.provider == `42`)
+      res = payload.avatar
+    return res
+  }
+
+  private async sanitizeForAccountCreation(payload: TransOauthDto)
+  {
+    if (!payload.firstname)
+      payload.firstname = payload.provider + " user"
+    payload.avatar = await this.buildAvatarUri(payload)
+    payload.username = await this.findAvailableUsername(payload.username)
   }
 }
