@@ -9,14 +9,13 @@ const SCHOOL42_CLIENT_SECRET = process.env.SCHOOL42_CLIENT_SECRET
 @Injectable()
 export class School42Strategy extends PassportStrategy(Strategy, `42`) {
   constructor(private readonly authService: AuthService) {
-    super(
-      {
-        clientID: SCHOOL42_CLIENT_ID,
-        clientSecret: SCHOOL42_CLIENT_SECRET,
-        callbackURL: `http://127.0.0.1:3000/auth/42-redirect`,
-        scope: [],
-        passReqToCallback: true,
-      })
+    super({
+      clientID: SCHOOL42_CLIENT_ID,
+      clientSecret: SCHOOL42_CLIENT_SECRET,
+      callbackURL: `http://localhost:3000/auth/42-redirect`,
+      scope: [],
+      passReqToCallback: true,
+    })
   }
   async validate(
     req,

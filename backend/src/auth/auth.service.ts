@@ -14,7 +14,7 @@ import { isEmail } from 'class-validator'
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   //**************************************************//
   //  MUTATION
@@ -139,6 +139,10 @@ export class AuthService {
           `This email is already used by a non-Oauth account`,
         )
       }
+      if (dbUser.providerId != payload.providerUserId)
+        throw new UnauthorizedException(
+          `This email is already used by a another Oauth account`,
+        )
     } else if (!dbUser) {
       // We enter signin flow
       this.sanitizeForAccountCreation(payload)
@@ -195,7 +199,11 @@ export class AuthService {
         payload.providerUserId +
         `/` +
         payload.avatar
-    } else if (payload.provider == `Google` || payload.provider == `42` || payload.provider == `Github`)
+    } else if (
+      payload.provider == `Google` ||
+      payload.provider == `42` ||
+      payload.provider == `Github`
+    )
       res = payload.avatar
     return res
   }

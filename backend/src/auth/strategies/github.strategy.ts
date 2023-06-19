@@ -10,14 +10,13 @@ const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, `github`) {
   constructor(private readonly authService: AuthService) {
-    super(
-      {
-        clientID: GITHUB_CLIENT_ID,
-        clientSecret: GITHUB_CLIENT_SECRET,
-        callbackURL: `http://127.0.0.1:3000/auth/github-redirect`,
-        scope: [`read:user`, `read:email`, `user:email`],
-        passReqToCallback: true,
-      })
+    super({
+      clientID: GITHUB_CLIENT_ID,
+      clientSecret: GITHUB_CLIENT_SECRET,
+      callbackURL: `http://localhost:3000/auth/github-redirect`,
+      scope: [`read:user`, `read:email`, `user:email`],
+      passReqToCallback: true,
+    })
   }
   async validate(
     req,
@@ -39,13 +38,9 @@ export class GithubStrategy extends PassportStrategy(Strategy, `github`) {
     return done(null, await this.authService.transOauthLogin(userData))
   }
 
-  async getGithubUserMail(emails)
-  {
-      if (emails[0].value)
-      {
-        return emails[0].value
-      }
-      else
-        throw new UnauthorizedException(`can't get github mail`)
+  getGithubUserMail(emails) {
+    if (emails[0].value) {
+      return emails[0].value
+    } else throw new UnauthorizedException(`can't get github mail`)
   }
 }
