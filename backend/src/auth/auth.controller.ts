@@ -1,6 +1,7 @@
 import { Controller, Request, UseGuards, Get, Req, Res } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { GoogleOAuthGuard } from './guards/google-auth.guard'
+import { DiscordOAuthGuard } from './guards/discord-auth.guard'
 
 @Controller(`auth`)
 export class AuthController {
@@ -17,12 +18,14 @@ export class AuthController {
     return req.red
   }
 
-  @Get(`status`)
-  status(@Req() req) {
-    if (req.isAuthenticated) {
-      return { msg: `Authenticated` }
-    } else {
-      return { msg: `Not Authenticated` }
-    }
+  @Get(`discord`)
+  @UseGuards(DiscordOAuthGuard)
+  discordAuth(@Request() req) {}
+
+  @Get(`discord-redirect`)
+  @UseGuards(DiscordOAuthGuard)
+  discordAuthRedirect(@Request() req, @Res() res) {
+    res.redirect(`${process.env.FRONTEND_URL}`)
+    return req.red
   }
 }
