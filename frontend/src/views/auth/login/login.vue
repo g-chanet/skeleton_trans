@@ -32,7 +32,13 @@
       </div>
     </div>
     <div class="form-container">
-      <span class="form-title">Login</span>
+      <span class="login">
+      <span class="letter">L</span>
+      <span class="letter">O</span>
+      <span class="letter">G</span>
+      <span class="letter">I</span>
+      <span class="letter">N</span>
+      </span>
       <el-form
         :model="form"
         label-position="top"
@@ -53,9 +59,7 @@
         <el-button class="bt-submit" native-type="submit">Connexion</el-button>
       </el-form>
       <el-divider>
-        <el-icon>Or</el-icon>
       </el-divider>
-
       <div class="o-auth">
         <el-button @click="onConnectWithGoogle" class="bt" circle
           ><font-awesome-icon :icon="['fab', 'google']"
@@ -67,7 +71,6 @@
         <el-button @click="onConnectWithSchool42" class="bt" circle>42</el-button>
       </div>
       <el-divider>
-        <el-icon>Or</el-icon>
       </el-divider>
       <router-link to="/signup" class="create-account">Create Account</router-link>
       <router-view></router-view> 
@@ -144,7 +147,19 @@ body
   -moz-osx-font-smoothing: grayscale
   background: #111
   background: linear-gradient(#0c141f 40%, #cf33d9 41%, #0c141f 60%)
- 
+
+.login
+  height: 100%
+  position: absolute
+  font-size: 2em
+
+.login > .letter
+  -webkit-text-stroke: 2px #F4C6F4
+  margin-top: -8px
+  display: inline-block
+  padding: 0 1px
+  animation: glow 2.5s linear infinite
+
 .wrapper
   display: flex
   justify-content: center
@@ -175,7 +190,6 @@ body
 .nrw
   z-index: 50
   margin-bottom: 600px
-
  
 .new
   font-size: 5.2em
@@ -186,7 +200,7 @@ body
   display: block
   letter-spacing: -15px
   transform: rotate(-10deg) skew(-20deg)
-  margin-left: 300px
+  margin-left: 280px
   margin-bottom: -20px
 
 .new > .letter
@@ -260,17 +274,21 @@ body
 .form-container
   width: 400px
   border: (--el-border)
-  border-radius: (--el-border-radius-base)
+  border-radius: 5%
   display: flex
   flex-direction: column
-  padding: 20px
+  padding: 25px
+  padding-top: 70px
   gap: 20px
   justify-content: center
   align-items: center
   position: absolute
   overflow: hidden
-  background-color: rgba(0, 0, 0, 0.8)
-  margin-top: 150px
+  background-color: rgba(0, 0, 0, 0.3)
+  margin-top: 125px
+  backdrop-filter: blur(10px)
+.form-container:hover
+  box-shadow: 0 0 10px #ee78ff, 0 0 20px #ee78ff
 
 .form-title
   font-family: sans-serif
@@ -293,15 +311,15 @@ body
   color: white
 
 .create-account:hover
-  box-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff
+  box-shadow: 0 0 10px #ee78ff, 0 0 20px #ee78ff
   background-color: rgba(0, 212, 255, 0.1)
-  color: #00d4ff
+  color: #ee78ff
 
 .bt-submit
   width: 100%
 
 .bt-submit:hover
-    box-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff
+    box-shadow: 0 0 10px #ee78ff, 0 0 20px #ee78ff
 
 .o-auth
   display: flex
@@ -310,43 +328,5 @@ body
     width: 40px
 
 .bt:hover
-    box-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff
-
-@property --shift
-  syntax: "<number>"
-  inherits: false
-  initial-value: 0
-
-@mixin sun-lines
-  --shift: 1
-  mask: linear-gradient(to top, #000 calc(1% + (3.5% * var(--shift))), 0%, #0000 calc(8% + (2.8% * var(--shift))), 0%, #000 calc(10% + (3.5% * var(--shift))), 0%, #0000 calc(16% + (2.8% * var(--shift))), 0%, #000 calc(19% + (3.5% * var(--shift))), 0%, #0000 calc(24% + (2.8% * var(--shift))), 0%, #000 calc(28% + (3.5% * var(--shift))), 0%, #0000 calc(32% + (2.8% * var(--shift))), 0%, #000 calc(37% + (3.5% * var(--shift))), 0%, #0000 calc(40% + (2.8% * var(--shift))), 0%, #000 calc(46% + (3.5% * var(--shift))), 0%, #0000 calc(48% + (2.8% * var(--shift))), 0%, #000 calc(55% + (3.5% * var(--shift))), 0%, #0000 calc(56% + (2.8% * var(--shift))), 0%,#000 calc(56% + (2.5% * var(--shift))))
-  mask-size: 100% 120%
-  -webkit-mask-size: 100% 120%
-  animation: sun linear infinite
-
-.sunset
-  position: relative
-  width: min(40vmin, 40%)
-  aspect-ratio: 1
-  border-radius: 50%
-  margin: auto
-  // sun 🌅
-  &:after
-    content: ""
-    position: absolute
-    inset: 0
-    @include sun-lines
-    border-radius: inherit
-    background-image: linear-gradient(to bottom, #fdb428, #f672ca 60%)
-  // reflection
-  &:before
-    content: ""
-    position: absolute
-    inset: 0
-    background-image: linear-gradient(to top, #fdb428, #f672ca 55%, #6eccee 65%, #f672ca 69%)
-    border-radius: inherit
-    transform: translateY(100%) rotateX(40deg) scaleY(1.2)
-    perspective: 6.25rem
-    filter: blur(20px)
-  filter: drop-shadow(0 0 4rem #b9f)
+    box-shadow: 0 0 10px #ee78ff, 0 0 20px #ee78ff
 </style>

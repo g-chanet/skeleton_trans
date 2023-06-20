@@ -1,5 +1,6 @@
 :root {
   --el-border-radius-base: 8px;
-  --el-messagebox-border-radius: 8px;
   --el-border-width: 1px;
+  --el-color-primary: #ee78ff !important;
+  --el-input-focus-border-color: var(--el-color-primary);
 }

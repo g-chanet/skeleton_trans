@@ -54,7 +54,6 @@ window.addEventListener("resize", () => requestAnimationFrame(render))
 </script>
 
 <style scoped lang="scss">
-// CSS Future tip ✨: https://caniuse.com/mdn-css_at-rules_property
 @property --shift {
   syntax: "<number>";
   inherits: false;
@@ -84,57 +83,25 @@ $--labs-sys-color-volume: $--labs-sys-color-triangle;
   $lines: "";
   $end: 0;
   $lineCount: 8;
-  @for $i from 1 to $lineCount {
-    $start: $i + $end;
+  @for $i from 1 to $lineCount {$start: $i + $end;
     $end: $start + $lineCount - $i;
-    $lines: $lines +
-      " #000 calc(#{$start}% + (3.5% * var(--shift))), 0%, #0000 calc(#{$end}%  + (2.8% * var(--shift))), 0%,";
+    $lines: $lines + " #000 calc(#{$start}% + (3.5% * var(--shift))), 0%, #0000 calc(#{$end}%  + (2.8% * var(--shift))), 0%,";
   }
   $lines: $lines + "#000 calc(56% + (2.5% * var(--shift)))";
   --shift: 1;
   mask: linear-gradient(to top, #{$lines});
   mask-size: 100% 120%;
+  -webkit-mask-size: 100% 120%;
   animation: sun calc($--base-speed / 4) linear infinite;
 }
 
-.delorean {
-  position: absolute;
-  bottom: 0;
-  z-index: 11111;
-  right: 0;
-  left: 0;
-  display: flex;
-  justify-content: center;
-  animation: delorean 30s ease infinite;
-  perspective: 1000px;
-}
-
-@keyframes delorean {
-  from {
-    transform: translateY(0);
-  }
-
-  9% {
-    transform: translateX(-2vmin);
-  }
-
-  20% {
-    transform: translateX(0);
-  }
-
-  50% {
-    transform: translate(-0.05vmin, 6vmin) scale(1.5);
-  }
-
-  to {
-    transform: translateY(0);
-  }
-}
-
 .sun {
-  position: absolute;
+  position:absolute;
+  display: table;
+  z-index: 0;
+  text-align:center;
   /* Adjust the initial position of the sun */
-  top: 25%;
+  top: 26%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: min(40vmin, 40%);
@@ -147,11 +114,7 @@ $--labs-sys-color-volume: $--labs-sys-color-triangle;
     inset: 0;
     @include sun-lines;
     border-radius: inherit;
-    background-image: linear-gradient(
-      to bottom,
-      $--labs-sys-color-sun-1,
-      $--labs-sys-color-sun-2 60%
-    );
+    background-image: linear-gradient(to bottom, $--labs-sys-color-sun-1, $--labs-sys-color-sun-2 60%);
   }
   // reflection
   &:before {
@@ -167,28 +130,12 @@ $--labs-sys-color-volume: $--labs-sys-color-triangle;
       $--labs-sys-color-sun-2 69%
     );
     border-radius: inherit;
-    transform: translateY(100%) rotateX(40deg) scaleY(1.2);
+    //Adjust reflection's position
+    transform: translateY(170%) rotateX(40deg) scaleY(1);
     perspective: 6.25rem;
     filter: blur(20px);
   }
-
   filter: drop-shadow(0 0 4rem $--labs-sys-color-sun-glow);
-}
-
-@media (max-width: 768px) {
-  .sun {
-    /* Adjust the position for smaller screens */
-    top: 30%;
-    left: 70%;
-  }
-}
-
-@media (max-width: 480px) {
-  .sun {
-    /* Adjust the position for even smaller screens */
-    top: 10%;
-    left: 80%;
-  }
 }
 
 @keyframes sun {
@@ -371,7 +318,6 @@ $--labs-sys-color-volume: $--labs-sys-color-triangle;
     transform: translate(var(--x), var(--y));
     box-shadow: 0 0 0.25rem $--labs-sys-color-sun-glow;
   }
-
   animation: stars 20s linear;
 }
 
