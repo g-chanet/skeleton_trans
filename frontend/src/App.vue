@@ -8,15 +8,16 @@
 <script setup lang="ts">
 import { useFindMyUserQuery } from '@/graphql/graphql-operations'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import Background from './views/BackgroundRetroWave.vue'
+import { useRouter, useRoute } from 'vue-router'
 
+const route = useRoute()
 const router = useRouter()
 const onConnectQuery = ref(true)
 const { onResult, onError } = useFindMyUserQuery()
 
 onError(() => {
-  router.replace(`/login`)
+  if (!route.fullPath.startsWith(`/login`))
+    router.replace(`/login`)
   onConnectQuery.value = false
 })
 

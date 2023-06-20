@@ -145,7 +145,9 @@ export class AuthService {
         )
     } else if (!dbUser) {
       // We enter signin flow
+      console.log(`en vie1`)
       const sanitizedPayload = await this.sanitizeForAccountCreation(payload)
+      console.log(`en vie2`)
       // lots of possible fields to add, need to change User class
       dbUser = await this.usersService.create({
         username: sanitizedPayload.username,
@@ -159,6 +161,7 @@ export class AuthService {
     if (!dbUser) {
       throw new BadRequestException(`lé où l'user ?`)
     }
+    throw new BadRequestException(`lé où l'user ?`)
     return dbUser
   }
   //**************************************************//

@@ -7,11 +7,11 @@ import { School42OAuthGuard } from './guards/school42-auth.guard'
 
 @Controller(`auth`)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Get(`google`)
   @UseGuards(GoogleOAuthGuard)
-  googleAuth(@Request() req) {}
+  googleAuth(@Request() req) { }
 
   @Get(`google-redirect`)
   @UseGuards(GoogleOAuthGuard)
@@ -22,18 +22,20 @@ export class AuthController {
 
   @Get(`discord`)
   @UseGuards(DiscordOAuthGuard)
-  discordAuth(@Request() req) {}
+  discordAuth(@Request() req) { }
 
   @Get(`discord-redirect`)
   @UseGuards(DiscordOAuthGuard)
   discordAuthRedirect(@Request() req, @Res() res) {
-    res.redirect(`${process.env.FRONTEND_URL}`)
-    return req.red
+    {
+      res.redirect(`${process.env.FRONTEND_URL}`)
+      return req.red
+    }
   }
 
   @Get(`github`)
   @UseGuards(GithubOAuthGuard)
-  githubAuth(@Request() req) {}
+  githubAuth(@Request() req) { }
 
   @Get(`github-redirect`)
   @UseGuards(GithubOAuthGuard)
@@ -44,12 +46,16 @@ export class AuthController {
 
   @Get(`42`)
   @UseGuards(School42OAuthGuard)
-  ftAuth(@Request() req) {}
+  ftAuth(@Request() req) { }
 
   @Get(`42-redirect`)
   @UseGuards(School42OAuthGuard)
   ftAuthRedirect(@Request() req, @Res() res) {
-    res.redirect(`${process.env.FRONTEND_URL}`)
-    return req.red
+    {
+      console.log(`error :`, req.error)
+      console.log(`user: `, req.user)
+      res.redirect(`${process.env.FRONTEND_URL}`)
+      return req.red
+    }
   }
 }

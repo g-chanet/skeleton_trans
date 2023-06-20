@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
 import { AuthService } from '../auth.service'
 import { Strategy, VerifyCallback } from 'passport-42'
+import { RedirectError } from '../custom-errors/redirect-errors'
 
 const SCHOOL42_CLIENT_ID = process.env.SCHOOL42_CLIENT_ID
 const SCHOOL42_CLIENT_SECRET = process.env.SCHOOL42_CLIENT_SECRET
@@ -24,7 +25,7 @@ export class School42Strategy extends PassportStrategy(Strategy, `42`) {
     profile: any,
     done: VerifyCallback,
   ) {
-    console.log(profile)
+    //console.log(profile)
     profile = profile._json
     const userData = {
       provider: `42`,
@@ -34,6 +35,16 @@ export class School42Strategy extends PassportStrategy(Strategy, `42`) {
       avatar: profile.image.link,
       locale: `fr`,
     }
-    return done(null, await this.authService.transOauthLogin(userData))
+    try {
+      const user = await this.authService.transOauthLogin(userData)
+      return done(null, user)
+    } catch (error) {
+      console.error(`Error: `, error)
+      throw new RedirectError(
+        302,
+        `${process.env.FRONTEND_URL}/login?error=` + error.message,
+      )
+      return done(error, null)
+    }
   }
 }
