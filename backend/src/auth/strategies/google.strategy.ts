@@ -47,7 +47,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, `google`) {
       return done(null, user)
     } catch (error) {
       console.error(`Error: `, error)
-      throw new RedirectError(404, `${process.env.FRONTEND_URL}`)
+      throw new RedirectError(
+        302,
+        `${process.env.FRONTEND_URL}/login?error=` + error.message,
+      )
       return done(error, null)
     }
   }
