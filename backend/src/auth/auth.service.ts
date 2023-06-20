@@ -161,7 +161,7 @@ export class AuthService {
     if (!dbUser) {
       throw new BadRequestException(`lé où l'user ?`)
     }
-    throw new BadRequestException(`lé où l'user ?`)
+    //throw new BadRequestException(`lé où l'user ?`)
     return dbUser
   }
   //**************************************************//

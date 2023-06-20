@@ -79,11 +79,24 @@
 </template>
 
 <script setup lang="ts">
-import {  ref } from 'vue'
+import {  ref, onMounted } from 'vue'
 import { useSignInLocalMutation } from '@/graphql/graphql-operations'
 import { ElMessage } from 'element-plus'
 
 const { mutate, onDone, onError } = useSignInLocalMutation()
+
+onMounted(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const error = urlParams.get(`error`)
+  
+  if (error) {
+    ElMessage({
+      showClose: true,
+      message: error,
+      type: `error`
+    })
+  }
+})
 
 const form = ref({
   emailOrUsername: ``,
