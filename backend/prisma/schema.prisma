@@ -22,6 +22,7 @@ model User {
   password String?
   email    String  @unique
   username String  @unique
+  twoFactorAuthSecret String?
 
   providerName   String?
   providerId   String?

@@ -6,11 +6,10 @@ import {
 import { UsersService } from 'src/users/users.service'
 import { AuthHelper } from './auth.helper'
 import * as DTO from './dto/auth.input'
-import { GoogleAuthDto } from './dto/google.auth.dto'
 import { User } from '@prisma/client'
-import { DiscordAuthDto } from './dto/discord.auth.dto'
 import { TransOauthDto } from './dto/transOauth.dto'
 import { isEmail } from 'class-validator'
+import { authenticator } from 'otplib'
 
 @Injectable()
 export class AuthService {
@@ -23,6 +22,7 @@ export class AuthService {
   async signInLocal({
     emailOrUsername,
     password,
+    doubleAuthCode,
   }: DTO.SignInLocalInput): Promise<User> {
     const user =
       (await this.usersService.findOneByEmail(emailOrUsername)) ||
@@ -36,6 +36,13 @@ export class AuthService {
     }
 
     delete user.password
+    if (user.doubleAuth == true) {
+      await this.generateTwoFactorAuthenticationSecret(user)
+      if (
+        !(await this.isTwoFactorAuthenticationCodeValid(doubleAuthCode, user))
+      )
+        throw new UnauthorizedException(`Invalid 2FA code`)
+    }
     return user
   }
 
@@ -80,54 +87,6 @@ export class AuthService {
     return await this.usersService.findOne(userId)
   }
 
-  async googleLogin(payload: GoogleAuthDto) {
-    if (!payload) throw new BadRequestException(`Cannot get user info`)
-    let dbUser = await this.usersService.findOneByEmail(payload.mail)
-    // We enter login flow
-    if (dbUser) {
-      if (!dbUser.isOauth) {
-        throw new UnauthorizedException(`This email is already used`)
-      }
-    } else if (!dbUser) {
-      // We enter signin flow
-      const username = await this.findAvailableUsername(payload.username)
-      // lots of possible fields to add, need to change User class
-      dbUser = await this.usersService.create({
-        username: username,
-        email: payload.mail,
-        avatarUrl: payload.picture,
-      })
-    }
-    if (!dbUser) {
-      throw new BadRequestException(`lé où l'user ?`)
-    }
-    return dbUser
-  }
-
-  async discordLogin(payload: DiscordAuthDto) {
-    if (!payload) throw new BadRequestException(`Cannot get user`)
-    let dbUser = await this.usersService.findOneByEmail(payload.mail)
-    // We enter login flow
-    if (dbUser) {
-      if (!dbUser.isOauth) {
-        throw new UnauthorizedException(`This email is already used`)
-      }
-    } else if (!dbUser) {
-      // We enter signin flow
-      const username = await this.findAvailableUsername(payload.username)
-      // lots of possible fields to add, need to change User class
-      dbUser = await this.usersService.create({
-        username: username,
-        email: payload.mail,
-        avatarUrl: payload.avatar,
-      })
-    }
-    if (!dbUser) {
-      throw new BadRequestException(`lé où l'user ?`)
-    }
-    return dbUser
-  }
-
   async transOauthLogin(payload: TransOauthDto) {
     this.sanitize(payload)
     // need to catch exceptions ?
@@ -161,9 +120,34 @@ export class AuthService {
     if (!dbUser) {
       throw new BadRequestException(`lé où l'user ?`)
     }
-    //throw new BadRequestException(`lé où l'user ?`)
     return dbUser
   }
+
+  async generateTwoFactorAuthenticationSecret(user: User) {
+    const secret = await authenticator.generateSecret()
+
+    const otpauthUrl = await authenticator.keyuri(
+      user.email,
+      `Transcendance`,
+      secret,
+    )
+    user.twoFactorAuthSecret = secret
+
+    return {
+      otpauthUrl,
+    }
+  }
+
+  isTwoFactorAuthenticationCodeValid(
+    twoFactorAuthenticationCode: string,
+    user: User,
+  ) {
+    return authenticator.verify({
+      token: twoFactorAuthenticationCode,
+      secret: user.twoFactorAuthSecret,
+    })
+  }
+
   //**************************************************//
   //  UTILS
   //**************************************************//
