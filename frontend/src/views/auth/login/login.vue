@@ -3,7 +3,7 @@
     <div class="wrapper-header">
       <div class="trans-container">
         <span class="trans-font">
-        TRANSCENDANCE
+        TRANSCENDENCE
         </span>
       </div>
       <div class="pong-container">

@@ -20,7 +20,6 @@ import NavBar from './navBar/index.vue'
   height: 100%
   padding: 20px 0px 20px 0px 
   border-radius: 20px
-  margin:2.5%
   // background: linear-gradient(6deg, rgba(233,172,99,1) 0%, rgba(221,146,111,1) 100%)
   .aside
     width: 80px

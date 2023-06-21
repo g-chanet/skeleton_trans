@@ -1,98 +1,95 @@
 <template>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4">
-        <h2>Conversations</h2>
-        <div v-for="conversation in conversations" :key="conversation.id" class="conversation" @click="selectConversation(conversation)">
-          {{ conversation.user }}
-        </div>
+  <div class="messages-container">
+    <div class="convesations-container">
+      <h1>Discussions</h1>
+      <div class="convesations-list-container">
+        <div>partie1</div>
+        <div>partie2</div>
+        <div>partie3</div>
       </div>
-      <div class="col-md-8">
-        <div v-if="selectedConversation">
-          <h2>Conversation with {{ selectedConversation.user }}</h2>
-          <div v-for="message in selectedConversation.messages" :key="message.id" class="message">
-            <strong>{{ message.sender }}</strong>: {{ message.content }}
-          </div>
-          <div class="input-group mt-3">
-            <input v-model="newMessage" type="text" class="form-control" placeholder="Type your message here..." @keyup.enter="sendMessage">
-            <button @click="sendMessage" class="btn btn-primary">Send</button>
-          </div>
-        </div>
-        <div v-else>
-          <p>No conversation selected.</p>
-        </div>
+    </div>
+    <div class="active-conversation-container">
+      <h1>userX</h1>
+      <div class="active-conversation">
+        <div>message</div>
+        <div>message</div>
+        <div>message</div>
+        <div>message</div>
+        <div>message</div>
       </div>
+    </div>
+    <div class="active-conversation-profile-container">
+      <div>profile picture</div>
+      <div>name</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 
-const conversations = ref([
-  {
-    id: 1,
-    user: 'Robin',
-    messages: [
-      { id: 1, sender: 'Robin', content: 'Je suis fromage.' },
-      { id: 2, sender: 'You', content: 'Euh lâche moi mec' },
-      { id: 3, sender: 'Robin', content: 'Non non je suis reblochon!' },
-    ],
-  },
-  {
-    id: 2,
-    user: 'Adel',
-    messages: [
-      { id: 1, sender: 'You', content: 'Hey' },
-      { id: 2, sender: 'Adel', content: 'Je suis recherché par le fisc français' },
-    ],
-  },
-]);
-
-const selectedConversation = ref(null);
-const newMessage = ref('');
-
-const selectConversation = conversation => {
-  selectedConversation.value = conversation;
-};
-
-const sendMessage = () => {
-  if (newMessage.value.trim() !== '') {
-    const newId = selectedConversation.value.messages.length + 1;
-    selectedConversation.value.messages.push({
-      id: newId,
-      sender: 'You',
-      content: newMessage.value.trim(),
-    });
-    newMessage.value = '';
-  }
-};
 </script>
-
 <style scoped lang="sass">
-.container
-  margin-top: 20px
+.messages-container
+  width: 100%
+  display: flex
+  flex-direction: row
+  justify-content: space-between
+  border-radius:20px
 
-.row
-  height: calc(100vh - 40px)
+.convesations-container
+  background: red
+  border-radius: 20px
+  width: 100%
+  z-index: 1
 
-.col-md-4,
-.col-md-8
-  border: 1px solid #ccc
+.convesations-list-container
+  display: flex
+  flex-direction: column
+  gap:20px
+  flex:1
+  overflow-y: scroll
+  div
+    min-height: 80px
+    background: red
+.active-conversation-container
+  width: 100%
+  z-index: 0
+
+.active-conversation
+
+.active-conversation-profile-container
+  width: 100%
+  background: green
+
+.messageBlue
+  position: relative
+  marginLeft: 20px
+  marginBottom: 10px
   padding: 10px
-  overflow-y: auto
-
-.col-md-4
-  max-height: 100%
-
-.col-md-8
-  max-height: 100%
-
-.conversation
-  cursor: pointer
-  margin-bottom: 10px
-
-.message
-  margin-bottom: 10px
+  backgroundColor: #A8DDFD
+  width: 60%
+  textAlign: left
+  border: 1px solid #97C6E3
+  border-radius: 10px
+    &:after
+      content: ''
+      position: absolute
+      width: 0
+      height: 0
+      borderTop: 15px solid #A8DDFD
+      borderLeft: 15px solid transparent
+      borderRight: 15px solid transparent
+      top: 0
+      left: -15px
+    &:before: 
+      content: ''
+      position: absolute
+      width: 0
+      height: 0
+      borderTop: 17px solid #97C6E3
+      borderLeft: 16px solid transparent
+      borderRight: 16px solid transparent
+      top: -1px
+      left: -17px
 </style>
 
