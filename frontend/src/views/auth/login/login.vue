@@ -1,44 +1,18 @@
 <template>
   <div class="full">
-     <div class="wrapper">
-      <div class="inner-wrapper">
-       </div> 
-       <div class="nrw">
-        <span class="new">
-          <span class="letter">4</span>
-          <span class="letter">2</span>
+    <div class="wrapper-header">
+      <div class="trans-container">
+        <span class="trans-font">
+        TRANSCENDANCE
         </span>
-        <span class="retro">
-          <span class="letter">T</span>
-          <span class="letter">R</span>
-          <span class="letter">A</span>
-          <span class="letter">N</span>
-          <span class="letter">S</span>
-          <span class="letter">C</span>
-          <span class="letter">E</span>
-          <span class="letter">N</span>
-          <span class="letter">D</span>
-          <span class="letter">A</span>
-          <span class="letter">N</span>
-          <span class="letter">C</span>
-          <span class="letter">E</span>
-        </span>
-        <span class="wave">
-          <span class="letter">P</span>
-          <span class="letter">O</span>
-          <span class="letter">N</span>
-          <span class="letter">G</span>
+      </div>
+      <div class="pong-container">
+        <span class="pong-font">
+        PONG
         </span>
       </div>
     </div>
-    <div class="form-container">
-      <span class="login">
-      <span class="letter">L</span>
-      <span class="letter">O</span>
-      <span class="letter">G</span>
-      <span class="letter">I</span>
-      <span class="letter">N</span>
-      </span>
+    <div class="form-container panel-blur">
       <el-form
         :model="form"
         label-position="top"
@@ -61,21 +35,18 @@
       <el-divider>
       </el-divider>
       <div class="o-auth">
-        <el-button @click="onConnectWithGoogle" class="bt" circle
-          ><font-awesome-icon :icon="['fab', 'google']"
-        /></el-button>
-        <el-button @click="onConnectWithDiscord" class="bt" circle
-          ><font-awesome-icon :icon="['fab', 'discord']"
-        /></el-button>
+        <el-button @click="onConnectWithGoogle" class="bt" circle><font-awesome-icon :icon="['fab', 'google']"/></el-button>
+        <el-button @click="onConnectWithDiscord" class="bt" circle><font-awesome-icon :icon="['fab', 'discord']"/></el-button>
         <el-button @click="onConnectWithGithub" class="bt" circle><font-awesome-icon :icon="['fab', 'github']" /></el-button>
         <el-button @click="onConnectWithSchool42" class="bt" circle>42</el-button>
       </div>
       <el-divider>
       </el-divider>
-      <router-link to="/signup" class="create-account">Create Account</router-link>
+        <el-button class="bt-submit" native-type="submit" >Create Account</el-button>
+      <!-- <router-link to="/signup" class="create-account">Create Account</router-link> -->
       <router-view></router-view> 
-     </div> 
-   </div> 
+    </div> 
+  </div> 
 </template>
 
 <script setup lang="ts">
@@ -160,13 +131,58 @@ body
   padding: 0 1px
   animation: glow 2.5s linear infinite
 
-.wrapper
+.wrapper-header
   display: flex
-  justify-content: center
+  justify-content: flex-start
+  flex-direction: column
   align-items: center
   height: 100%
   z-index: -1
- 
+  .trans-container
+    
+    margin-top: 80px
+    transform: scale(2, 2)
+    
+    position: relative
+    z-index: 101
+    .trans-font
+      position: absolute
+      top: -10px
+      font-family: "Vaporfuturism", "Helvetica", sans-serif
+      font-size: 4em
+      // background: url('data:image/svg+xmlbase64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuNSIgeTE9IjAuMCIgeDI9IjAuNSIgeTI9IjEuMCI+PHN0b3Agb2Zmc2V0PSIzMiUiIHN0b3AtY29sb3I9IiMxODE5MWEiLz48c3RvcCBvZmZzZXQ9IjQwJSIgc3RvcC1jb2xvcj0iIzE1N2JlNiIvPjxzdG9wIG9mZnNldD0iNTIlIiBzdG9wLWNvbG9yPSIjZmZmZmZmIi8+PHN0b3Agb2Zmc2V0PSI1NiUiIHN0b3AtY29sb3I9IiMxODE5MWEiLz48c3RvcCBvZmZzZXQ9Ijg1JSIgc3RvcC1jb2xvcj0iIzE1N2JlNiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==')
+      // background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(32%, #18191a), color-stop(40%, #157be6), color-stop(52%, #ffffff), color-stop(56%, #18191a), color-stop(85%, #157be6), color-stop(100%, #ffffff))
+      // background: -moz-linear-gradient(top, #18191a 32%, #157be6 40%, #ffffff 52%, #18191a 56%, #157be6 85%, #ffffff)
+      // background: -webkit-linear-gradient(top, #18191a 32%, #157be6 40%, #ffffff 52%, #18191a 56%, #157be6 85%, #ffffff)
+      // background: linear-gradient(to bottom, #18191a 32%, #157be6 40%, #ffffff 52%, #18191a 56%, #157be6 85%, #ffffff)
+      // -webkit-background-clip: text
+      // -webkit-text-fill-color: transparent
+      // -webkit-text-stroke-width: 1px
+      // -webkit-text-stroke-color: #FFF
+      letter-spacing: -10px
+      transform: rotate(-6deg) skew(-3deg) translateX(-50%) scaleX(1.4)
+      background: linear-gradient(to bottom, #18191a 32%, #157be6 40%, #ffffff 52%, #18191a 56%, #157be6 85%, #ffffff)
+      -webkit-background-clip: text
+      -webkit-text-fill-color: transparent
+      -webkit-text-stroke-width: 1px
+      -webkit-text-stroke-color: #FFF
+
+  .pong-container
+    position: relative
+    z-index: 110
+    .pong-font
+      position: absolute
+      top: 45px
+      font-family: "OutRun", "Helvetica", sans-serif
+      transform: translateX(-50%)
+      font-size: 4.5em
+      color: #FA26F7
+      text-transform: uppercase
+      letter-spacing: 0px
+      transform: translateX(-50%) rotate(-8deg) skew(-3deg)
+      -webkit-text-stroke-width: 1px
+      -webkit-text-stroke-color: #000
+
 .inner-wrapper
   width: 100%
   height: 100%
@@ -174,6 +190,8 @@ body
   margin: 0 auto
   perspective: 180px
   perspective-origin: 50% 40%
+  display: flex
+  flex-wrap: wrap
  
 .landscape
   position: absolute
@@ -190,6 +208,8 @@ body
 .nrw
   z-index: 50
   margin-bottom: 600px
+  flex-shrink: 0
+  white-space: nowrap
  
 .new
   font-size: 5.2em
@@ -233,33 +253,7 @@ body
   transform: rotate(-10deg) skew(-15deg)
   margin-bottom: -70px
 
-.retro > .letter
-  display: inline-block
-  padding: 0 10px
-  margin: 0 -10px
-  background: url('data:image/svg+xmlbase64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuNSIgeTE9IjAuMCIgeDI9IjAuNSIgeTI9IjEuMCI+PHN0b3Agb2Zmc2V0PSIzMiUiIHN0b3AtY29sb3I9IiMxODE5MWEiLz48c3RvcCBvZmZzZXQ9IjQwJSIgc3RvcC1jb2xvcj0iIzE1N2JlNiIvPjxzdG9wIG9mZnNldD0iNTIlIiBzdG9wLWNvbG9yPSIjZmZmZmZmIi8+PHN0b3Agb2Zmc2V0PSI1NiUiIHN0b3AtY29sb3I9IiMxODE5MWEiLz48c3RvcCBvZmZzZXQ9Ijg1JSIgc3RvcC1jb2xvcj0iIzE1N2JlNiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==')
-  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(32%, #18191a), color-stop(40%, #157be6), color-stop(52%, #ffffff), color-stop(56%, #18191a), color-stop(85%, #157be6), color-stop(100%, #ffffff))
-  background: -moz-linear-gradient(top, #18191a 32%, #157be6 40%, #ffffff 52%, #18191a 56%, #157be6 85%, #ffffff)
-  background: -webkit-linear-gradient(top, #18191a 32%, #157be6 40%, #ffffff 52%, #18191a 56%, #157be6 85%, #ffffff)
-  background: linear-gradient(to bottom, #18191a 32%, #157be6 40%, #ffffff 52%, #18191a 56%, #157be6 85%, #ffffff)
-  -webkit-background-clip: text
-  -webkit-text-fill-color: transparent
-  -webkit-text-stroke-width: 1px
-  -webkit-text-stroke-color: #FFF
 
-.wave
-  position: relative
-  z-index: 100
-  font-family: "OutRun", "Helvetica", sans-serif
-  font-size: 3.8em
-  color: #FA26F7
-  text-transform: uppercase
-  letter-spacing: -10px
-  transform: rotate(-3deg) skew(-3deg)
-  -webkit-text-stroke-width: 1px
-  -webkit-text-stroke-color: #000
-  margin-left: 250px
-  margin-bottom: 0
 
 .full
   height: 100%
@@ -284,11 +278,12 @@ body
   align-items: center
   position: absolute
   overflow: hidden
-  background-color: rgba(0, 0, 0, 0.3)
   margin-top: 125px
-  backdrop-filter: blur(10px)
+  .title
+    @extend .letter
+
 .form-container:hover
-  box-shadow: 0 0 10px #ee78ff, 0 0 20px #ee78ff
+  box-shadow: var(--my-box-shadow)
 
 .form-title
   font-family: sans-serif
@@ -311,15 +306,11 @@ body
   color: white
 
 .create-account:hover
-  box-shadow: 0 0 10px #ee78ff, 0 0 20px #ee78ff
-  background-color: rgba(0, 212, 255, 0.1)
-  color: #ee78ff
+  box-shadow: var(--my-box-shadow)
+  color: var(--el-color-primary)
 
 .bt-submit
   width: 100%
-
-.bt-submit:hover
-    box-shadow: 0 0 10px #ee78ff, 0 0 20px #ee78ff
 
 .o-auth
   display: flex
@@ -328,5 +319,5 @@ body
     width: 40px
 
 .bt:hover
-    box-shadow: 0 0 10px #ee78ff, 0 0 20px #ee78ff
+    box-shadow: var(--my-box-shadow)
 </style>

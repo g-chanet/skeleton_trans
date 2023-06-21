@@ -92,7 +92,7 @@ $--labs-sys-color-volume: $--labs-sys-color-triangle;
   mask: linear-gradient(to top, #{$lines});
   mask-size: 100% 120%;
   -webkit-mask-size: 100% 120%;
-  animation: sun calc($--base-speed / 4) linear infinite;
+  animation: sun 4s linear infinite;
 }
 
 .sun {
@@ -425,14 +425,4 @@ body {
   color: $--labs-sys-color-triangle;
 }
 
-a.labs-follow-me {
-  right: unset;
-  left: -0.5rem;
-}
-
-* {
-  user-select: none;
-  box-sizing: border-box;
-  outline-color: $--labs-sys-color-sun-2;
-}
 </style>

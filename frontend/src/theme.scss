@@ -1,6 +1,32 @@
 :root {
   --el-border-radius-base: 8px;
   --el-border-width: 1px;
-  --el-color-primary: #ee78ff !important;
   --el-input-focus-border-color: var(--el-color-primary);
+  --my-box-shadow: 0 0 10px var(--el-color-primary), 0 0 20px var(--el-color-primary);
+
+  --el-color-primary: hwb(300 26% 0%) !important;
+  --el-color-primary-light-3: hsl(300, 57%, 46%) !important;
+  --el-color-primary-light-5: hsl(300, 53%, 35%) !important;
+  --el-color-primary-light-7: hsl(300, 47%, 24%) !important;
+  --el-color-primary-light-8: hsl(300, 40%, 19%) !important;
+  --el-color-primary-light-9: hsl(300, 29%, 13%) !important;
+  --el-color-primary-dark-2: hsl(300, 100%, 70%) !important;
 }
+
+@font-face {
+  font-family: "Vaporfuturism";
+  src: url("./assets/fonts/VaporfuturismCond.otf");
+}
+
+.panel-blur {
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+// .el-input__wrapper.is-focus {
+//   box-shadow: var(--my-box-shadow);
+// }
+
+// .el-input__wrapper {
+//   transition: 1s box-shadow;
+// }
