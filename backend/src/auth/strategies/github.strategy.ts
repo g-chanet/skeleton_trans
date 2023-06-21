@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport'
 import { AuthService } from '../auth.service'
 import { Strategy } from 'passport-github2'
 import { VerifyCallback } from 'passport-github'
+import { RedirectError } from '../custom-errors/redirect-errors'
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET
@@ -35,7 +36,17 @@ export class GithubStrategy extends PassportStrategy(Strategy, `github`) {
       avatar: profilejson.avatar_url, //dont work
       locale: `fr`,
     }
-    return done(null, await this.authService.transOauthLogin(userData))
+    try {
+      const user = await this.authService.transOauthLogin(userData)
+      return done(null, user)
+    } catch (error) {
+      console.error(`Error: `, error)
+      throw new RedirectError(
+        302,
+        `${process.env.FRONTEND_URL}/login?error=` + error.message,
+      )
+      return done(error, null)
+    }
   }
 
   getGithubUserMail(emails) {

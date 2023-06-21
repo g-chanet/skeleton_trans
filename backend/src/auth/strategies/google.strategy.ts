@@ -4,6 +4,7 @@ import { Strategy, VerifyCallback } from 'passport-google-oauth2'
 import { UsersService } from 'src/users/users.service'
 import { AuthService } from '../auth.service'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { RedirectError } from '../custom-errors/redirect-errors'
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
@@ -41,6 +42,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, `google`) {
       avatar: profileJson.picture,
       locale: profileJson.language,
     }
-    return done(null, await this.authService.transOauthLogin(userData))
+    try {
+      const user = await this.authService.transOauthLogin(userData)
+      return done(null, user)
+    } catch (error) {
+      console.error(`Error: `, error)
+      throw new RedirectError(
+        302,
+        `${process.env.FRONTEND_URL}/login?error=` + error.message,
+      )
+      return done(error, null)
+    }
   }
 }

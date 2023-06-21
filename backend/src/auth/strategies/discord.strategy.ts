@@ -19,14 +19,13 @@ export class DiscordStrategy extends PassportStrategy(Strategy, `discord`) {
     })
   }
 
-  async validate(
+  validate(
     req,
-    accessToken,
-    refreshToken,
+    accessToken: string,
+    refreshToken: string,
     profile: any,
     done: VerifyCallback,
   ) {
-    console.log(profile)
     const userData = {
       provider: `Discord`,
       providerUserId: profile.id,
@@ -35,6 +34,6 @@ export class DiscordStrategy extends PassportStrategy(Strategy, `discord`) {
       avatar: profile.avatar,
       locale: profile.locale,
     }
-    return done(null, await this.authService.transOauthLogin(userData))
+    return done(null, userData)
   }
 }
