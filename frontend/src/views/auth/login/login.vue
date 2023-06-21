@@ -99,7 +99,7 @@ const onConnectWithGoogle = () => {
 }
 
 const onConnectWithDiscord = () => {
-  window.open(`/auth/discord`)
+  window.location.href = `/auth/discord`
 }
 
 const onConnectWithGithub = () => {

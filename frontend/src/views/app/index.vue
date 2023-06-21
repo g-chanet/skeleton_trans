@@ -4,7 +4,6 @@
       <NavBar />
     </el-aside>
     <el-container class="center">
-      <div class="center-background panel-blur" />
 
       <router-view class="center-main" />
     </el-container>
@@ -17,23 +16,20 @@ import NavBar from './navBar/index.vue'
 
 <style scoped lang="sass">
 .container-app
-  height: 100%
-  padding: 20px 0px 20px 0px 
+  position: relative
+  height: 95%
+  width: 95%
+  background: #b000ff
   border-radius: 20px
   // background: linear-gradient(6deg, rgba(233,172,99,1) 0%, rgba(221,146,111,1) 100%)
   .aside
     width: 80px
   .center
     position: relative
-    margin-right: 20px
-    .center-background
-      position: absolute
-      top: 0
-      left: 0
-      right: 0
-      bottom: 0
-      border-radius: 20px
-    .center-main
+    background: #c700b5
+    backdrop-filter: blur(20px)
+    border-radius: 20px
+  .center-main
       position: relative
       padding: 20px
       
