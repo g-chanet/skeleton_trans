@@ -9,6 +9,7 @@
 import { useFindMyUserQuery } from '@/graphql/graphql-operations'
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import Background from './views/BackgroundRetroWave.vue'
 
 const route = useRoute()
 const router = useRouter()
