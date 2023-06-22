@@ -34,7 +34,7 @@
   display: flex
   flex-direction: row
   justify-content: space-between
-  border-radius:20px
+  border-radius: 20px
 
 .conversations-container
   background: red

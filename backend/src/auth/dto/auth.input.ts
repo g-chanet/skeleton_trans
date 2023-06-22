@@ -11,6 +11,9 @@ export class SignInLocalInput {
 
   @Field(() => String)
   emailOrUsername: string
+
+  @Field(() => String)
+  doubleAuthCode: string
 }
 
 @InputType()

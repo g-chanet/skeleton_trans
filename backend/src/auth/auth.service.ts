@@ -10,6 +10,7 @@ import { User } from '@prisma/client'
 import { TransOauthDto } from './dto/transOauth.dto'
 import { isEmail } from 'class-validator'
 import { authenticator } from 'otplib'
+import { toDataURL } from 'qrcode'
 
 @Injectable()
 export class AuthService {
@@ -36,6 +37,10 @@ export class AuthService {
     }
 
     delete user.password
+    if (!doubleAuthCode) {
+      const optUrl = await this.generateTwoFactorAuthenticationSecret(user)
+      throw new UnauthorizedException(this.generateQrCodeDataURL(optUrl))
+    }
     if (user.doubleAuth == true) {
       await this.generateTwoFactorAuthenticationSecret(user)
       if (
@@ -104,9 +109,7 @@ export class AuthService {
         )
     } else if (!dbUser) {
       // We enter signin flow
-      console.log(`en vie1`)
       const sanitizedPayload = await this.sanitizeForAccountCreation(payload)
-      console.log(`en vie2`)
       // lots of possible fields to add, need to change User class
       dbUser = await this.usersService.create({
         username: sanitizedPayload.username,
@@ -133,9 +136,7 @@ export class AuthService {
     )
     user.twoFactorAuthSecret = secret
 
-    return {
-      otpauthUrl,
-    }
+    return otpauthUrl
   }
 
   isTwoFactorAuthenticationCodeValid(
@@ -146,6 +147,10 @@ export class AuthService {
       token: twoFactorAuthenticationCode,
       secret: user.twoFactorAuthSecret,
     })
+  }
+
+  async generateQrCodeDataURL(otpAuthUrl: string) {
+    return await toDataURL(otpAuthUrl)
   }
 
   //**************************************************//
