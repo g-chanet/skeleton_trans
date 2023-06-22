@@ -25,7 +25,6 @@
   width: 100%
   display: flex
   flex-direction: column
-  align-items:center
 
 .podium
   height: 50%

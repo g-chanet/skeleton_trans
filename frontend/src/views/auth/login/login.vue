@@ -53,6 +53,7 @@
 import {  ref, onMounted } from 'vue'
 import { useSignInLocalMutation } from '@/graphql/graphql-operations'
 import { ElMessage } from 'element-plus'
+import { error } from 'console'
 
 const { mutate, onDone, onError } = useSignInLocalMutation()
 
@@ -85,7 +86,7 @@ onDone((e) => {
 onError((e) => {
   ElMessage({
     showClose: true,
-    message: `Oops, this is a error message.`,
+    message: e.message,
     type: `error`
   })
 })

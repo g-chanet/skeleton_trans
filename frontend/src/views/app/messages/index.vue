@@ -82,6 +82,5 @@ h1
   width: 100%
   background: green
 
-
 </style>
 
