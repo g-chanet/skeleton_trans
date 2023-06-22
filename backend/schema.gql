@@ -139,6 +139,7 @@ type Mutation {
   leaveGameMatchmakingMember: GameMatchmakingMember!
   signInLocal(args: SignInLocalInput!): User!
   signUpLocal(args: SignUpLocalInput!): User!
+  isGoogleAuthCodeValid(args: GoogleAuthCodeValidatorInput!): Boolean!
   signInGoogle: Boolean!
   signInGithub: Boolean!
   signIn42: Boolean!
@@ -236,6 +237,10 @@ input SignUpLocalInput {
   password: String!
   email: String!
   username: String!
+}
+
+input GoogleAuthCodeValidatorInput {
+  code: String!
 }
 
 type Subscription {

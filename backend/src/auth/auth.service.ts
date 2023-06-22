@@ -25,7 +25,6 @@ export class AuthService {
     password,
     doubleAuthCode,
   }: DTO.SignInLocalInput): Promise<User> {
-    console.log(`double code: `, doubleAuthCode)
     const user =
       (await this.usersService.findOneByEmail(emailOrUsername)) ||
       (await this.usersService.findOneByUsername(emailOrUsername))
@@ -38,7 +37,7 @@ export class AuthService {
     }
 
     delete user.password
-    if (user.doubleAuth == false && user.twoFactorAuthSecret) {
+    if (user.doubleAuth == true && user.twoFactorAuthSecret) {
       if (
         !(await this.isTwoFactorAuthenticationCodeValid(doubleAuthCode, user))
       )
@@ -59,9 +58,7 @@ export class AuthService {
       throw new BadRequestException(`Cannot register with '${email}'`)
     }
     const qrObject = await this.generateTwoFactorAuthenticationSecret(email)
-    console.log(`opt: `, qrObject.otpauthUrl)
     const qrCodeBase64 = await this.generateQrCodeDataURL(qrObject.otpauthUrl)
-    console.log(qrCodeBase64)
     const user = await this.usersService.create({
       username: username,
       password: await AuthHelper.hash(password),

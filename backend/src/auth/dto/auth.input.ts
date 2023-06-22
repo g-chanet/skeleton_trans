@@ -28,6 +28,12 @@ export class SignUpLocalInput {
   username: string
 }
 
+@InputType()
+export class GoogleAuthCodeValidatorInput {
+  @Field(() => String)
+  code: string
+}
+
 //**************************************************//
 //  QUERY
 //**************************************************//
