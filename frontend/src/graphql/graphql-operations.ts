@@ -432,6 +432,32 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 export type LogoutMutation = { __typename?: 'Mutation', logout: boolean };
 
+export type CreateChannelMutationVariables = Exact<{
+  args: CreateChannelInput;
+}>;
+
+
+export type CreateChannelMutation = { __typename?: 'Mutation', createChannel: { __typename?: 'Channel', id: string } };
+
+export type FindAllChannelsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FindAllChannelsQuery = { __typename?: 'Query', findAllChannels: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, password?: string | null, channelType: EChannelType, createdAt: any }> };
+
+export type CreateMessageForChannelMutationVariables = Exact<{
+  args: CreateMessageForChannelInput;
+}>;
+
+
+export type CreateMessageForChannelMutation = { __typename?: 'Mutation', createMessageForChannel: { __typename?: 'ChannelMessage', id: string } };
+
+export type FindAllChannelMessagesForChannelQueryVariables = Exact<{
+  args: FindAllMessagesForChannelInput;
+}>;
+
+
+export type FindAllChannelMessagesForChannelQuery = { __typename?: 'Query', findAllChannelMessagesForChannel: Array<{ __typename?: 'ChannelMessage', id: string, message: string, channelId: string, userId: string, createdAt: any, updatedAt: any }> };
+
 
 export const SignInLocalDocument = gql`
     mutation SignInLocal($args: SignInLocalInput!) {
@@ -550,3 +576,128 @@ export function useLogoutMutation(options: VueApolloComposable.UseMutationOption
   return VueApolloComposable.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options);
 }
 export type LogoutMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<LogoutMutation, LogoutMutationVariables>;
+export const CreateChannelDocument = gql`
+    mutation CreateChannel($args: CreateChannelInput!) {
+  createChannel(args: $args) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateChannelMutation__
+ *
+ * To run a mutation, you first call `useCreateChannelMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useCreateChannelMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useCreateChannelMutation({
+ *   variables: {
+ *     args: // value for 'args'
+ *   },
+ * });
+ */
+export function useCreateChannelMutation(options: VueApolloComposable.UseMutationOptions<CreateChannelMutation, CreateChannelMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateChannelMutation, CreateChannelMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<CreateChannelMutation, CreateChannelMutationVariables>(CreateChannelDocument, options);
+}
+export type CreateChannelMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<CreateChannelMutation, CreateChannelMutationVariables>;
+export const FindAllChannelsDocument = gql`
+    query FindAllChannels {
+  findAllChannels {
+    id
+    name
+    avatarUrl
+    password
+    channelType
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useFindAllChannelsQuery__
+ *
+ * To run a query within a Vue component, call `useFindAllChannelsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindAllChannelsQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindAllChannelsQuery();
+ */
+export function useFindAllChannelsQuery(options: VueApolloComposable.UseQueryOptions<FindAllChannelsQuery, FindAllChannelsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelsQuery, FindAllChannelsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelsQuery, FindAllChannelsQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindAllChannelsQuery, FindAllChannelsQueryVariables>(FindAllChannelsDocument, {}, options);
+}
+export function useFindAllChannelsLazyQuery(options: VueApolloComposable.UseQueryOptions<FindAllChannelsQuery, FindAllChannelsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelsQuery, FindAllChannelsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelsQuery, FindAllChannelsQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindAllChannelsQuery, FindAllChannelsQueryVariables>(FindAllChannelsDocument, {}, options);
+}
+export type FindAllChannelsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllChannelsQuery, FindAllChannelsQueryVariables>;
+export const CreateMessageForChannelDocument = gql`
+    mutation CreateMessageForChannel($args: CreateMessageForChannelInput!) {
+  createMessageForChannel(args: $args) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateMessageForChannelMutation__
+ *
+ * To run a mutation, you first call `useCreateMessageForChannelMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useCreateMessageForChannelMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useCreateMessageForChannelMutation({
+ *   variables: {
+ *     args: // value for 'args'
+ *   },
+ * });
+ */
+export function useCreateMessageForChannelMutation(options: VueApolloComposable.UseMutationOptions<CreateMessageForChannelMutation, CreateMessageForChannelMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateMessageForChannelMutation, CreateMessageForChannelMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<CreateMessageForChannelMutation, CreateMessageForChannelMutationVariables>(CreateMessageForChannelDocument, options);
+}
+export type CreateMessageForChannelMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<CreateMessageForChannelMutation, CreateMessageForChannelMutationVariables>;
+export const FindAllChannelMessagesForChannelDocument = gql`
+    query FindAllChannelMessagesForChannel($args: FindAllMessagesForChannelInput!) {
+  findAllChannelMessagesForChannel(args: $args) {
+    id
+    message
+    channelId
+    userId
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useFindAllChannelMessagesForChannelQuery__
+ *
+ * To run a query within a Vue component, call `useFindAllChannelMessagesForChannelQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindAllChannelMessagesForChannelQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the query
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindAllChannelMessagesForChannelQuery({
+ *   args: // value for 'args'
+ * });
+ */
+export function useFindAllChannelMessagesForChannelQuery(variables: FindAllChannelMessagesForChannelQueryVariables | VueCompositionApi.Ref<FindAllChannelMessagesForChannelQueryVariables> | ReactiveFunction<FindAllChannelMessagesForChannelQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>(FindAllChannelMessagesForChannelDocument, variables, options);
+}
+export function useFindAllChannelMessagesForChannelLazyQuery(variables: FindAllChannelMessagesForChannelQueryVariables | VueCompositionApi.Ref<FindAllChannelMessagesForChannelQueryVariables> | ReactiveFunction<FindAllChannelMessagesForChannelQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>(FindAllChannelMessagesForChannelDocument, variables, options);
+}
+export type FindAllChannelMessagesForChannelQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>;

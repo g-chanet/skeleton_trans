@@ -42,7 +42,7 @@ const route = useRoute()
 const router = useRouter()
 
 const pushHome = () => router.push(`/app/home`)
-const pushMessages = () => router.push(`/app/messages`)
+const pushMessages = () => router.push(`/app/channel`)
 const pushLeaderBoard = () => router.push(`/app/leaderboard`)
 const pushProfile = () => router.push(`/app/profile`)
 

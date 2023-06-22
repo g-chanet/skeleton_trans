@@ -1,0 +1,16 @@
+mutation CreateChannel($args: CreateChannelInput!) {
+  createChannel(args: $args) {
+    id
+  }
+}
+
+query FindAllChannels {
+  findAllChannels {
+    id
+    name
+    avatarUrl
+    password
+    channelType
+    createdAt
+  }
+}

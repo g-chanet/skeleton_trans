@@ -12,52 +12,43 @@ import ViewProfile from "../views/app/profile/index.vue"
 
 
 const routes: Array<RouteRecordRaw> = [
-    {
-      path: `/app`,
-      component: ViewApp,
-      children: [
-        {
-          path: `home`,
-          component: ViewHome
-        },
-        {
-          path: `messages`,
-          component: ViewMessages
-        },
-        {
-          path: `leaderboard`,
-          component: ViewLeaderboard
-        },
-        {
-          path: `profile`,
-          component: ViewProfile
-        }
-      ]
-    },
-    {
-      path: `/login`,
-      component: ViewLogin
-    },
-    {
-      path: `/signup`,
-      component: ViewSignIn
-    }
-  ]
+  {
+    path: `/app`,
+    component: ViewApp,
+    children: [
+      {
+        path: `home`,
+        component: ViewHome
+      },
+      {
+        path: `channel`,
+        component: ViewMessages
+      },
+      {
+        path: `leaderboard`,
+        component: ViewLeaderboard
+      },
+      {
+        path: `profile`,
+        component: ViewProfile
+      }
+    ]
+  },
+  {
+    path: `/login`,
+    component: ViewLogin
+  },
+  {
+    path: `/signup`,
+    component: ViewSignIn
+  },
+  { path: `/:pathMatch(.*)*`, component: ViewApp }
+]
 
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-})
-
-router.beforeEach(async (to, from) => {
-  const authStore = useAuthStore()
-
-  // if (from.path === `/login` && to.path === `/signup`) return true
-
-  // else if (to.path !== `/login` && !authStore.isConnected) return `/login`
-
-  // else if ((to.path === `/login` || to.path === `/signup`) && authStore.isConnected) return `/home`
 })
 
 export { router }

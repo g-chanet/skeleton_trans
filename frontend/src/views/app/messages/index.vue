@@ -1,11 +1,12 @@
 <template>
   <div class="messages-container">
     <div class="convesations-container">
-      <h1>Discussions</h1>
+      <div class="conversations-header"></div>
+      <h1>Channels</h1>
+      <el-button @click="onCreateChannel">Create </el-button>
+      <el-divider style="width: 95%; margin: 2.5%; color: var(--el-color-primary-light-5);"/>
       <div class="convesations-list-container">
-        <div>partie1</div>
-        <div>partie2</div>
-        <div>partie3</div>
+        <ItemChannel v-for="channel in result?.findAllChannels" :key="channel.id" :channel="channel" @click="onSelectChannel(channel)"/>
       </div>
     </div>
     <div class="active-conversation-container">
@@ -26,70 +27,61 @@
 </template>
 
 <script setup lang="ts">
+import { useFindAllChannelsQuery, useCreateChannelMutation, EChannelType, type Channel } from '@/graphql/graphql-operations'
+import ItemChannel from "./components/itemChannel.vue"
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const  { result, refetch } = useFindAllChannelsQuery({})
+
+const  { mutate } = useCreateChannelMutation({})
+
+const onCreateChannel = () => {
+  mutate({args: { 
+    name: `Yolo`, 
+    channelType: EChannelType.Public 
+  }}).then(() => refetch())
+}
+
+const onSelectChannel = ({ id }: Channel) => {
+  router.push({ query: { channelId: id }})
+}
 
 </script>
+
+
 <style scoped lang="sass">
 .messages-container
   width: 100%
   display: flex
   flex-direction: row
-  justify-content: space-between
   border-radius:20px
 
+h1
+  display: flex
+  height: 5%
+  align-items: center
+  margin-left: 5%
+
 .convesations-container
-  background: red
+  background: var(--el-color-primary)
   border-radius: 20px
   width: 100%
-  z-index: 1
+  height: inherit
 
+  
 .convesations-list-container
   display: flex
   flex-direction: column
-  gap:20px
-  flex:1
-  overflow-y: scroll
-  div
-    min-height: 80px
-    background: red
 .active-conversation-container
   width: 100%
   z-index: 0
-
-.active-conversation
 
 .active-conversation-profile-container
   width: 100%
   background: green
 
-.messageBlue
-  position: relative
-  marginLeft: 20px
-  marginBottom: 10px
-  padding: 10px
-  backgroundColor: #A8DDFD
-  width: 60%
-  textAlign: left
-  border: 1px solid #97C6E3
-  border-radius: 10px
-    &:after
-      content: ''
-      position: absolute
-      width: 0
-      height: 0
-      borderTop: 15px solid #A8DDFD
-      borderLeft: 15px solid transparent
-      borderRight: 15px solid transparent
-      top: 0
-      left: -15px
-    &:before: 
-      content: ''
-      position: absolute
-      width: 0
-      height: 0
-      borderTop: 17px solid #97C6E3
-      borderLeft: 16px solid transparent
-      borderRight: 16px solid transparent
-      top: -1px
-      left: -17px
+
 </style>
 

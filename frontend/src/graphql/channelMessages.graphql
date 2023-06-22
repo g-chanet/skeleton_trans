@@ -1,0 +1,16 @@
+mutation CreateMessageForChannel($args: CreateMessageForChannelInput!) {
+  createMessageForChannel(args: $args) {
+    id
+  }
+}
+
+query FindAllChannelMessagesForChannel($args: FindAllMessagesForChannelInput!) {
+  findAllChannelMessagesForChannel(args: $args) {
+    id
+    message
+    channelId
+    userId
+    createdAt
+    updatedAt
+  }
+}
