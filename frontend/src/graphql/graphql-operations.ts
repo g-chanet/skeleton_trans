@@ -323,6 +323,7 @@ export type QueryFindUserArgs = {
 };
 
 export type SignInLocalInput = {
+  doubleAuthCode?: InputMaybe<Scalars['String']>;
   emailOrUsername: Scalars['String'];
   password: Scalars['String'];
 };

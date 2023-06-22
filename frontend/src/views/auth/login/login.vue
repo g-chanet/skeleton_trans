@@ -53,7 +53,6 @@
 import {  ref, onMounted } from 'vue'
 import { useSignInLocalMutation } from '@/graphql/graphql-operations'
 import { ElMessage } from 'element-plus'
-import { error } from 'console'
 
 const { mutate, onDone, onError } = useSignInLocalMutation()
 
@@ -72,7 +71,8 @@ onMounted(() => {
 
 const form = ref({
   emailOrUsername: ``,
-  password: ``
+  password: ``,
+  doubleAuthCode: ``
 })
 
 onDone((e) => {

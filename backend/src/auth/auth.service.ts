@@ -25,6 +25,7 @@ export class AuthService {
     password,
     doubleAuthCode,
   }: DTO.SignInLocalInput): Promise<User> {
+    console.log(`double code: `, doubleAuthCode)
     const user =
       (await this.usersService.findOneByEmail(emailOrUsername)) ||
       (await this.usersService.findOneByUsername(emailOrUsername))
@@ -37,12 +38,7 @@ export class AuthService {
     }
 
     delete user.password
-    if (!doubleAuthCode) {
-      const optUrl = await this.generateTwoFactorAuthenticationSecret(user)
-      throw new UnauthorizedException(this.generateQrCodeDataURL(optUrl))
-    }
-    if (user.doubleAuth == true) {
-      await this.generateTwoFactorAuthenticationSecret(user)
+    if (user.doubleAuth == false && user.twoFactorAuthSecret) {
       if (
         !(await this.isTwoFactorAuthenticationCodeValid(doubleAuthCode, user))
       )
@@ -62,11 +58,16 @@ export class AuthService {
     if (await this.usersService.findOneByEmail(email)) {
       throw new BadRequestException(`Cannot register with '${email}'`)
     }
-
+    const qrObject = await this.generateTwoFactorAuthenticationSecret(email)
+    console.log(`opt: `, qrObject.otpauthUrl)
+    const qrCodeBase64 = await this.generateQrCodeDataURL(qrObject.otpauthUrl)
+    console.log(qrCodeBase64)
     const user = await this.usersService.create({
-      username,
+      username: username,
       password: await AuthHelper.hash(password),
-      email,
+      email: email,
+      twoFactorAuthSecret: qrObject.secret,
+      googleAuthenticatorQrCode: qrCodeBase64,
     })
     delete user.password
     return user
@@ -126,23 +127,25 @@ export class AuthService {
     return dbUser
   }
 
-  async generateTwoFactorAuthenticationSecret(user: User) {
+  async generateTwoFactorAuthenticationSecret(email: string) {
     const secret = await authenticator.generateSecret()
+    console.log(`generated secret: `, secret)
 
     const otpauthUrl = await authenticator.keyuri(
-      user.email,
+      email,
       `Transcendance`,
       secret,
     )
-    user.twoFactorAuthSecret = secret
+    console.log(`(after set)`, secret)
 
-    return otpauthUrl
+    return { otpauthUrl, secret }
   }
 
   isTwoFactorAuthenticationCodeValid(
     twoFactorAuthenticationCode: string,
     user: User,
   ) {
+    console.log(`(before validation)`, user.twoFactorAuthSecret)
     return authenticator.verify({
       token: twoFactorAuthenticationCode,
       secret: user.twoFactorAuthSecret,

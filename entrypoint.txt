@@ -2,7 +2,7 @@ BACKEND -> END_POINTS
 
 Auth
   mutation
-    - signIn (Boolean)
+    - signInLocal (Boolean)
 
 User
   mutation

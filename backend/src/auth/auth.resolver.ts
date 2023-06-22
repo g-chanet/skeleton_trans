@@ -15,9 +15,9 @@ export class AuthResolver {
   //  MUTATION - AUTH LOCAL
   //**************************************************//
 
-  // EMAIL + PASSWORD
+  // EMAIL + PASSWORD + 2fasecret
   @Mutation(() => User)
-  @UseGuards(LocalGuard)
+  //@UseGuards(LocalGuard)
   signInLocal(@Args(`args`) args: DTO.SignInLocalInput) {
     return this.authService.signInLocal(args)
   }
