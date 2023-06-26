@@ -14,3 +14,25 @@ query FindAllChannels {
     createdAt
   }
 }
+
+query FindAllPublicChannels {
+  findAllPublicChannels {
+    id
+    name
+    avatarUrl
+    password
+    channelType
+    createdAt
+  }
+}
+
+query FindChannel($args: FindChannelInput!) {
+  findChannel(args: $args) {
+    id
+    name
+    avatarUrl
+    password
+    channelType
+    createdAt
+  }
+}

@@ -14,20 +14,25 @@
 
 }
 
+$default-font: 'BaseRetroWave', 'sans-serif';
+
+@font-face {
+  font-family: 'BaseRetroWave';
+  src: url('./assets/fonts/VCR_OSD_MONO_1.001.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 @font-face {
   font-family: "Vaporfuturism";
   src: url("./assets/fonts/VaporfuturismCond.otf");
+}
+
+body {
+  font-family: $default-font;
 }
 
 .panel-blur {
   background-color: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
 }
-
-// .el-input__wrapper.is-focus {
-//   box-shadow: var(--my-box-shadow);
-// }
-
-// .el-input__wrapper {
-//   transition: 1s box-shadow;
-// }

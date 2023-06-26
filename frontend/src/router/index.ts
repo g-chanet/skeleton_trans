@@ -6,7 +6,7 @@ import ViewSignIn from "../views/auth/signin/signin.vue"
 
 import ViewApp from "../views/app/index.vue"
 import ViewHome from "../views/app/home/index.vue"
-import ViewMessages from "../views/app/messages/index.vue"
+import ViewMessages from "../views/app/channels/index.vue"
 import ViewLeaderboard from "../views/app/leaderboard/index.vue"
 import ViewProfile from "../views/app/profile/index.vue"
 

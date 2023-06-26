@@ -1,0 +1,29 @@
+query FindAllChannelMembersForChannel {
+  findAllChannelMembersForChannel {
+    userId
+  }
+}
+
+query FindAllChannelMembersForUser($args: FindAllChannelMembersForUserInput!) {
+  findAllChannelMembersForUser(args: $args) {
+    channel {
+      id
+      name
+      avatarUrl
+      password
+      channelType
+      createdAt
+    }
+  }
+}
+
+mutation CreateMemberForChannel($args: CreateMemberForChannelInput!) {
+  createMemberForChannel(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
+  }
+}

@@ -62,6 +62,12 @@ export class ChannelMembersResolver {
     })
   }
 
+  @Query(() => [ChannelMember])
+  async findAllChannelMembersForUser(
+    @Args(`args`) args: DTO.FindAllChannelMembersForUserInput,
+  ) {
+    return await this.channelMembersService.findAllForUser(args.userId)
+  }
   //**************************************************//
   //  SUBSCRIPTION
   //**************************************************//

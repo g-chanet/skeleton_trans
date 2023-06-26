@@ -1,4 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql'
+import { EChannelMemberType } from '@prisma/client'
 //**************************************************//
 //  MUTATION
 //**************************************************//
@@ -7,12 +8,18 @@ import { Field, InputType } from '@nestjs/graphql'
 export class CreateMemberForChannelInput {
   @Field(() => String)
   channelId: string
+
+  @Field(() => EChannelMemberType)
+  type: EChannelMemberType
 }
 
 @InputType()
 export class UpdateMyMemberForChannelInput {
   @Field(() => String)
   channelId: string
+
+  @Field(() => EChannelMemberType)
+  type: EChannelMemberType
 }
 
 @InputType()
@@ -29,6 +36,12 @@ export class DeleteMyMemberForChannelInput {
 export class FindAllChannelMembersForChannelInput {
   @Field(() => String)
   channelId: string
+}
+
+@InputType()
+export class FindAllChannelMembersForUserInput {
+  @Field(() => String)
+  userId: string
 }
 
 //**************************************************//

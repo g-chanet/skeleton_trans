@@ -39,6 +39,15 @@ export class ChannelMembersService {
     return await this.prisma.channelMember.findMany(args)
   }
 
+  async findAllForUser(userId: string) {
+    return await this.prisma.channelMember.findMany({
+      where: { userId: userId },
+      include: {
+        channel: true,
+      },
+    })
+  }
+
   async findOne(channelId: string, userId: string) {
     return await this.prisma.channelMember.findUnique({
       where: {

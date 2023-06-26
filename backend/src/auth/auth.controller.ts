@@ -52,8 +52,6 @@ export class AuthController {
   @UseGuards(School42OAuthGuard)
   ftAuthRedirect(@Request() req, @Res() res) {
     {
-      console.log(`error :`, req.error)
-      console.log(`user: `, req.user)
       res.redirect(`${process.env.FRONTEND_URL}`)
       return req.red
     }

@@ -25,7 +25,6 @@ export class School42Strategy extends PassportStrategy(Strategy, `42`) {
     profile: any,
     done: VerifyCallback,
   ) {
-    //console.log(profile)
     profile = profile._json
     const userData = {
       provider: `42`,

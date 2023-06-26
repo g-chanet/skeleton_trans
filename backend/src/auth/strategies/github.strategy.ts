@@ -26,7 +26,6 @@ export class GithubStrategy extends PassportStrategy(Strategy, `github`) {
     profile: any,
     done: VerifyCallback,
   ) {
-    console.log(profile)
     const profilejson = profile._json
     const userData = {
       provider: `Github`,
