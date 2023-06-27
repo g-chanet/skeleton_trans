@@ -1,20 +1,23 @@
 <template>
   <div class="profile-container">
-    <h1>PROFILE</h1>
-  <div class="resume-wrapper">
-    <div class="avatar">AVATAR</div>
-    <div class="pseudo">PSEUDO</div>
-  </div>
-  <div class="info">
-    <div class="graphs-wrapper">
-     <div class="graph">GRAPH 1</div>
-     <div class="graph">GRAPH 2</div>
-     <div class="graph">GRAPH 3</div>
-      <div class="graph">GRAPH 4</div>
+    <div class="resume-wrapper">
+      <div class="avatar">AVATAR + PSEUDO + ?</div>
+      <div class="pseudo">SETTINGS...../OR/.....ADD AS A FRIEND + CHAT + CHALLENGE</div>
     </div>
-    <el-scrollbar class="scroll">
-     <p v-for="item in 10" :key="item" class="history-scroll">{{ item }}</p>
-    </el-scrollbar>
+    <div class="info">
+      <div class="graphs">
+        <div class="graphs-wrapper1">
+          <div class="graph">WINRATE</div>
+          <div class="graph">NB DE WIN/LOSE</div>
+        </div>
+        <div class="graphs-wrapper2">
+          <div class="graph">PLACE AU LEADERBOARD</div>
+          <div class="graph">ALED</div>
+        </div>
+      </div>
+      <el-scrollbar class="scroll">
+        <p v-for="item in 10" :key="item" class="history-scroll">{{ item }}</p>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -51,25 +54,47 @@
 
 .info
   height: 50%
+  width: 100%
+  display: flex
+  flex-direction: row
+  background: transparent
+  gap: 20px
+.graphs
+  height: 100%
+  width: 60%
   display: flex
   flex-direction: row
   background: var(--el-color-primary-light-3)
-  .graphs-wrapper
+  .graphs-wrapper1
     height: 100%
-    width: 60%
+    width: 100%
     display: flex
     flex-direction: column
-    align-items: left
+    align-items: center
+    justify-content: space-evenly
     background: green
-  .history-scroll
+  .graphs-wrapper2
     height: 100%
-    width: 40%
+    width: 100%
     display: flex
     flex-direction: column
-    min-height: 80px
-    text-align: center
-    border-radius: 4px
-    background: var(--el-color-primary-light-9)
-    color: var(--el-color-primary)
-    justify-content: center
+    align-items: center
+    justify-content: space-evenly
+    background: green
+
+.history-scroll
+  display: flex
+  flex-direction: column
+  align-items: center
+  min-height: 80px
+  text-align: center
+  border-radius: 4px
+  background: var(--el-color-primary-light-9)
+  color: var(--el-color-primary)
+  justify-content: center
+  top: 0
+  left: 0
+.scroll
+  height: 100%
+  width: 40%
 </style>
