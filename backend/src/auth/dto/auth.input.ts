@@ -12,8 +12,8 @@ export class SignInLocalInput {
   @Field(() => String)
   emailOrUsername: string
 
-  @Field(() => String)
-  doubleAuthCode: string
+  @Field(() => String, { nullable: true })
+  doubleAuthCode?: string
 }
 
 @InputType()
@@ -26,6 +26,12 @@ export class SignUpLocalInput {
 
   @Field(() => String)
   username: string
+}
+
+@InputType()
+export class GoogleAuthCodeValidatorInput {
+  @Field(() => String)
+  code: string
 }
 
 //**************************************************//

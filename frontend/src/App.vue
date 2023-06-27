@@ -24,7 +24,8 @@ onError(() => {
 
 onResult(() => {
   setTimeout(() => {
-    router.replace(`/app/home`)
+    if (!route.fullPath.startsWith(`/app`))
+      router.replace(`/app/home`)
     onConnectQuery.value = false
   }, 500)
 })

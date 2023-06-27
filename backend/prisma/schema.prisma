@@ -19,14 +19,15 @@ model User {
   doubleAuth Boolean @default(false)
   avatarUrl  String?
 
-  password String?
-  email    String  @unique
-  username String  @unique
-  twoFactorAuthSecret String?
+  password                  String?
+  email                     String  @unique
+  username                  String  @unique
+  twoFactorAuthSecret       String?
+  googleAuthenticatorQrCode String?
 
-  providerName   String?
+  providerName String?
   providerId   String?
-  isOauth Boolean?
+  isOauth      Boolean?
 
   presenceStatus EUserPresenceStatus @default(Default)
   language       EUserLanguage       @default(Default)

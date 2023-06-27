@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
+import { EChannelType, Prisma } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
@@ -27,6 +27,12 @@ export class ChannelsService {
 
   async findAll() {
     return await this.prisma.channel.findMany({})
+  }
+
+  async findAllPublic() {
+    return await this.prisma.channel.findMany({
+      where: { channelType: EChannelType.Public },
+    })
   }
 
   async findOne(id: string) {

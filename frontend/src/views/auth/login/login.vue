@@ -71,7 +71,8 @@ onMounted(() => {
 
 const form = ref({
   emailOrUsername: ``,
-  password: ``
+  password: ``,
+  doubleAuthCode: ``
 })
 
 onDone((e) => {

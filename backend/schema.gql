@@ -43,23 +43,6 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type ChannelMember {
-  channelId: String!
-  userId: String!
-  type: EChannelMemberType!
-  muted: DateTime!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-enum EChannelMemberType {
-  Default
-  Admin
-  Owner
-  Banned
-  Invited
-}
-
 type Channel {
   id: String!
   name: String!
@@ -73,6 +56,24 @@ enum EChannelType {
   Public
   Protected
   Private
+}
+
+type ChannelMember {
+  channelId: String!
+  userId: String!
+  type: EChannelMemberType!
+  muted: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  channel: Channel!
+}
+
+enum EChannelMemberType {
+  Default
+  Admin
+  Owner
+  Banned
+  Invited
 }
 
 type UserRelation {
@@ -96,7 +97,9 @@ type Query {
   findUser(args: FindUserInput!): UserPublic!
   findChannel(args: FindChannelInput!): Channel!
   findAllChannels: [Channel!]!
+  findAllPublicChannels: [Channel!]!
   findAllChannelMembersForChannel: [GameMatchmakingMember!]!
+  findAllChannelMembersForUser(args: FindAllChannelMembersForUserInput!): [ChannelMember!]!
   findAllChannelMessagesForChannel(args: FindAllMessagesForChannelInput!): [ChannelMessage!]!
 }
 
@@ -106,6 +109,10 @@ input FindUserInput {
 
 input FindChannelInput {
   id: String!
+}
+
+input FindAllChannelMembersForUserInput {
+  userId: String!
 }
 
 input FindAllMessagesForChannelInput {
@@ -139,6 +146,7 @@ type Mutation {
   leaveGameMatchmakingMember: GameMatchmakingMember!
   signInLocal(args: SignInLocalInput!): User!
   signUpLocal(args: SignUpLocalInput!): User!
+  isGoogleAuthCodeValid(args: GoogleAuthCodeValidatorInput!): Boolean!
   signInGoogle: Boolean!
   signInGithub: Boolean!
   signIn42: Boolean!
@@ -179,10 +187,12 @@ input DeleteChannelInput {
 
 input CreateMemberForChannelInput {
   channelId: String!
+  type: EChannelMemberType!
 }
 
 input UpdateMyMemberForChannelInput {
   channelId: String!
+  type: EChannelMemberType!
 }
 
 input DeleteMyMemberForChannelInput {
@@ -229,13 +239,17 @@ input UpdateGameMemberInput {
 input SignInLocalInput {
   password: String!
   emailOrUsername: String!
-  doubleAuthCode: String!
+  doubleAuthCode: String
 }
 
 input SignUpLocalInput {
   password: String!
   email: String!
   username: String!
+}
+
+input GoogleAuthCodeValidatorInput {
+  code: String!
 }
 
 type Subscription {

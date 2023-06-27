@@ -66,6 +66,11 @@ export class ChannelsResolver {
     return await this.channelsService.findAll()
   }
 
+  @Query(() => [Channel])
+  async findAllPublicChannels() {
+    return await this.channelsService.findAllPublic()
+  }
+
   //**************************************************//
   //  SUBSCRIPTION
   //**************************************************//
