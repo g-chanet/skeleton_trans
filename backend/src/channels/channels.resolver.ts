@@ -4,14 +4,19 @@ import { ChannelsService } from './channels.service'
 import { Channel } from './entities/channel.entity'
 import { PubSub } from 'graphql-subscriptions'
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard'
-import { UseGuards } from '@nestjs/common'
+import { UnauthorizedException, UseGuards } from '@nestjs/common'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from 'src/users/entities/user.entity'
+import { ChannelMembersService } from 'src/channel-members/channel-members.service'
+import { AuthHelper } from 'src/auth/auth.helper'
+import { EChannelType } from '@prisma/client'
+import { ChannelMember } from 'src/channel-members/entities/channel-member.entity'
 
 @Resolver(Channel)
 export class ChannelsResolver {
   constructor(
     private readonly channelsService: ChannelsService,
+    private readonly channelMembersService: ChannelMembersService,
     private readonly pubSub: PubSub,
   ) {}
 
@@ -52,6 +57,24 @@ export class ChannelsResolver {
     return channel
   }
 
+  @Mutation(() => ChannelMember)
+  @UseGuards(GqlAuthGuard)
+  async joinChannel(
+    @CtxUser() user: User,
+    @Args(`args`) args: DTO.JoinChannelInput,
+  ) {
+    const channel = await this.channelsService.findOne(args.channelId)
+    if (
+      channel.channelType === EChannelType.Protected &&
+      channel.password !== (await AuthHelper.hash(args.password))
+    )
+      throw new UnauthorizedException(`Invalid password`)
+    return await this.channelMembersService.create({
+      ...args,
+      userId: user.id,
+    })
+  }
+
   //**************************************************//
   //  QUERY
   //**************************************************//
@@ -67,8 +90,13 @@ export class ChannelsResolver {
   }
 
   @Query(() => [Channel])
-  async findAllPublicChannels() {
-    return await this.channelsService.findAllPublic()
+  async findAllPublicChannels(@CtxUser() user: User) {
+    return await this.channelsService.findAllPublic(user.id)
+  }
+
+  @Query(() => [Channel])
+  async findAllProtectedChannels(@CtxUser() user: User) {
+    return await this.channelsService.findAllProtected(user.id)
   }
 
   //**************************************************//

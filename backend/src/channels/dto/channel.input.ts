@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql'
-import { EChannelType } from '@prisma/client'
+import { EChannelMemberType, EChannelType } from '@prisma/client'
 
 //**************************************************//
 //  MUTATION
@@ -42,6 +42,18 @@ export class UpdateChannelInput {
 export class DeleteChannelInput {
   @Field(() => String)
   id: string
+}
+
+@InputType()
+export class JoinChannelInput {
+  @Field(() => String)
+  channelId: string
+
+  @Field(() => String, { nullable: true })
+  password?: string
+
+  @Field(() => EChannelMemberType)
+  type: EChannelMemberType
 }
 
 //**************************************************//
