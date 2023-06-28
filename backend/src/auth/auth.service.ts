@@ -38,6 +38,7 @@ export class AuthService {
 
     delete user.password
     if (user.doubleAuth == false && user.twoFactorAuthSecret) {
+      if (!doubleAuthCode) throw new UnauthorizedException(`4242`)
       if (
         !(await this.isTwoFactorAuthenticationCodeValid(doubleAuthCode, user))
       )

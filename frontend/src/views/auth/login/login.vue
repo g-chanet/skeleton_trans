@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import {  ref, onMounted } from 'vue'
 import { useSignInLocalMutation } from '@/graphql/graphql-operations'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElPopconfirm } from 'element-plus'
 
 const { mutate, onDone, onError } = useSignInLocalMutation()
 
@@ -84,6 +84,14 @@ onDone((e) => {
 })
 
 onError((e) => {
+  console.log(`test`)
+  if (e.message == `GraphQL error: 4242`)
+  {
+    ElPopconfirm({
+    
+  })
+    return
+  }
   ElMessage({
     showClose: true,
     message: e.message,
