@@ -1,4 +1,5 @@
 import { GqlAuthGuard } from './guards/gql-auth.guard'
+import { LocalGuard } from './guards/local-auth.guard'
 import { UseGuards } from '@nestjs/common'
 import { Args, Mutation, Resolver } from '@nestjs/graphql'
 import { AuthService } from './auth.service'
@@ -21,7 +22,6 @@ export class AuthResolver {
 
   // EMAIL + PASSWORD + 2fasecret
   @Mutation(() => User)
-  //@UseGuards(LocalGuard)
   signInLocal(@Args(`args`) args: DTO.SignInLocalInput) {
     return this.authService.signInLocal(args)
   }

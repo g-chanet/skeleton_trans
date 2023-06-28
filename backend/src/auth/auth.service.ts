@@ -37,7 +37,7 @@ export class AuthService {
     }
 
     delete user.password
-    if (user.doubleAuth == true && user.twoFactorAuthSecret) {
+    if (user.doubleAuth == false && user.twoFactorAuthSecret) {
       if (
         !(await this.isTwoFactorAuthenticationCodeValid(doubleAuthCode, user))
       )
@@ -66,6 +66,7 @@ export class AuthService {
       twoFactorAuthSecret: qrObject.secret,
       googleAuthenticatorQrCode: qrCodeBase64,
     })
+    console.log(user.googleAuthenticatorQrCode)
     delete user.password
     return user
   }
