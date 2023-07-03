@@ -12,8 +12,8 @@ export class SignInLocalInput {
   @Field(() => String)
   email: string
 
-  @Field(() => String, { nullable: true })
-  doubleAuthCode?: string
+  @Field(() => String)
+  doubleAuthCode: string
 }
 
 @InputType()

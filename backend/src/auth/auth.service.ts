@@ -35,7 +35,7 @@ export class AuthService {
     }
 
     delete user.password
-    if (user.doubleAuth == true && user.twoFactorAuthSecret) {
+    if (user.doubleAuth == false && user.twoFactorAuthSecret) {
       if (!doubleAuthCode) throw new UnauthorizedException(`4242`)
       if (
         !(await this.isTwoFactorAuthenticationCodeValid(doubleAuthCode, user))
@@ -71,6 +71,7 @@ export class AuthService {
   }
 
   async validateUser(emailOrUsername: string, password: string) {
+    console.log(`entered validatUser`)
     const user =
       (await this.usersService.findOneByEmail(emailOrUsername)) ||
       (await this.usersService.findOneByUsername(emailOrUsername))
