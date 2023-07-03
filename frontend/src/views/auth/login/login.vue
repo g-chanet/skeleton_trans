@@ -20,7 +20,7 @@
         :style="{ width: '100%' }"
       >
         <el-form-item>
-          <el-input v-model="form.emailOrUsername" placeholder="Email" />
+          <el-input v-model="form.email" placeholder="Email" />
         </el-form-item>
         <el-form-item>
           <el-input
@@ -70,7 +70,7 @@ onMounted(() => {
 })
 
 const form = ref({
-  emailOrUsername: ``,
+  email: ``,
   password: ``,
   doubleAuthCode: ``
 })
@@ -109,7 +109,6 @@ onError((e) => {
 
 
 const onSubmitForm = () => {
-  console.log(`hey`)
   mutate({ args: form.value })
 }
 

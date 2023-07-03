@@ -246,7 +246,7 @@ input UpdateGameMemberInput {
 
 input SignInLocalInput {
   password: String!
-  emailOrUsername: String!
+  email: String!
   doubleAuthCode: String
 }
 

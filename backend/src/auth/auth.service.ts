@@ -21,13 +21,11 @@ export class AuthService {
   //**************************************************//
 
   async signInLocal({
-    emailOrUsername,
+    email,
     password,
     doubleAuthCode,
   }: DTO.SignInLocalInput): Promise<User> {
-    const user =
-      (await this.usersService.findOneByEmail(emailOrUsername)) ||
-      (await this.usersService.findOneByUsername(emailOrUsername))
+    const user = await this.usersService.findOneByEmail(email)
 
     if (user === null) {
       throw new UnauthorizedException(`Invalid credentials`)
@@ -37,7 +35,7 @@ export class AuthService {
     }
 
     delete user.password
-    if (user.doubleAuth == false && user.twoFactorAuthSecret) {
+    if (user.doubleAuth == true && user.twoFactorAuthSecret) {
       if (!doubleAuthCode) throw new UnauthorizedException(`4242`)
       if (
         !(await this.isTwoFactorAuthenticationCodeValid(doubleAuthCode, user))

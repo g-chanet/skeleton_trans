@@ -360,7 +360,7 @@ export type QueryFindUserArgs = {
 
 export type SignInLocalInput = {
   doubleAuthCode?: InputMaybe<Scalars['String']>;
-  emailOrUsername: Scalars['String'];
+  email: Scalars['String'];
   password: Scalars['String'];
 };
 
