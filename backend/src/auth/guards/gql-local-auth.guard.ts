@@ -34,7 +34,7 @@ export class GqlLocalAuthGuard extends AuthGuard(`local`) {
 		gqlReq.body.email = email
 		gqlReq.body.password = password
 		gqlReq.body.doubleAuthCode = doubleAuthCode
-		if (!gqlReq.user.doubleAuth && gqlReq.user.twoFactorAuthSecret) {
+		if (gqlReq.user.doubleAuth && gqlReq.user.twoFactorAuthSecret) {
 			//change for true
 			if (!doubleAuthCode) {
 				return activate
