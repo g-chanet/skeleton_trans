@@ -7,7 +7,9 @@ import * as DTO from './dto/auth.input'
 import { User } from 'src/users/entities/user.entity'
 import { CtxSession } from './decorators/ctx-session.decorator'
 import { CtxUser } from './decorators/ctx-user.decorator'
-
+import { LocalGuard } from './guards/local-auth.guard'
+import { GqlLocalAuthGuard } from './guards/gql-local-auth.guard'
+import { GqlSessionLocalAuthGuard } from './guards/gql-session-auth.guard'
 @Resolver()
 export class AuthResolver {
   constructor(
@@ -21,7 +23,7 @@ export class AuthResolver {
 
   // EMAIL + PASSWORD + 2fasecret
   @Mutation(() => User)
-  //@UseGuards(LocalGuard)
+  @UseGuards(GqlLocalAuthGuard)
   signInLocal(@Args(`args`) args: DTO.SignInLocalInput) {
     return this.authService.signInLocal(args)
   }

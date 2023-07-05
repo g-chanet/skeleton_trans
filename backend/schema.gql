@@ -99,6 +99,7 @@ type Query {
   findChannel(args: FindChannelInput!): Channel!
   findAllChannels: [Channel!]!
   findAllPublicChannels: [Channel!]!
+  findAllProtectedChannels: [Channel!]!
   findAllChannelMembersForChannel: [GameMatchmakingMember!]!
   findAllChannelMembersForUser(args: FindAllChannelMembersForUserInput!): [ChannelMember!]!
   findAllChannelMessagesForChannel(args: FindAllMessagesForChannelInput!): [ChannelMessage!]!
@@ -132,6 +133,7 @@ type Mutation {
   createChannel(args: CreateChannelInput!): Channel!
   updateChannel(args: UpdateChannelInput!): Channel!
   deleteChannel(args: DeleteChannelInput!): Channel!
+  joinChannel(args: JoinChannelInput!): ChannelMember!
   createMemberForChannel(args: CreateMemberForChannelInput!): ChannelMember!
   updateMyMemberForChannel(args: UpdateMyMemberForChannelInput!): ChannelMember!
   deleteMyMemberForChannel(args: DeleteMyMemberForChannelInput!): ChannelMember!
@@ -184,6 +186,12 @@ input UpdateChannelInput {
 
 input DeleteChannelInput {
   id: String!
+}
+
+input JoinChannelInput {
+  channelId: String!
+  password: String
+  type: EChannelMemberType!
 }
 
 input CreateMemberForChannelInput {
@@ -239,8 +247,8 @@ input UpdateGameMemberInput {
 
 input SignInLocalInput {
   password: String!
-  emailOrUsername: String!
-  doubleAuthCode: String
+  email: String!
+  doubleAuthCode: String!
 }
 
 input SignUpLocalInput {

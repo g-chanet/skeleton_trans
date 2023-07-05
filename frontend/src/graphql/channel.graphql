@@ -26,6 +26,17 @@ query FindAllPublicChannels {
   }
 }
 
+query FindAllProtectedChannels {
+  findAllProtectedChannels {
+    id
+    name
+    avatarUrl
+    password
+    channelType
+    createdAt
+  }
+}
+
 query FindChannel($args: FindChannelInput!) {
   findChannel(args: $args) {
     id
@@ -34,5 +45,16 @@ query FindChannel($args: FindChannelInput!) {
     password
     channelType
     createdAt
+  }
+}
+
+mutation JoinChannel($args: JoinChannelInput!) {
+  joinChannel(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
   }
 }
