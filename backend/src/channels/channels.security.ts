@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable, forwardRef } from '@nestjs/common'
 import { EChannelMemberType } from '@prisma/client'
 import { ChannelMembersService } from 'src/channel-members/channel-members.service'
 import { ChannelsService } from './channels.service'
@@ -6,8 +6,9 @@ import { ChannelsService } from './channels.service'
 @Injectable()
 export class ChannelsSecurity {
   constructor(
-    private readonly channelMembersService: ChannelMembersService,
     private readonly channelsService: ChannelsService,
+    @Inject(forwardRef(() => ChannelMembersService))
+    private readonly channelMembersService: ChannelMembersService,
   ) {}
 
   async channelRW(channelId: string, userId: string): Promise<Boolean> {

@@ -26,10 +26,7 @@ import type { Channel } from '@/graphql/graphql-operations'
   display: flex
   align-items: center
   margin: 10px
-  border-radius: 20px
-  &:hover
-    background-color: rgba(0, 0, 0, 0.3)
-    backdrop-filter: blur(10px)
+  border-radius: var(--el-border-radius-base)
     
 
 .channel-description

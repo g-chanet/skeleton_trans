@@ -3,7 +3,7 @@
         v-model="createDialogVisible"
         title="Create channel"
         width="25%"
-        style="border-radius: 20px;"
+        style="border-radius: var(--el-border-radius-base);"
         :before-close="handleClose"
         close-on-press-escape
       >

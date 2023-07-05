@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { EChannelType, Prisma } from '@prisma/client'
+import { compare } from 'bcrypt'
 import { AuthHelper } from 'src/auth/auth.helper'
 import { PrismaService } from 'src/prisma/prisma.service'
+
+const SALT_OR_ROUNDS = 10
 
 @Injectable()
 export class ChannelsService {
@@ -11,7 +14,7 @@ export class ChannelsService {
   //**************************************************//
 
   async create(data: Prisma.ChannelCreateInput) {
-    if (data.channelType === EChannelType.Protected)
+    if (data.password !== null)
       data.password = await AuthHelper.hash(data.password)
     return await this.prisma.channel.create({ data })
   }
@@ -51,6 +54,20 @@ export class ChannelsService {
   }
 
   async findOne(id: string) {
-    return await this.prisma.channel.findFirst({ where: { id } })
+    return await this.prisma.channel.findFirst({
+      where: { id },
+      include: {
+        channelMembers: { include: { user: true } },
+        channelMessages: true,
+      },
+    })
+  }
+
+  async verifyChannelPassword(channelId: string, password: string) {
+    const channel = await this.prisma.channel.findFirst({
+      where: { id: channelId },
+    })
+    if (channel.channelType === EChannelType.Public) return true
+    return await compare(password, channel.password)
   }
 }

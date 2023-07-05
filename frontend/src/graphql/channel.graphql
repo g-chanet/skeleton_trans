@@ -4,23 +4,11 @@ mutation CreateChannel($args: CreateChannelInput!) {
   }
 }
 
-query FindAllChannels {
-  findAllChannels {
-    id
-    name
-    avatarUrl
-    password
-    channelType
-    createdAt
-  }
-}
-
 query FindAllPublicChannels {
   findAllPublicChannels {
     id
     name
     avatarUrl
-    password
     channelType
     createdAt
   }
@@ -31,7 +19,6 @@ query FindAllProtectedChannels {
     id
     name
     avatarUrl
-    password
     channelType
     createdAt
   }
@@ -42,19 +29,7 @@ query FindChannel($args: FindChannelInput!) {
     id
     name
     avatarUrl
-    password
     channelType
     createdAt
-  }
-}
-
-mutation JoinChannel($args: JoinChannelInput!) {
-  joinChannel(args: $args) {
-    channelId
-    userId
-    type
-    muted
-    createdAt
-    updatedAt
   }
 }

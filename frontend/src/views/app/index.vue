@@ -19,7 +19,7 @@ import NavBar from './navBar/index.vue'
 .container-app
   height: 100%
   padding: 20px 0px 20px 0px 
-  border-radius: 20px
+  border-radius: var(--el-border-radius-base)
   // background: linear-gradient(6deg, rgba(233,172,99,1) 0%, rgba(221,146,111,1) 100%)
   .aside
     width: 80px
@@ -32,7 +32,7 @@ import NavBar from './navBar/index.vue'
       left: 0
       right: 0
       bottom: 0
-      border-radius: 20px
+      border-radius: var(--el-border-radius-base)
     .center-main
       position: relative
       padding: 20px

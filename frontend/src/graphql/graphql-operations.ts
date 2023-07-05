@@ -29,12 +29,13 @@ export type Channel = {
 
 export type ChannelMember = {
   __typename?: 'ChannelMember';
-  channel: Channel;
+  channel?: Maybe<Channel>;
   channelId: Scalars['String'];
   createdAt: Scalars['DateTime'];
   muted: Scalars['DateTime'];
   type: EChannelMemberType;
   updatedAt: Scalars['DateTime'];
+  user?: Maybe<UserPublic>;
   userId: Scalars['String'];
 };
 
@@ -61,7 +62,8 @@ export type CreateGameInput = {
 
 export type CreateMemberForChannelInput = {
   channelId: Scalars['String'];
-  type: EChannelMemberType;
+  channelPassword?: InputMaybe<Scalars['String']>;
+  type?: InputMaybe<EChannelMemberType>;
 };
 
 export type CreateMessageForChannelInput = {
@@ -108,6 +110,10 @@ export enum EUserRealtionType {
   WaitingAccept = 'WaitingAccept'
 }
 
+export type FindAllChannelMembersForChannelInput = {
+  channelId: Scalars['String'];
+};
+
 export type FindAllChannelMembersForUserInput = {
   userId: Scalars['String'];
 };
@@ -145,12 +151,6 @@ export type GoogleAuthCodeValidatorInput = {
   code: Scalars['String'];
 };
 
-export type JoinChannelInput = {
-  channelId: Scalars['String'];
-  password?: InputMaybe<Scalars['String']>;
-  type: EChannelMemberType;
-};
-
 export type JoinGameInput = {
   id: Scalars['String'];
 };
@@ -174,7 +174,6 @@ export type Mutation = {
   deleteMyMessageForChannel: ChannelMessage;
   deleteMyUser: Scalars['Boolean'];
   isGoogleAuthCodeValid: Scalars['Boolean'];
-  joinChannel: ChannelMember;
   joinGame: GameData;
   joinGameMatchmakingMember: GameMatchmakingMember;
   leaveGame: Scalars['Boolean'];
@@ -257,11 +256,6 @@ export type MutationIsGoogleAuthCodeValidArgs = {
 };
 
 
-export type MutationJoinChannelArgs = {
-  args: JoinChannelInput;
-};
-
-
 export type MutationJoinGameArgs = {
   args: JoinGameInput;
 };
@@ -327,16 +321,22 @@ export type OnChannelInput = {
 
 export type Query = {
   __typename?: 'Query';
-  findAllChannelMembersForChannel: Array<GameMatchmakingMember>;
+  findAllChannelMembersForChannel: Array<ChannelMember>;
   findAllChannelMembersForUser: Array<ChannelMember>;
   findAllChannelMessagesForChannel: Array<ChannelMessage>;
   findAllChannels: Array<Channel>;
+  findAllGameMatchmakingMemberl: Array<GameMatchmakingMember>;
   findAllProtectedChannels: Array<Channel>;
   findAllPublicChannels: Array<Channel>;
   findChannel: Channel;
   findLeaderboardUserList: Array<UserPublic>;
   findMyUser: User;
   findUser: UserPublic;
+};
+
+
+export type QueryFindAllChannelMembersForChannelArgs = {
+  args: FindAllChannelMembersForChannelInput;
 };
 
 
@@ -478,46 +478,36 @@ export type CreateChannelMutationVariables = Exact<{
 
 export type CreateChannelMutation = { __typename?: 'Mutation', createChannel: { __typename?: 'Channel', id: string } };
 
-export type FindAllChannelsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type FindAllChannelsQuery = { __typename?: 'Query', findAllChannels: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, password?: string | null, channelType: EChannelType, createdAt: any }> };
-
 export type FindAllPublicChannelsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllPublicChannelsQuery = { __typename?: 'Query', findAllPublicChannels: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, password?: string | null, channelType: EChannelType, createdAt: any }> };
+export type FindAllPublicChannelsQuery = { __typename?: 'Query', findAllPublicChannels: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any }> };
 
 export type FindAllProtectedChannelsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllProtectedChannelsQuery = { __typename?: 'Query', findAllProtectedChannels: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, password?: string | null, channelType: EChannelType, createdAt: any }> };
+export type FindAllProtectedChannelsQuery = { __typename?: 'Query', findAllProtectedChannels: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any }> };
 
 export type FindChannelQueryVariables = Exact<{
   args: FindChannelInput;
 }>;
 
 
-export type FindChannelQuery = { __typename?: 'Query', findChannel: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, password?: string | null, channelType: EChannelType, createdAt: any } };
+export type FindChannelQuery = { __typename?: 'Query', findChannel: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } };
 
-export type JoinChannelMutationVariables = Exact<{
-  args: JoinChannelInput;
+export type FindAllChannelMembersForChannelQueryVariables = Exact<{
+  args: FindAllChannelMembersForChannelInput;
 }>;
 
 
-export type JoinChannelMutation = { __typename?: 'Mutation', joinChannel: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any } };
-
-export type FindAllChannelMembersForChannelQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type FindAllChannelMembersForChannelQuery = { __typename?: 'Query', findAllChannelMembersForChannel: Array<{ __typename?: 'GameMatchmakingMember', userId: string }> };
+export type FindAllChannelMembersForChannelQuery = { __typename?: 'Query', findAllChannelMembersForChannel: Array<{ __typename?: 'ChannelMember', type: EChannelMemberType, user?: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } | null }> };
 
 export type FindAllChannelMembersForUserQueryVariables = Exact<{
   args: FindAllChannelMembersForUserInput;
 }>;
 
 
-export type FindAllChannelMembersForUserQuery = { __typename?: 'Query', findAllChannelMembersForUser: Array<{ __typename?: 'ChannelMember', channel: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, password?: string | null, channelType: EChannelType, createdAt: any } }> };
+export type FindAllChannelMembersForUserQuery = { __typename?: 'Query', findAllChannelMembersForUser: Array<{ __typename?: 'ChannelMember', channel?: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } | null }> };
 
 export type CreateMemberForChannelMutationVariables = Exact<{
   args: CreateMemberForChannelInput;
@@ -687,45 +677,12 @@ export function useCreateChannelMutation(options: VueApolloComposable.UseMutatio
   return VueApolloComposable.useMutation<CreateChannelMutation, CreateChannelMutationVariables>(CreateChannelDocument, options);
 }
 export type CreateChannelMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<CreateChannelMutation, CreateChannelMutationVariables>;
-export const FindAllChannelsDocument = gql`
-    query FindAllChannels {
-  findAllChannels {
-    id
-    name
-    avatarUrl
-    password
-    channelType
-    createdAt
-  }
-}
-    `;
-
-/**
- * __useFindAllChannelsQuery__
- *
- * To run a query within a Vue component, call `useFindAllChannelsQuery` and pass it any options that fit your needs.
- * When your component renders, `useFindAllChannelsQuery` returns an object from Apollo Client that contains result, loading and error properties
- * you can use to render your UI.
- *
- * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
- *
- * @example
- * const { result, loading, error } = useFindAllChannelsQuery();
- */
-export function useFindAllChannelsQuery(options: VueApolloComposable.UseQueryOptions<FindAllChannelsQuery, FindAllChannelsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelsQuery, FindAllChannelsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelsQuery, FindAllChannelsQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<FindAllChannelsQuery, FindAllChannelsQueryVariables>(FindAllChannelsDocument, {}, options);
-}
-export function useFindAllChannelsLazyQuery(options: VueApolloComposable.UseQueryOptions<FindAllChannelsQuery, FindAllChannelsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelsQuery, FindAllChannelsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelsQuery, FindAllChannelsQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<FindAllChannelsQuery, FindAllChannelsQueryVariables>(FindAllChannelsDocument, {}, options);
-}
-export type FindAllChannelsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllChannelsQuery, FindAllChannelsQueryVariables>;
 export const FindAllPublicChannelsDocument = gql`
     query FindAllPublicChannels {
   findAllPublicChannels {
     id
     name
     avatarUrl
-    password
     channelType
     createdAt
   }
@@ -757,7 +714,6 @@ export const FindAllProtectedChannelsDocument = gql`
     id
     name
     avatarUrl
-    password
     channelType
     createdAt
   }
@@ -789,7 +745,6 @@ export const FindChannelDocument = gql`
     id
     name
     avatarUrl
-    password
     channelType
     createdAt
   }
@@ -818,44 +773,15 @@ export function useFindChannelLazyQuery(variables: FindChannelQueryVariables | V
   return VueApolloComposable.useLazyQuery<FindChannelQuery, FindChannelQueryVariables>(FindChannelDocument, variables, options);
 }
 export type FindChannelQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindChannelQuery, FindChannelQueryVariables>;
-export const JoinChannelDocument = gql`
-    mutation JoinChannel($args: JoinChannelInput!) {
-  joinChannel(args: $args) {
-    channelId
-    userId
-    type
-    muted
-    createdAt
-    updatedAt
-  }
-}
-    `;
-
-/**
- * __useJoinChannelMutation__
- *
- * To run a mutation, you first call `useJoinChannelMutation` within a Vue component and pass it any options that fit your needs.
- * When your component renders, `useJoinChannelMutation` returns an object that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
- *
- * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
- *
- * @example
- * const { mutate, loading, error, onDone } = useJoinChannelMutation({
- *   variables: {
- *     args: // value for 'args'
- *   },
- * });
- */
-export function useJoinChannelMutation(options: VueApolloComposable.UseMutationOptions<JoinChannelMutation, JoinChannelMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<JoinChannelMutation, JoinChannelMutationVariables>> = {}) {
-  return VueApolloComposable.useMutation<JoinChannelMutation, JoinChannelMutationVariables>(JoinChannelDocument, options);
-}
-export type JoinChannelMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<JoinChannelMutation, JoinChannelMutationVariables>;
 export const FindAllChannelMembersForChannelDocument = gql`
-    query FindAllChannelMembersForChannel {
-  findAllChannelMembersForChannel {
-    userId
+    query FindAllChannelMembersForChannel($args: FindAllChannelMembersForChannelInput!) {
+  findAllChannelMembersForChannel(args: $args) {
+    type
+    user {
+      id
+      username
+      avatarUrl
+    }
   }
 }
     `;
@@ -867,16 +793,19 @@ export const FindAllChannelMembersForChannelDocument = gql`
  * When your component renders, `useFindAllChannelMembersForChannelQuery` returns an object from Apollo Client that contains result, loading and error properties
  * you can use to render your UI.
  *
+ * @param variables that will be passed into the query
  * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
  *
  * @example
- * const { result, loading, error } = useFindAllChannelMembersForChannelQuery();
+ * const { result, loading, error } = useFindAllChannelMembersForChannelQuery({
+ *   args: // value for 'args'
+ * });
  */
-export function useFindAllChannelMembersForChannelQuery(options: VueApolloComposable.UseQueryOptions<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>(FindAllChannelMembersForChannelDocument, {}, options);
+export function useFindAllChannelMembersForChannelQuery(variables: FindAllChannelMembersForChannelQueryVariables | VueCompositionApi.Ref<FindAllChannelMembersForChannelQueryVariables> | ReactiveFunction<FindAllChannelMembersForChannelQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>(FindAllChannelMembersForChannelDocument, variables, options);
 }
-export function useFindAllChannelMembersForChannelLazyQuery(options: VueApolloComposable.UseQueryOptions<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>(FindAllChannelMembersForChannelDocument, {}, options);
+export function useFindAllChannelMembersForChannelLazyQuery(variables: FindAllChannelMembersForChannelQueryVariables | VueCompositionApi.Ref<FindAllChannelMembersForChannelQueryVariables> | ReactiveFunction<FindAllChannelMembersForChannelQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>(FindAllChannelMembersForChannelDocument, variables, options);
 }
 export type FindAllChannelMembersForChannelQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>;
 export const FindAllChannelMembersForUserDocument = gql`
@@ -886,7 +815,6 @@ export const FindAllChannelMembersForUserDocument = gql`
       id
       name
       avatarUrl
-      password
       channelType
       createdAt
     }

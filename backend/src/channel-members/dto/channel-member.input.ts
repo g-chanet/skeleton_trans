@@ -9,8 +9,11 @@ export class CreateMemberForChannelInput {
   @Field(() => String)
   channelId: string
 
-  @Field(() => EChannelMemberType)
-  type: EChannelMemberType
+  @Field(() => String, { nullable: true })
+  channelPassword?: string
+
+  @Field(() => EChannelMemberType, { nullable: true })
+  type?: EChannelMemberType
 }
 
 @InputType()

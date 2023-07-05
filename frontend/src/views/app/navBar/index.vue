@@ -48,7 +48,7 @@ const pushProfile = () => router.push(`/app/profile`)
 
 
 const homeIsSelected = computed(() => route.fullPath.startsWith(`/app/home`))
-const messagesIsSelected = computed(() =>  route.fullPath.startsWith(`/app/messages`))
+const messagesIsSelected = computed(() =>  route.fullPath.startsWith(`/app/channel`))
 const leaderBoardIsSelected = computed(() =>  route.fullPath.startsWith(`/app/leaderboard`))
 const profileIsSelected = computed(() => route.fullPath.startsWith(`/app/profile`))
 
