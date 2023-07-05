@@ -20,7 +20,7 @@
         :style="{ width: '100%' }"
       >
         <el-form-item>
-          <el-input v-model="form.emailOrUsername" placeholder="Email" />
+          <el-input v-model="form.email" placeholder="Email" />
         </el-form-item>
         <el-form-item>
           <el-input
@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import {  ref, onMounted } from 'vue'
 import { useSignInLocalMutation } from '@/graphql/graphql-operations'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const { mutate, onDone, onError } = useSignInLocalMutation()
 
@@ -70,7 +70,7 @@ onMounted(() => {
 })
 
 const form = ref({
-  emailOrUsername: ``,
+  email: ``,
   password: ``,
   doubleAuthCode: ``
 })
@@ -84,12 +84,29 @@ onDone((e) => {
 })
 
 onError((e) => {
+  console.log(`test`)
+  if (e.message == `GraphQL error: 4242`) {
+    ElMessageBox.prompt(`veuillez remplir votre code Google Authenticator`, `2fa`, {
+      confirmButtonText: `OK`,
+      cancelButtonText: `Cancel`,
+      inputPattern: /^\d{6}$/,
+      inputErrorMessage: `Invalid Code`,
+    }).then(({ value }) => {
+      if (value !== null) {
+        form.value.doubleAuthCode = value
+        onSubmitForm()
+        form.value.doubleAuthCode = ``
+      }
+    })
+    return
+  }
   ElMessage({
     showClose: true,
     message: e.message,
-    type: `error`
+    type: `error`,
   })
 })
+
 
 const onSubmitForm = () => {
   mutate({ args: form.value })

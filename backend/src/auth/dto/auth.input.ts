@@ -10,10 +10,10 @@ export class SignInLocalInput {
   password: string
 
   @Field(() => String)
-  emailOrUsername: string
+  email: string
 
-  @Field(() => String, { nullable: true })
-  doubleAuthCode?: string
+  @Field(() => String)
+  doubleAuthCode: string
 }
 
 @InputType()
