@@ -49,4 +49,8 @@ export class UsersService {
   async findOneByEmail(email: string) {
     return await this.prisma.user.findUnique({ where: { email } })
   }
+
+  async findAllUsersSorted() {
+    return await this.prisma.user.findMany({})
+  }
 }

@@ -1,0 +1,7 @@
+query FindLeaderboardUserList {
+  findLeaderboardUserList {
+    id
+    username
+    avatarUrl
+  }
+}
