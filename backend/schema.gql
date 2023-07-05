@@ -95,6 +95,7 @@ enum EUserRealtionType {
 type Query {
   findMyUser: User!
   findUser(args: FindUserInput!): UserPublic!
+  findLeaderboardUserList: [UserPublic!]!
   findChannel(args: FindChannelInput!): Channel!
   findAllChannels: [Channel!]!
   findAllPublicChannels: [Channel!]!
