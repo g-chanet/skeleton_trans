@@ -35,7 +35,7 @@ export class GameMatchmakingMembersResolver {
   //**************************************************//
 
   @Query(() => [GameMatchmakingMember])
-  async findAllChannelMembersForChannel() {
+  async findAllGameMatchmakingMemberl() {
     return await this.gameMatchmakingMembersService.findAll()
   }
 

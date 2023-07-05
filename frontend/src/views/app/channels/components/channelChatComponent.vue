@@ -5,7 +5,7 @@
         </div>
         <el-scrollbar>
             <div class="active-channel-content">
-                <MessageChannel v-for="message in resultMessages?.findAllChannelMessagesForChannel.slice().reverse()" :key="message.id" :channelMessage="message" />
+                <ChannelChatMessage v-for="message in resultMessages?.findAllChannelMessagesForChannel.slice().reverse()" :key="message.id" :channelMessage="message" />
             </div> 
         </el-scrollbar>
         <el-input placeholder="Message..." v-model="inputValue">
@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { useFindChannelQuery, useCreateMessageForChannelMutation, useFindAllChannelMessagesForChannelQuery} from '@/graphql/graphql-operations'
 import { ref } from 'vue'
-import MessageChannel from './messageChannel.vue'
+import ChannelChatMessage from './channelChatMessageComponent.vue'
 
 const props = defineProps<{
     channelId: string

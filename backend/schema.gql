@@ -65,7 +65,8 @@ type ChannelMember {
   muted: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
-  channel: Channel!
+  channel: Channel
+  user: UserPublic
 }
 
 enum EChannelMemberType {
@@ -99,9 +100,10 @@ type Query {
   findAllChannels: [Channel!]!
   findAllPublicChannels: [Channel!]!
   findAllProtectedChannels: [Channel!]!
-  findAllChannelMembersForChannel: [GameMatchmakingMember!]!
+  findAllChannelMembersForChannel(args: FindAllChannelMembersForChannelInput!): [ChannelMember!]!
   findAllChannelMembersForUser(args: FindAllChannelMembersForUserInput!): [ChannelMember!]!
   findAllChannelMessagesForChannel(args: FindAllMessagesForChannelInput!): [ChannelMessage!]!
+  findAllGameMatchmakingMemberl: [GameMatchmakingMember!]!
 }
 
 input FindUserInput {
@@ -110,6 +112,10 @@ input FindUserInput {
 
 input FindChannelInput {
   id: String!
+}
+
+input FindAllChannelMembersForChannelInput {
+  channelId: String!
 }
 
 input FindAllChannelMembersForUserInput {
@@ -132,7 +138,6 @@ type Mutation {
   createChannel(args: CreateChannelInput!): Channel!
   updateChannel(args: UpdateChannelInput!): Channel!
   deleteChannel(args: DeleteChannelInput!): Channel!
-  joinChannel(args: JoinChannelInput!): ChannelMember!
   createMemberForChannel(args: CreateMemberForChannelInput!): ChannelMember!
   updateMyMemberForChannel(args: UpdateMyMemberForChannelInput!): ChannelMember!
   deleteMyMemberForChannel(args: DeleteMyMemberForChannelInput!): ChannelMember!
@@ -187,15 +192,10 @@ input DeleteChannelInput {
   id: String!
 }
 
-input JoinChannelInput {
-  channelId: String!
-  password: String
-  type: EChannelMemberType!
-}
-
 input CreateMemberForChannelInput {
   channelId: String!
-  type: EChannelMemberType!
+  channelPassword: String
+  type: EChannelMemberType
 }
 
 input UpdateMyMemberForChannelInput {

@@ -1,15 +1,25 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
 import { ChannelMembersService } from './channel-members.service'
 import { ChannelMember } from './entities/channel-member.entity'
-import { UseGuards } from '@nestjs/common'
+import {
+  UseGuards,
+  forwardRef,
+  Inject,
+  UnauthorizedException,
+} from '@nestjs/common'
 import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from 'src/users/entities/user.entity'
 import * as DTO from './dto/channel-member.input'
+import { ChannelsService } from 'src/channels/channels.service'
 
 @Resolver(() => ChannelMember)
 export class ChannelMembersResolver {
-  constructor(private readonly channelMembersService: ChannelMembersService) {}
+  constructor(
+    private readonly channelMembersService: ChannelMembersService,
+    @Inject(forwardRef(() => ChannelsService))
+    private readonly channelsService: ChannelsService,
+  ) {}
 
   //**************************************************//
   //  MUTATION
@@ -21,6 +31,14 @@ export class ChannelMembersResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.CreateMemberForChannelInput,
   ) {
+    if (
+      !(await this.channelsService.verifyChannelPassword(
+        args.channelId,
+        args.channelPassword,
+      ))
+    )
+      throw new UnauthorizedException(`Invalid password`)
+    delete args.channelPassword
     return await this.channelMembersService.create({
       ...args,
       userId: user.id,
@@ -57,9 +75,7 @@ export class ChannelMembersResolver {
   async findAllChannelMembersForChannel(
     @Args(`args`) args: DTO.FindAllChannelMembersForChannelInput,
   ) {
-    return await this.channelMembersService.findAll({
-      where: { channelId: args.channelId },
-    })
+    return await this.channelMembersService.findAll(args.channelId)
   }
 
   @Query(() => [ChannelMember])

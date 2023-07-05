@@ -4,6 +4,10 @@
   --el-input-focus-border-color: var(--el-color-primary);
   --my-box-shadow: 0 0 10px var(--el-color-primary), 0 0 20px var(--el-color-primary);
 
+
+  --el-sun-yellow: hsl(39, 97%, 57%) !important;
+  --el-sun-pink: hsl(320, 88%, 71%) !important;
+  --el-sun-pink-dark-2: hsl(320, 100%, 70%) !important;
   --el-color-primary: hwb(300 26% 0%) !important;
   --el-color-primary-light-3: hsl(300, 57%, 46%) !important;
   --el-color-primary-light-5: hsl(300, 53%, 35%) !important;
@@ -11,6 +15,8 @@
   --el-color-primary-light-8: hsl(300, 40%, 19%) !important;
   --el-color-primary-light-9: hsl(300, 29%, 13%) !important;
   --el-color-primary-dark-2: hsl(300, 100%, 70%) !important;
+  --el-color-yellow: rgb(255, 239, 66) !important;
+  --el-color-blue: rgb(1, 23, 254) !important;
 
 }
 

@@ -1,6 +1,11 @@
-query FindAllChannelMembersForChannel {
-  findAllChannelMembersForChannel {
-    userId
+query FindAllChannelMembersForChannel($args: FindAllChannelMembersForChannelInput!) {
+  findAllChannelMembersForChannel(args: $args) {
+    type
+    user {
+      id
+      username
+      avatarUrl
+    }
   }
 }
 
@@ -10,7 +15,6 @@ query FindAllChannelMembersForUser($args: FindAllChannelMembersForUserInput!) {
       id
       name
       avatarUrl
-      password
       channelType
       createdAt
     }

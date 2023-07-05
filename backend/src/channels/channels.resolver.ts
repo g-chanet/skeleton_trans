@@ -4,19 +4,16 @@ import { ChannelsService } from './channels.service'
 import { Channel } from './entities/channel.entity'
 import { PubSub } from 'graphql-subscriptions'
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard'
-import { UnauthorizedException, UseGuards } from '@nestjs/common'
+import { Inject, UseGuards, forwardRef } from '@nestjs/common'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from 'src/users/entities/user.entity'
-import { ChannelMembersService } from 'src/channel-members/channel-members.service'
-import { AuthHelper } from 'src/auth/auth.helper'
-import { EChannelType } from '@prisma/client'
-import { ChannelMember } from 'src/channel-members/entities/channel-member.entity'
 
 @Resolver(Channel)
 export class ChannelsResolver {
   constructor(
     private readonly channelsService: ChannelsService,
-    private readonly channelMembersService: ChannelMembersService,
+    @Inject(forwardRef(() => ChannelsService))
+    private readonly channelMembersService: ChannelsService,
     private readonly pubSub: PubSub,
   ) {}
 
@@ -55,24 +52,6 @@ export class ChannelsResolver {
     const channel = await this.channelsService.delete(args.id)
     this.pubSub.publish(`onUpdateChannel`, channel)
     return channel
-  }
-
-  @Mutation(() => ChannelMember)
-  @UseGuards(GqlAuthGuard)
-  async joinChannel(
-    @CtxUser() user: User,
-    @Args(`args`) args: DTO.JoinChannelInput,
-  ) {
-    const channel = await this.channelsService.findOne(args.channelId)
-    if (
-      channel.channelType === EChannelType.Protected &&
-      channel.password !== (await AuthHelper.hash(args.password))
-    )
-      throw new UnauthorizedException(`Invalid password`)
-    return await this.channelMembersService.create({
-      ...args,
-      userId: user.id,
-    })
   }
 
   //**************************************************//
