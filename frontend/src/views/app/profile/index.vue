@@ -1,7 +1,11 @@
 <template>
   <div class="profile-container">
     <div class="resume-wrapper">
-      <div class="avatar">AVATAR + PSEUDO + ?</div>
+      <div class="avatar">
+        <profileProfilePictureComponentVue>
+          
+        </profileProfilePictureComponentVue>
+      </div>
       <div class="pseudo">SETTINGS...../OR/.....ADD AS A FRIEND + CHAT + CHALLENGE</div>
     </div>
     <div class="info">
@@ -22,7 +26,11 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import profileProfilePictureComponentVue from "./components/profileProfilePictureComponent.vue"
+import { computed, ref } from "vue"
+import { useRouter } from 'vue-router'
+</script>
 
 <style scoped lang="sass">
 
