@@ -18,8 +18,4 @@ height: String
 
 <style scoped lang="sass">
 
-.list-channel
-  //border-radius: var(--el-border-radius-base)
-  background: linear-gradient(var(--el-sun-pink), var(--el-sun-pink-dark-2))
-
 </style>
