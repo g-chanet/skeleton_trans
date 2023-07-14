@@ -10,6 +10,9 @@ export class UserPublic {
 
   @Field(() => String, { nullable: true })
   avatarUrl?: string
+
+  // @Field(() => String)
+  // wincount: string
 }
 
 @ObjectType()

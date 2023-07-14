@@ -329,6 +329,7 @@ export type Query = {
   findAllProtectedChannels: Array<Channel>;
   findAllPublicChannels: Array<Channel>;
   findChannel: Channel;
+  findLeaderboardUserList: Array<UserPublic>;
   findMyUser: User;
   findUser: UserPublic;
 };
@@ -941,3 +942,32 @@ export function useFindAllChannelMessagesForChannelLazyQuery(variables: FindAllC
   return VueApolloComposable.useLazyQuery<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>(FindAllChannelMessagesForChannelDocument, variables, options);
 }
 export type FindAllChannelMessagesForChannelQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>;
+export const FindLeaderboardUserListDocument = gql`
+    query FindLeaderboardUserList {
+  findLeaderboardUserList {
+    id
+    username
+    avatarUrl
+  }
+}
+    `;
+
+/**
+ * __useFindLeaderboardUserListQuery__
+ *
+ * To run a query within a Vue component, call `useFindLeaderboardUserListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindLeaderboardUserListQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindLeaderboardUserListQuery();
+ */
+export function useFindLeaderboardUserListQuery(options: VueApolloComposable.UseQueryOptions<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables>(FindLeaderboardUserListDocument, {}, options);
+}
+export function useFindLeaderboardUserListLazyQuery(options: VueApolloComposable.UseQueryOptions<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables>(FindLeaderboardUserListDocument, {}, options);
+}
+export type FindLeaderboardUserListQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables>;
