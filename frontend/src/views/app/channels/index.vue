@@ -69,14 +69,14 @@ const onShowJoinDialog = () => {
   flex-direction: column
   border-radius: var(--el-border-radius-base)
   width: 75%
-  &:hover
-    box-shadow: var(--box-shadow-yellow)
+  //background-image: linear-gradient( 45deg, hsl(0deg 0% 0%) 0%, hsl(323deg 22% 8%) 13%, hsl(322deg 25% 14%) 19%, hsl(322deg 28% 19%) 23%, hsl(321deg 30% 25%) 27%, hsl(321deg 32% 31%) 31%, hsl(321deg 33% 38%) 34%, hsl(320deg 34% 44%) 38%, hsl(320deg 35% 50%) 41%, hsl(320deg 47% 57%) 44%, hsl(320deg 63% 64%) 47%, hsl(320deg 88% 71%) 50%, hsl(328deg 91% 73%) 53%, hsl(336deg 93% 74%) 56%, hsl(344deg 95% 76%) 59%, hsl(354deg 97% 77%) 62%, hsl(4deg 98% 77%) 66%, hsl(12deg 99% 74%) 69%, hsl(19deg 99% 72%) 73%, hsl(25deg 99% 69%) 77%, hsl(30deg 99% 66%) 81%, hsl(34deg 98% 62%) 87%, hsl(39deg 97% 57%) 100%)
+  background: linear-gradient(225deg, var(--el-sun-yellow) 0%, var(--el-sun-pink) 50%, var(--el-trasparent) 81%)
+
 .list-container-header
   display: flex
   flex-direction: row
   justify-content: space-around
   align-items: center
-  background: linear-gradient(#fdb428, #f672ca)
 
 .top
   z-index: 2
@@ -91,6 +91,7 @@ const onShowJoinDialog = () => {
   -webkit-text-stroke-width: 0.1px
   -webkit-text-stroke-color: #FFF
   font-size: 2em
+
 
 </style>
 

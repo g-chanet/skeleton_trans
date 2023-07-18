@@ -1,5 +1,5 @@
 <template>
-    <div class="details panel-blur">
+    <div class="details">
       <el-image class="avatar" :url="channel?.avatarUrl" />
       <div>{{ channel?.name }}</div>
       <div>Channel Type: {{ channelType }}</div>
@@ -61,8 +61,6 @@ const { result:resultChannel } = useFindChannelQuery({args: {
   justify-content: space-evenly
   overflow: hidden
   flex-direction: column
-  background: linear-gradient(var(--el-sun-yellow), var(--el-sun-pink))
-  backdrop-filter: blur(10px)
   border-radius: var(--el-border-radius-base)
 
 .avatar

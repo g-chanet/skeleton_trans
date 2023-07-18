@@ -2,6 +2,7 @@
     <div class="chat-container">
       <ChannelChat v-if="channelId" :channelId="channelId" :key="channelId" />
     </div>
+    <el-divider direction="vertical" style="margin-top:6%; height: 75%;"/>
     <div class="details-container">
         <ChannelDetails v-if="channelId" :channelId="channelId" :key="channelId" />
     </div>
