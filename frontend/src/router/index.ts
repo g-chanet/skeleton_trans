@@ -9,6 +9,7 @@ import ViewHome from "../views/app/home/index.vue"
 import ViewMessages from "../views/app/channels/index.vue"
 import ViewLeaderboard from "../views/app/leaderboard/index.vue"
 import ViewProfile from "../views/app/profile/index.vue"
+import ViewGame from "../views/app/game/index.vue"
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -31,6 +32,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: `profile`,
         component: ViewProfile
+      },
+      {
+        path: `game`,
+        component: ViewGame
       }
     ]
   },
