@@ -50,6 +50,7 @@ type Channel {
   password: String
   channelType: EChannelType!
   createdAt: DateTime!
+  channelMessages: ChannelMessage
 }
 
 enum EChannelType {
@@ -264,8 +265,13 @@ input GoogleAuthCodeValidatorInput {
 type Subscription {
   onUpdateChannel(args: OnChannelInput!): Channel!
   onDeleteChannel(args: OnChannelInput!): Channel!
+  onNewChannelMessageForChannelId(args: OnNewChannelMessageForChannelIdInput!): ChannelMessage!
 }
 
 input OnChannelInput {
   id: String!
+}
+
+input OnNewChannelMessageForChannelIdInput {
+  channelId: String!
 }

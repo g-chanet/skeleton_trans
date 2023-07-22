@@ -20,6 +20,7 @@ export type Scalars = {
 export type Channel = {
   __typename?: 'Channel';
   avatarUrl?: Maybe<Scalars['String']>;
+  channelMessages?: Maybe<ChannelMessage>;
   channelType: EChannelType;
   createdAt: Scalars['DateTime'];
   id: Scalars['String'];
@@ -319,6 +320,10 @@ export type OnChannelInput = {
   id: Scalars['String'];
 };
 
+export type OnNewChannelMessageForChannelIdInput = {
+  channelId: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
   findAllChannelMembersForChannel: Array<ChannelMember>;
@@ -374,12 +379,18 @@ export type SignUpLocalInput = {
 export type Subscription = {
   __typename?: 'Subscription';
   onDeleteChannel: Channel;
+  onNewChannelMessageForChannelId: ChannelMessage;
   onUpdateChannel: Channel;
 };
 
 
 export type SubscriptionOnDeleteChannelArgs = {
   args: OnChannelInput;
+};
+
+
+export type SubscriptionOnNewChannelMessageForChannelIdArgs = {
+  args: OnNewChannelMessageForChannelIdInput;
 };
 
 
@@ -529,6 +540,18 @@ export type FindAllChannelMessagesForChannelQueryVariables = Exact<{
 
 
 export type FindAllChannelMessagesForChannelQuery = { __typename?: 'Query', findAllChannelMessagesForChannel: Array<{ __typename?: 'ChannelMessage', id: string, message: string, channelId: string, userId: string, createdAt: any, updatedAt: any }> };
+
+export type OnNewChannelMessageForChannelIdSubscriptionVariables = Exact<{
+  args: OnNewChannelMessageForChannelIdInput;
+}>;
+
+
+export type OnNewChannelMessageForChannelIdSubscription = { __typename?: 'Subscription', onNewChannelMessageForChannelId: { __typename?: 'ChannelMessage', id: string, message: string, channelId: string, userId: string, createdAt: any, updatedAt: any } };
+
+export type FindLeaderboardUserListQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FindLeaderboardUserListQuery = { __typename?: 'Query', findLeaderboardUserList: Array<{ __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null }> };
 
 
 export const SignInLocalDocument = gql`
@@ -942,6 +965,38 @@ export function useFindAllChannelMessagesForChannelLazyQuery(variables: FindAllC
   return VueApolloComposable.useLazyQuery<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>(FindAllChannelMessagesForChannelDocument, variables, options);
 }
 export type FindAllChannelMessagesForChannelQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>;
+export const OnNewChannelMessageForChannelIdDocument = gql`
+    subscription OnNewChannelMessageForChannelId($args: OnNewChannelMessageForChannelIdInput!) {
+  onNewChannelMessageForChannelId(args: $args) {
+    id
+    message
+    channelId
+    userId
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useOnNewChannelMessageForChannelIdSubscription__
+ *
+ * To run a query within a Vue component, call `useOnNewChannelMessageForChannelIdSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnNewChannelMessageForChannelIdSubscription` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the subscription
+ * @param options that will be passed into the subscription, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/subscription.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useOnNewChannelMessageForChannelIdSubscription({
+ *   args: // value for 'args'
+ * });
+ */
+export function useOnNewChannelMessageForChannelIdSubscription(variables: OnNewChannelMessageForChannelIdSubscriptionVariables | VueCompositionApi.Ref<OnNewChannelMessageForChannelIdSubscriptionVariables> | ReactiveFunction<OnNewChannelMessageForChannelIdSubscriptionVariables>, options: VueApolloComposable.UseSubscriptionOptions<OnNewChannelMessageForChannelIdSubscription, OnNewChannelMessageForChannelIdSubscriptionVariables> | VueCompositionApi.Ref<VueApolloComposable.UseSubscriptionOptions<OnNewChannelMessageForChannelIdSubscription, OnNewChannelMessageForChannelIdSubscriptionVariables>> | ReactiveFunction<VueApolloComposable.UseSubscriptionOptions<OnNewChannelMessageForChannelIdSubscription, OnNewChannelMessageForChannelIdSubscriptionVariables>> = {}) {
+  return VueApolloComposable.useSubscription<OnNewChannelMessageForChannelIdSubscription, OnNewChannelMessageForChannelIdSubscriptionVariables>(OnNewChannelMessageForChannelIdDocument, variables, options);
+}
+export type OnNewChannelMessageForChannelIdSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<OnNewChannelMessageForChannelIdSubscription, OnNewChannelMessageForChannelIdSubscriptionVariables>;
 export const FindLeaderboardUserListDocument = gql`
     query FindLeaderboardUserList {
   findLeaderboardUserList {

@@ -14,3 +14,14 @@ query FindAllChannelMessagesForChannel($args: FindAllMessagesForChannelInput!) {
     updatedAt
   }
 }
+
+subscription OnNewChannelMessageForChannelId($args: OnNewChannelMessageForChannelIdInput!) {
+  onNewChannelMessageForChannelId(args: $args) {
+    id
+    message
+    channelId
+    userId
+    createdAt
+    updatedAt
+  }
+}

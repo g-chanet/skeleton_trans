@@ -1,30 +1,36 @@
-import { ApolloClient } from 'apollo-client'
-import { createHttpLink } from 'apollo-link-http'
-import { InMemoryCache } from 'apollo-cache-inmemory'
-import { DefaultApolloClient } from "@vue/apollo-composable"
+import { split, HttpLink } from '@apollo/client'
+import { getMainDefinition } from '@apollo/client/utilities'
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
+import { createClient } from 'graphql-ws'
+import { ApolloClient, InMemoryCache } from '@apollo/client'
+import { DefaultApolloClient } from '@vue/apollo-composable'
 import type { App } from 'vue'
-import {  getHeadersGql } from './header'
 
-// HTTP connection to the API
-const link = createHttpLink({
-  // You should use an absolute URL here
-  uri: `/graphql`,
-  fetch: (uri: RequestInfo, options: RequestInit) => {
-    options.headers = getHeadersGql()
-    return fetch(uri, options)
+const httpLink = new HttpLink({
+  uri: `http://localhost:5173/graphql`
+})
+
+const wsLink = new GraphQLWsLink(createClient({
+  url: `ws://localhost:5173/graphql`,
+}))
+
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query)
+    return (
+      definition.kind === `OperationDefinition` &&
+      definition.operation === `subscription`
+    )
   },
-})
+  wsLink,
+  httpLink,
+)
 
-// Cache implementation
-const cache = new InMemoryCache()
-
-// Create the apollo client
 export const apolloClient = new ApolloClient({
-  link,
-  cache,
+  link: splitLink,
+  cache: new InMemoryCache()
 })
 
-// Install apollo client
 export const apollo = {
   install(app: App) {
     app.provide(DefaultApolloClient, apolloClient)

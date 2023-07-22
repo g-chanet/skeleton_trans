@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
+import { Resolver, Query, Mutation, Args, Subscription } from '@nestjs/graphql'
 import { ChannelMessagesService } from './channel-messages.service'
 import { ChannelMessage } from './entities/channel-message.entity'
 import * as DTO from './dto/channel-message.input'
@@ -6,6 +6,11 @@ import { UseGuards } from '@nestjs/common'
 import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from 'src/users/entities/user.entity'
+import { PubSub } from 'graphql-subscriptions'
+
+const PUB_NEW_CHANNEL_MESSAGE = `newChannelMessage`
+
+const pubSub = new PubSub()
 
 @Resolver(() => ChannelMessage)
 export class ChannelMessagesResolver {
@@ -23,10 +28,14 @@ export class ChannelMessagesResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.CreateMessageForChannelInput,
   ) {
-    return await this.channelMessagesService.create({
+    const res = await this.channelMessagesService.create({
       ...args,
       userId: user.id,
     })
+    console.log(`avant`)
+    await pubSub.publish(`toto`, { toto: res })
+    console.log(`apres`)
+    return res
   }
 
   @Mutation(() => ChannelMessage)
@@ -61,4 +70,20 @@ export class ChannelMessagesResolver {
   //**************************************************//
   //  SUBSCRIPTION
   //**************************************************//
+
+  @Subscription(() => ChannelMessage, {
+    filter(
+      payload: ChannelMessage,
+      variables: DTO.OnNewChannelMessageForChannelIdInput,
+    ) {
+      console.log(`filtre`)
+      return payload.channelId === variables.channelId
+    },
+  })
+  onNewChannelMessageForChannelId(
+    @Args(`args`) args: DTO.OnNewChannelMessageForChannelIdInput,
+  ) {
+    console.log(`oui`)
+    return pubSub.asyncIterator(`toto`)
+  }
 }

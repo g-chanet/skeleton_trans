@@ -14,8 +14,6 @@ import { ChannelMessagesModule } from './channel-messages/channel-messages.modul
 import { ChannelMembersModule } from './channel-members/channel-members.module'
 import { ChannelsModule } from './channels/channels.module'
 import { UserRelationsModule } from './user-relations/user-relations.module'
-import { AppGateway } from './app.gateway'
-import { PubSubModule } from './pub-sub/pub-sub.module'
 import { PassportModule } from '@nestjs/passport'
 
 @Module({
@@ -24,13 +22,9 @@ import { PassportModule } from '@nestjs/passport'
       driver: ApolloDriver,
       playground: false,
       autoSchemaFile: `schema.gql`,
+      installSubscriptionHandlers: true,
       subscriptions: {
-        'graphql-ws': {
-          path: `/graphql`,
-          onConnect: (context: any) => {
-            console.log(`OnConnect`)
-          },
-        },
+        'graphql-ws': true,
       },
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
@@ -45,10 +39,9 @@ import { PassportModule } from '@nestjs/passport'
     GameMembersModule,
     GameMatchmakingMembersModule,
     AuthModule,
-    PubSubModule,
     PassportModule.register({ session: true }),
   ],
-  providers: [AppGateway],
+  providers: [],
   // controllers: [AppController],
 })
 export class AppModule {}

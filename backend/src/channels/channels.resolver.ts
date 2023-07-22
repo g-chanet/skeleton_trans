@@ -8,13 +8,14 @@ import { Inject, UseGuards, forwardRef } from '@nestjs/common'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from 'src/users/entities/user.entity'
 
+const pubSub = new PubSub()
+
 @Resolver(Channel)
 export class ChannelsResolver {
   constructor(
     private readonly channelsService: ChannelsService,
     @Inject(forwardRef(() => ChannelsService))
     private readonly channelMembersService: ChannelsService,
-    private readonly pubSub: PubSub,
   ) {}
 
   //**************************************************//
@@ -38,7 +39,7 @@ export class ChannelsResolver {
     @Args(`args`) args: DTO.UpdateChannelInput,
   ) {
     const channel = await this.channelsService.update(args.id, args)
-    this.pubSub.publish(`onUpdateChannel`, channel)
+    pubSub.publish(`onUpdateChannel`, channel)
     return channel
   }
 
@@ -50,7 +51,7 @@ export class ChannelsResolver {
     @Args(`args`) args: DTO.DeleteChannelInput,
   ) {
     const channel = await this.channelsService.delete(args.id)
-    this.pubSub.publish(`onUpdateChannel`, channel)
+    pubSub.publish(`onUpdateChannel`, channel)
     return channel
   }
 
@@ -89,7 +90,7 @@ export class ChannelsResolver {
     resolve: (value) => value,
   })
   onUpdateChannel(@Args(`args`) args: DTO.OnChannelInput) {
-    return this.pubSub.asyncIterator(`onUpdateChannel`)
+    return pubSub.asyncIterator(`onUpdateChannel`)
   }
 
   @Subscription(() => Channel, {
@@ -99,6 +100,6 @@ export class ChannelsResolver {
     resolve: (value) => value,
   })
   onDeleteChannel(@Args(`args`) args: DTO.OnChannelInput) {
-    return this.pubSub.asyncIterator(`onDeleteChannel`)
+    return pubSub.asyncIterator(`onDeleteChannel`)
   }
 }

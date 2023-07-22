@@ -3,12 +3,11 @@ import { UserPresencesService } from './user-presences.service'
 import { UserPresence } from './entities/user-presence.entity'
 import { PubSub } from 'graphql-subscriptions'
 
+const pubSub = new PubSub()
+
 @Resolver(() => UserPresence)
 export class UserPresencesResolver {
-  constructor(
-    private readonly userPresencesService: UserPresencesService,
-    private readonly pubSub: PubSub,
-  ) {}
+  constructor(private readonly userPresencesService: UserPresencesService) {}
 
   //**************************************************//
   //  MUTATION
@@ -18,7 +17,7 @@ export class UserPresencesResolver {
   async commentAdded(
     @Args(`newComment`, { type: () => String }) newComment: string,
   ) {
-    await this.pubSub.publish(`postAdded`, newComment)
+    await pubSub.publish(`postAdded`, newComment)
     return true
   }
 
