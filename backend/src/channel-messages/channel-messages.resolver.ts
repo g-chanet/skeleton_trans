@@ -10,12 +10,11 @@ import { PubSub } from 'graphql-subscriptions'
 
 const PUB_NEW_CHANNEL_MESSAGE = `newChannelMessage`
 
-const pubSub = new PubSub()
-
 @Resolver(() => ChannelMessage)
 export class ChannelMessagesResolver {
   constructor(
     private readonly channelMessagesService: ChannelMessagesService,
+    private readonly pubSub: PubSub,
   ) {}
 
   //**************************************************//
@@ -33,7 +32,7 @@ export class ChannelMessagesResolver {
       userId: user.id,
     })
     console.log(`avant`)
-    await pubSub.publish(`toto`, { toto: res })
+    await this.pubSub.publish(`toto`, { toto: res })
     console.log(`apres`)
     return res
   }
@@ -84,6 +83,6 @@ export class ChannelMessagesResolver {
     @Args(`args`) args: DTO.OnNewChannelMessageForChannelIdInput,
   ) {
     console.log(`oui`)
-    return pubSub.asyncIterator(`toto`)
+    return this.pubSub.asyncIterator(`toto`)
   }
 }

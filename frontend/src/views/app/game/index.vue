@@ -1,15 +1,7 @@
 <template>
-    <div class="gameContainer">
-        <pongGame />
-    </div>
+  <div class="gameContainer"></div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts"></script>
 
-import pongGame from './components/pongGame.vue'
-
-</script>
-
-<style scoped lang="sass">
-
-</style> 
+<style scoped lang="sass"></style>
