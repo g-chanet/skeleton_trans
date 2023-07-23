@@ -8,13 +8,13 @@ import { DefaultApolloClient } from "@vue/apollo-composable"
 
 // Create an http link:
 const httpLink = new HttpLink({
-  uri: `http://localhost:3000/graphql`
+  uri: `http://localhost:5173/graphql`
 })
 
 // Create a GraphQLWsLink link:
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: `ws://localhost:3000/graphql`,
+    url: `ws://localhost:5173/graphql`,
   })
 )
 

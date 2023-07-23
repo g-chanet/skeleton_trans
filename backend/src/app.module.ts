@@ -16,6 +16,7 @@ import { ChannelsModule } from './channels/channels.module'
 import { UserRelationsModule } from './user-relations/user-relations.module'
 import { PubSubModule } from './pub-sub/pub-sub.module'
 import { PassportModule } from '@nestjs/passport'
+import { AppGateway } from './app.gateway'
 
 @Module({
   imports: [
@@ -23,7 +24,6 @@ import { PassportModule } from '@nestjs/passport'
       driver: ApolloDriver,
       playground: false,
       autoSchemaFile: `schema.gql`,
-      installSubscriptionHandlers: true,
       subscriptions: {
         'graphql-ws': {
           path: `/graphql`,
@@ -48,7 +48,7 @@ import { PassportModule } from '@nestjs/passport'
     PubSubModule,
     PassportModule.register({ session: true }),
   ],
-  providers: [],
+  providers: [AppGateway],
   // controllers: [AppController],
 })
 export class AppModule {}
