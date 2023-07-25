@@ -14,9 +14,9 @@ import { ChannelMessagesModule } from './channel-messages/channel-messages.modul
 import { ChannelMembersModule } from './channel-members/channel-members.module'
 import { ChannelsModule } from './channels/channels.module'
 import { UserRelationsModule } from './user-relations/user-relations.module'
-import { AppGateway } from './app.gateway'
 import { PubSubModule } from './pub-sub/pub-sub.module'
 import { PassportModule } from '@nestjs/passport'
+import { AppGateway } from './app.gateway'
 
 @Module({
   imports: [
@@ -28,7 +28,7 @@ import { PassportModule } from '@nestjs/passport'
         'graphql-ws': {
           path: `/graphql`,
           onConnect: (context: any) => {
-            console.log(`OnConnect`)
+            console.log(`OnConnect WS`)
           },
         },
       },

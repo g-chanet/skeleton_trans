@@ -2,14 +2,10 @@
   <div class="full">
     <div class="wrapper-header">
       <div class="trans-container">
-        <span class="trans-font">
-        TRANSCENDENCE
-        </span>
+        <span class="trans-font"> TRANSCENDENCE </span>
       </div>
       <div class="pong-container">
-        <span class="pong-font">
-        PONG
-        </span>
+        <span class="pong-font"> PONG </span>
       </div>
     </div>
     <div class="form-container panel-blur">
@@ -23,43 +19,44 @@
           <el-input v-model="form.email" placeholder="Email" />
         </el-form-item>
         <el-form-item>
-          <el-input
-            v-model="form.password"
-            type="password"
-            show-password
-            placeholder="Password"
-          />
+          <el-input v-model="form.password" type="password" show-password placeholder="Password" />
         </el-form-item>
         <el-button class="bt-submit" native-type="submit">Connexion</el-button>
       </el-form>
-      <el-divider>
-      </el-divider>
+      <el-divider> </el-divider>
       <div class="o-auth">
-        <el-button @click="onConnectWithGoogle" class="bt" circle><font-awesome-icon :icon="['fab', 'google']"/></el-button>
-        <el-button @click="onConnectWithDiscord" class="bt" circle><font-awesome-icon :icon="['fab', 'discord']"/></el-button>
-        <el-button @click="onConnectWithGithub" class="bt" circle><font-awesome-icon :icon="['fab', 'github']" /></el-button>
+        <el-button @click="onConnectWithGoogle" class="bt" circle
+          ><font-awesome-icon :icon="['fab', 'google']"
+        /></el-button>
+        <el-button @click="onConnectWithDiscord" class="bt" circle
+          ><font-awesome-icon :icon="['fab', 'discord']"
+        /></el-button>
+        <el-button @click="onConnectWithGithub" class="bt" circle
+          ><font-awesome-icon :icon="['fab', 'github']"
+        /></el-button>
         <el-button @click="onConnectWithSchool42" class="bt" circle>42</el-button>
       </div>
-      <el-divider>
-      </el-divider>
-        <el-button class="bt-submit" native-type="submit" >Create Account</el-button>
+      <el-divider> </el-divider>
+      <el-button class="bt-submit" native-type="submit">Create Account</el-button>
       <!-- <router-link to="/signup" class="create-account">Create Account</router-link> -->
-      <router-view></router-view> 
-    </div> 
-  </div> 
+      <router-view></router-view>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import {  ref, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useSignInLocalMutation } from '@/graphql/graphql-operations'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const { mutate, onDone, onError } = useSignInLocalMutation()
 
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const error = urlParams.get(`error`)
-  
+
   if (error) {
     ElMessage({
       showClose: true,
@@ -90,7 +87,7 @@ onError((e) => {
       confirmButtonText: `OK`,
       cancelButtonText: `Cancel`,
       inputPattern: /^\d{6}$/,
-      inputErrorMessage: `Invalid Code`,
+      inputErrorMessage: `Invalid Code`
     }).then(({ value }) => {
       if (value !== null) {
         form.value.doubleAuthCode = value
@@ -103,13 +100,14 @@ onError((e) => {
   ElMessage({
     showClose: true,
     message: e.message,
-    type: `error`,
+    type: `error`
   })
 })
 
-
 const onSubmitForm = () => {
-  mutate({ args: form.value })
+  mutate({ args: form.value }).then(() => {
+    router.push(`/app/home`)
+  })
 }
 
 const onConnectWithGoogle = () => {
@@ -127,7 +125,6 @@ const onConnectWithGithub = () => {
 const onConnectWithSchool42 = () => {
   window.location.href = `/auth/42`
 }
-
 </script>
 
 <style scoped lang="sass">
@@ -141,7 +138,7 @@ const onConnectWithSchool42 = () => {
 html, body
   height: 100%
   overflow: hidden
- 
+
 body
   text-align: center
   font-family: "Open Sans", sans-serif
@@ -170,10 +167,10 @@ body
   height: 100%
   z-index: -1
   .trans-container
-    
+
     margin-top: 80px
     transform: scale(2, 2)
-    
+
     position: relative
     z-index: 101
     .trans-font
@@ -223,7 +220,7 @@ body
   perspective-origin: 50% 40%
   display: flex
   flex-wrap: wrap
- 
+
 .landscape
   position: absolute
   width: 200%
@@ -235,13 +232,13 @@ body
   background-position: -1px -1px, -1px -1px
   transform: rotateX(85deg)
   animation: moveUp 1s infinite linear
- 
+
 .nrw
   z-index: 50
   margin-bottom: 600px
   flex-shrink: 0
   white-space: nowrap
- 
+
 .new
   font-size: 5.2em
   text-transform: uppercase

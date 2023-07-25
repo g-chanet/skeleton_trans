@@ -1,28 +1,47 @@
-import { ApolloClient } from 'apollo-client'
-import { createHttpLink } from 'apollo-link-http'
-import { InMemoryCache } from 'apollo-cache-inmemory'
+import { HttpLink, split } from "@apollo/client/core"
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions" // <-- This one uses graphql-ws
+import { getMainDefinition } from "@apollo/client/utilities"
+import { ApolloClient, InMemoryCache } from '@apollo/client/core'
+import { createClient } from "graphql-ws"
+import type { App } from "vue"
 import { DefaultApolloClient } from "@vue/apollo-composable"
-import type { App } from 'vue'
-import {  getHeadersGql } from './header'
 
-// HTTP connection to the API
-const link = createHttpLink({
-  // You should use an absolute URL here
-  uri: `/graphql`,
-  fetch: (uri: RequestInfo, options: RequestInit) => {
-    options.headers = getHeadersGql()
-    return fetch(uri, options)
-  },
+// Create an http link:
+const httpLink = new HttpLink({
+  uri: `http://localhost:5173/graphql`
 })
 
-// Cache implementation
-const cache = new InMemoryCache()
+// Create a GraphQLWsLink link:
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: `ws://localhost:5173/graphql`,
+  })
+)
 
-// Create the apollo client
+// using the ability to split links, you can send data to each link
+// depending on what kind of operation is being sent
+const link = split(
+  // split based on operation type
+  ({ query }) => {
+    const definition = getMainDefinition(query)
+    return (
+      definition.kind === `OperationDefinition` &&
+      definition.operation === `subscription`
+    )
+  },
+  wsLink,
+  httpLink
+)
+
+export const cache = new InMemoryCache()
+
+// Create the apollo client with cache implementation.
 export const apolloClient = new ApolloClient({
   link,
-  cache,
+  cache
 })
+
+
 
 // Install apollo client
 export const apollo = {

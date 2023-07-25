@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { useFindChannelQuery, useCreateMessageForChannelMutation, useFindAllChannelMessagesForChannelQuery} from '@/graphql/graphql-operations'
+import { useFindChannelQuery, useCreateMessageForChannelMutation, useFindAllChannelMessagesForChannelQuery, useOnNewChannelMessageForChannelIdSubscription} from '@/graphql/graphql-operations'
 import { ref } from 'vue'
 import ChannelChatMessage from './channelChatMessageComponent.vue'
 
@@ -30,6 +30,10 @@ const { result:resultMessages, refetch } = useFindAllChannelMessagesForChannelQu
 }})
 const  { mutate } = useCreateMessageForChannelMutation({})
 
+const { onResult:onNewMessage } = useOnNewChannelMessageForChannelIdSubscription({ args: {
+    channelId: props.channelId
+}})
+
 const { result:resultChannel } = useFindChannelQuery({args: { 
     id: props.channelId
   }})
@@ -40,6 +44,10 @@ const onCreateMessage = () => {
         message: inputValue.value,
     }}).then(() => refetch()).then(() => inputValue.value = ``)
 }
+
+onNewMessage((e) => {
+    console.log(e)
+})
 
 </script>
 

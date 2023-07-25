@@ -4,12 +4,13 @@
             {{ props.channelMessage.message }}
         </div>
         <div class="timestamp">
-            {{ props.channelMessage.createdAt }}
+            {{ moment(props.channelMessage.createdAt).fromNow() }}
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import moment from  "moment"
 import { useFindMyUserQuery, type ChannelMessage } from '@/graphql/graphql-operations'
 
 const { result } = useFindMyUserQuery()
