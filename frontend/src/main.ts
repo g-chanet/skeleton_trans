@@ -18,9 +18,11 @@ library.add(fas,fab)
 
 import App from './App.vue'
 import {router} from './router/index'
+import VueKonva from 'vue-konva'
 
 
 const app = createApp(App)
+app.use(VueKonva)
 
 app.component(`font-awesome-icon`, FontAwesomeIcon)
 app.use(ElementPlus)
