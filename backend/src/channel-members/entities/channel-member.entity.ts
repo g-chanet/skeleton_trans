@@ -1,11 +1,11 @@
-import { ObjectType, Field, registerEnumType } from '@nestjs/graphql'
+import { ObjectType, Field, registerEnumType, ID } from '@nestjs/graphql'
 import { Channel, EChannelMemberType, User } from '@prisma/client'
 import { Channel as ChannelEntity } from 'src/channels/entities/channel.entity'
 import { UserPublic } from 'src/users/entities/user.entity'
 
 @ObjectType()
 export class ChannelMember {
-  @Field(() => String)
+  @Field(() => ID)
   channelId: string
 
   @Field(() => String)

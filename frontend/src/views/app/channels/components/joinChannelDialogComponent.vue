@@ -21,25 +21,51 @@
 </template>
 
 <script setup lang="ts">
-import { useCreateMemberForChannelMutation, useFindAllPublicChannelsQuery, useFindAllProtectedChannelsQuery, type Channel } from '@/graphql/graphql-operations'
+import { useCreateMemberForChannelMutation, useFindAllPublicChannelsQuery, useFindAllProtectedChannelsQuery, type Channel, useFindAllChannelsForUserQuery, useFindMyUserQuery, useOnNewChannelMemberForUserIdSubscription, useOnCreateChannelSubscription } from '@/graphql/graphql-operations'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ListChannel from './channelListComponent.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-
-const props = defineProps<{
-  refetchChannels(): void,
-}>()
+import { cacheUpsert } from '@/utils/cacheUtils'
+import { EChannelType } from '@/graphql/graphql-operations'
 
 const joinDialogVisible = ref(false)
 
 const router = useRouter()
-const { result:publicChannelsQuery } = useFindAllPublicChannelsQuery()
-const { result:protectedChannelsQuery } = useFindAllProtectedChannelsQuery()
+const { result:myUser } = useFindMyUserQuery()
+const query = useFindAllChannelsForUserQuery({})
+
+useOnNewChannelMemberForUserIdSubscription({ args: {userId: myUser.value!.findMyUser.id} }).onResult(({data}) => cacheUpsert(query, data?.onNewChannelMemberForUserId))
+
+const excludeChannels = computed(() => {
+  const array: string[] = []
+  query.result.value?.findAllChannelsForUser.forEach((element) => {
+    array.push(element.id)
+  })
+  return array
+})
+
+const publicQuery = useFindAllPublicChannelsQuery()
+const protectedQuery = useFindAllProtectedChannelsQuery()
 const { mutate:mutateChannelMember, onError:createMemberError } = useCreateMemberForChannelMutation({})
 
-const publicChannels = computed(() => { return publicChannelsQuery.value?.findAllPublicChannels })
-const protectedChannels = computed(() => { return protectedChannelsQuery.value?.findAllProtectedChannels })
+useOnCreateChannelSubscription({}).onResult(({data}) => {
+  if (data?.onCreateChannel.channelType === EChannelType.Public)
+    cacheUpsert(publicQuery, data.onCreateChannel)
+  else
+    cacheUpsert(protectedQuery, data?.onCreateChannel)
+})
+
+const publicChannels = computed(() => { 
+  return publicQuery.result.value?.findAllPublicChannels.filter(checkChannelId)
+})
+const protectedChannels = computed(() => {
+  return protectedQuery.result.value?.findAllProtectedChannels.filter(checkChannelId)
+})
+
+function checkChannelId(channel: Channel) {
+  return !excludeChannels.value.includes(channel.id)
+}
 
 const onSelectChannel = (channel: Channel, password: string) => {
   mutateChannelMember({ args: {
@@ -47,7 +73,7 @@ const onSelectChannel = (channel: Channel, password: string) => {
     channelPassword: password,
   }}).then((args) => {
     router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId }})
-  }).then(() => props.refetchChannels())
+  })
   joinDialogVisible.value = false
 }
 

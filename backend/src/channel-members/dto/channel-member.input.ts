@@ -50,3 +50,9 @@ export class FindAllChannelMembersForUserInput {
 //**************************************************//
 //  SUBSCRIPTION
 //**************************************************//
+
+@InputType()
+export class OnNewChannelMemberForChannelIdInput {
+  @Field(() => String)
+  userId: string
+}

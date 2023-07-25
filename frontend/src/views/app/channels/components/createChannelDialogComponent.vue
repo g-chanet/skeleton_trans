@@ -9,10 +9,12 @@
       >
         <div class="dialog-body">
           <div class="create-channel">
-            <el-input placeholder="Channel name" v-model="channelName"/>
+            <el-alert v-if="invalidName" title="Warning alert" type="warning" description="This channel name is already used!" show-icon :closable="false"/>
+            <el-input @keyup="search" type="text" placeholder="Channel name" v-model="channelName"/>
             <el-radio-group v-model="channelType">
               <el-radio label="Public" :change="onTypeChange()"/>
               <el-radio label="Protected" />
+              <el-radio label="Private" />
             </el-radio-group>
             <el-input v-if="channelType === 'Protected'" type="password" placeholder="Channel password" v-model="channelPassword"/>
             <div class="dialog-button"><el-button :disabled="isDisabled" @click="onCreateChannel">Create</el-button></div>
@@ -22,14 +24,10 @@
 </template>
 
 <script setup lang="ts">
-import { useCreateChannelMutation, useCreateMemberForChannelMutation, EChannelType, EChannelMemberType } from '@/graphql/graphql-operations'
+import { useCreateChannelMutation, useCreateMemberForChannelMutation, EChannelType, EChannelMemberType, useCheckChannelNameQuery } from '@/graphql/graphql-operations'
 import { ElMessage } from 'element-plus'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-
-const props = defineProps<{
-  refetchChannels(): void,
-}>()
 
 const { mutate:mutateChannel, onError:createChannelError } = useCreateChannelMutation({})
 const { mutate:mutateChannelMember } = useCreateMemberForChannelMutation({})
@@ -37,6 +35,7 @@ const { mutate:mutateChannelMember } = useCreateMemberForChannelMutation({})
 const createDialogVisible = ref(false)
 const router = useRouter()
 const channelName = ref(``)
+const invalidName = ref(false)
 const channelPassword = ref(``)
 const channelType = ref(`Public`)
 const isDisabled = computed( () => {
@@ -52,16 +51,45 @@ const onTypeChange = () => {
 }
 
 const onCreateChannel = () => {
-  mutateChannel({args: { 
-    name: channelName.value,
-    password: channelPassword.value,
-    channelType: channelType.value === `Public` ? EChannelType.Public : EChannelType.Protected
-  }}).then((args) => mutateChannelMember({args: {
-    channelId: args?.data?.createChannel.id!,
-    type: EChannelMemberType.Owner,
-  }})).then((args) => {
-    router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId }})
-  }).then(() => props.refetchChannels())
+  //Protected
+  if (channelType.value === `Protected`)
+  {
+    mutateChannel({args: { 
+      name: channelName.value,
+      password: channelPassword.value,
+      channelType: EChannelType.Protected
+    }}).then((args) => mutateChannelMember({args: {
+      channelId: args?.data?.createChannel.id!,
+      type: EChannelMemberType.Owner,
+    }})).then((args) => {
+      router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId }})
+    })
+  }
+  //Public
+  else if (channelType.value === `Public`)
+  {
+    mutateChannel({args: { 
+      name: channelName.value,
+      channelType: EChannelType.Public
+    }}).then((args) => mutateChannelMember({args: {
+      channelId: args?.data?.createChannel.id!,
+      type: EChannelMemberType.Owner,
+    }})).then((args) => {
+      router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId }})
+    })
+  }
+  //Private
+  else {
+    mutateChannel({args: { 
+      name: channelName.value,
+      channelType: EChannelType.Private
+    }}).then((args) => mutateChannelMember({args: {
+      channelId: args?.data?.createChannel.id!,
+      type: EChannelMemberType.Owner,
+    }})).then((args) => {
+      router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId }})
+    })
+  }
   handleClose()
 }
 
@@ -86,6 +114,15 @@ const handleClose = () => {
   channelName.value = ``
   channelPassword.value = ``
   channelType.value = `Public`
+}
+
+const checkQuery =  useCheckChannelNameQuery({ args: {channelName: channelName.value} }).onResult(({data}) => invalidName.value = data.checkChannelName)
+let timeout: number | undefined
+const search = () => {
+  clearTimeout(timeout)
+  timeout = setTimeout(() => {
+    checkQuery.off()
+  }, 1000)
 }
 
 </script>

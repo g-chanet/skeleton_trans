@@ -24,8 +24,32 @@ query FindAllProtectedChannels {
   }
 }
 
+query FindAllChannelsForUser {
+  findAllChannelsForUser {
+    id
+    name
+    avatarUrl
+    channelType
+    createdAt
+  }
+}
+
 query FindChannel($args: FindChannelInput!) {
   findChannel(args: $args) {
+    id
+    name
+    avatarUrl
+    channelType
+    createdAt
+  }
+}
+
+query CheckChannelName($args: CheckChannelInput!) {
+  checkChannelName(args: $args)
+}
+
+subscription OnCreateChannel {
+  onCreateChannel {
     id
     name
     avatarUrl

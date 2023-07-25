@@ -9,18 +9,6 @@ query FindAllChannelMembersForChannel($args: FindAllChannelMembersForChannelInpu
   }
 }
 
-query FindAllChannelMembersForUser($args: FindAllChannelMembersForUserInput!) {
-  findAllChannelMembersForUser(args: $args) {
-    channel {
-      id
-      name
-      avatarUrl
-      channelType
-      createdAt
-    }
-  }
-}
-
 mutation CreateMemberForChannel($args: CreateMemberForChannelInput!) {
   createMemberForChannel(args: $args) {
     channelId
@@ -29,5 +17,15 @@ mutation CreateMemberForChannel($args: CreateMemberForChannelInput!) {
     muted
     createdAt
     updatedAt
+  }
+}
+
+subscription OnNewChannelMemberForUserId($args: OnNewChannelMemberForChannelIdInput!) {
+  onNewChannelMemberForUserId(args: $args) {
+    id
+    name
+    avatarUrl
+    channelType
+    createdAt
   }
 }

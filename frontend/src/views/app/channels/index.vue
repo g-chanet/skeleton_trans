@@ -5,38 +5,33 @@
         <h1 class="top">Channels</h1>
         <div style="width: 35%; display: flex; justify-content: space-evenly;">
           <el-button @click="onShowCreateDialog"><el-icon><Plus /></el-icon></el-button>
-          <CreateChannelDialog :refetchChannels="refetchChannels" ref="createDialogChild"/>
+          <CreateChannelDialog ref="createDialogChild"/>
           <el-button @click="onShowJoinDialog"><el-icon><Search /></el-icon></el-button>
-          <JoinChannelDialog :refetchChannels="refetchChannels" ref="joinDialogChild"/>
+          <JoinChannelDialog ref="joinDialogChild"/>
         </div>
       </div>
-      <ChannelList :channels="channels" :onSelectChannel="onSelectChannelInList" :height="`auto`"/>
+      <ChannelList :channels="query.result.value?.findAllChannelsForUser" :onSelectChannel="onSelectChannelInList" :height="`auto`"/>
     </div>
     <ChannelComponent />
   </div>
 </template>
 
 <script setup lang="ts">
+import { cacheUpsert } from "@/utils/cacheUtils"
 import ChannelComponent from "./components/channelComponent.vue"
 import ChannelList from "./components/channelListComponent.vue"
 import CreateChannelDialog from "./components/createChannelDialogComponent.vue"
 import JoinChannelDialog from "./components/joinChannelDialogComponent.vue"
-import { useFindMyUserQuery, useFindAllChannelMembersForUserQuery, type Channel } from "@/graphql/graphql-operations"
-import { computed, ref } from "vue"
+import { type Channel, useFindAllChannelsForUserQuery, useOnNewChannelMemberForUserIdSubscription, useFindMyUserQuery } from "@/graphql/graphql-operations"
+import { ref } from "vue"
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
 const { result:myUser } = useFindMyUserQuery()
-const { result:resultChannels, refetch:refetchChannels } = useFindAllChannelMembersForUserQuery({args: {
-  userId: myUser.value?.findMyUser.id!
-}})
+const query = useFindAllChannelsForUserQuery({})
 
-const channels = computed(() => {
-  var output: Channel[] = []
-  resultChannels.value?.findAllChannelMembersForUser.forEach((value) => output.push(value.channel!))
-  return output
-})
+useOnNewChannelMemberForUserIdSubscription({ args: {userId: myUser.value!.findMyUser.id} }).onResult(({data}) => cacheUpsert(query, data?.onNewChannelMemberForUserId))
 
 const createDialogChild = ref()
 const joinDialogChild = ref()

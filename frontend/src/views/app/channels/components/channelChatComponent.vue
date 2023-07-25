@@ -5,7 +5,7 @@
         </div>
         <el-scrollbar>
             <div class="active-channel-content">
-                <ChannelChatMessage v-for="message in resultMessages?.findAllChannelMessagesForChannel.slice().reverse()" :key="message.id" :channelMessage="message" />
+                <ChannelChatMessage v-for="message in query.result.value?.findAllChannelMessagesForChannel.slice().reverse()" :key="message.id" :channelMessage="message" />
             </div> 
         </el-scrollbar>
         <el-input placeholder="Message..." v-model="inputValue">
@@ -18,6 +18,7 @@
 import { useFindChannelQuery, useCreateMessageForChannelMutation, useFindAllChannelMessagesForChannelQuery, useOnNewChannelMessageForChannelIdSubscription} from '@/graphql/graphql-operations'
 import { ref } from 'vue'
 import ChannelChatMessage from './channelChatMessageComponent.vue'
+import { cacheUpsert } from "@/utils/cacheUtils"
 
 const props = defineProps<{
     channelId: string
@@ -25,14 +26,12 @@ const props = defineProps<{
 
 const inputValue = ref(``)
 
-const { result:resultMessages, refetch } = useFindAllChannelMessagesForChannelQuery({args: {
+const query = useFindAllChannelMessagesForChannelQuery({args: {
     channelId: props.channelId
 }})
 const  { mutate } = useCreateMessageForChannelMutation({})
 
-const { onResult:onNewMessage } = useOnNewChannelMessageForChannelIdSubscription({ args: {
-    channelId: props.channelId
-}})
+useOnNewChannelMessageForChannelIdSubscription({ args: {channelId: props.channelId}}).onResult(({data}) => cacheUpsert(query, data?.onNewChannelMessageForChannelId))
 
 const { result:resultChannel } = useFindChannelQuery({args: { 
     id: props.channelId
@@ -42,12 +41,8 @@ const onCreateMessage = () => {
     mutate({args: {
         channelId: props.channelId,
         message: inputValue.value,
-    }}).then(() => refetch()).then(() => inputValue.value = ``)
+    }}).then(() => inputValue.value = ``)
 }
-
-onNewMessage((e) => {
-    console.log(e)
-})
 
 </script>
 

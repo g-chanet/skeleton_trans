@@ -8,7 +8,7 @@ import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from 'src/users/entities/user.entity'
 import { PubSub } from 'graphql-subscriptions'
 
-const PUB_NEW_CHANNEL_MESSAGE = `newChannelMessage`
+const PUB_NEW_CHANNEL_MESSAGE = `onNewChannelMessageForChannelId`
 
 @Resolver(() => ChannelMessage)
 export class ChannelMessagesResolver {
@@ -31,9 +31,7 @@ export class ChannelMessagesResolver {
       ...args,
       userId: user.id,
     })
-    console.log(`avant`)
-    await this.pubSub.publish(`toto`, { toto: res })
-    console.log(`apres`)
+    await this.pubSub.publish(PUB_NEW_CHANNEL_MESSAGE, res)
     return res
   }
 
@@ -71,18 +69,15 @@ export class ChannelMessagesResolver {
   //**************************************************//
 
   @Subscription(() => ChannelMessage, {
-    filter(
-      payload: ChannelMessage,
-      variables: DTO.OnNewChannelMessageForChannelIdInput,
-    ) {
-      console.log(`filtre`)
-      return payload.channelId === variables.channelId
+    filter: (payload: ChannelMessage, variables: any) =>
+      payload.channelId === variables.args.channelId,
+    resolve: (payload) => {
+      return payload
     },
   })
   onNewChannelMessageForChannelId(
     @Args(`args`) args: DTO.OnNewChannelMessageForChannelIdInput,
   ) {
-    console.log(`oui`)
-    return this.pubSub.asyncIterator(`toto`)
+    return this.pubSub.asyncIterator(PUB_NEW_CHANNEL_MESSAGE)
   }
 }

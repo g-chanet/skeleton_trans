@@ -36,7 +36,6 @@ export class UsersResolver {
   @Query(() => User)
   @UseGuards(GqlAuthGuard)
   findMyUser(@CtxUser() user: User) {
-    console.log("prout")
     return user
   }
 

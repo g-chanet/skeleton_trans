@@ -14,7 +14,7 @@ export class ChannelsService {
   //**************************************************//
 
   async create(data: Prisma.ChannelCreateInput) {
-    if (data.password !== null)
+    if (data.password !== undefined)
       data.password = await AuthHelper.hash(data.password)
     return await this.prisma.channel.create({ data })
   }
@@ -35,11 +35,24 @@ export class ChannelsService {
     return await this.prisma.channel.findMany({})
   }
 
+  async findAllForUser(userId: string) {
+    return await this.prisma.channel.findMany({
+      where: {
+        channelMembers: {
+          some: {
+            userId: {
+              equals: userId,
+            },
+          },
+        },
+      },
+    })
+  }
+
   async findAllPublic(userId: string) {
     return await this.prisma.channel.findMany({
       where: {
         channelType: EChannelType.Public,
-        channelMembers: { none: { userId: userId } },
       },
     })
   }
@@ -48,7 +61,6 @@ export class ChannelsService {
     return await this.prisma.channel.findMany({
       where: {
         channelType: EChannelType.Protected,
-        channelMembers: { none: { userId: userId } },
       },
     })
   }
@@ -63,11 +75,24 @@ export class ChannelsService {
     })
   }
 
+  async checkChannelName(name: string) {
+    const found = await this.prisma.channel.findFirst({ where: { name } })
+    if (found === undefined) return true
+    return false
+  }
+
+  //**************************************************//
+  //  SUBSCRIPTION
+  //**************************************************//
+
+  //**************************************************//
+  //  UTILS
+  //**************************************************//
   async verifyChannelPassword(channelId: string, password: string) {
     const channel = await this.prisma.channel.findFirst({
       where: { id: channelId },
     })
-    if (channel.channelType === EChannelType.Public) return true
+    if (channel.channelType !== EChannelType.Protected) return true
     return await compare(password, channel.password)
   }
 }

@@ -3,13 +3,13 @@
 # ------------------------------------------------------
 
 type UserPublic {
-  id: String!
+  id: ID!
   username: String!
   avatarUrl: String
 }
 
 type User {
-  id: String!
+  id: ID!
   username: String!
   avatarUrl: String
   doubleAuth: Boolean!
@@ -30,7 +30,7 @@ type GameData {
 }
 
 type ChannelMessage {
-  id: String!
+  id: ID!
   message: String!
   channelId: String!
   userId: String!
@@ -44,13 +44,14 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Channel {
-  id: String!
+  id: ID!
   name: String!
   avatarUrl: String
   password: String
   channelType: EChannelType!
   createdAt: DateTime!
-  channelMessages: ChannelMessage
+  channelMembers: [ChannelMember!]
+  channelMessages: [ChannelMessage!]
 }
 
 enum EChannelType {
@@ -60,7 +61,7 @@ enum EChannelType {
 }
 
 type ChannelMember {
-  channelId: String!
+  channelId: ID!
   userId: String!
   type: EChannelMemberType!
   muted: DateTime!
@@ -79,7 +80,7 @@ enum EChannelMemberType {
 }
 
 type UserRelation {
-  id: String!
+  id: ID!
   userOwnerId: String!
   userTargetId: String!
   type: EUserRealtionType!
@@ -102,8 +103,9 @@ type Query {
   findAllChannels: [Channel!]!
   findAllPublicChannels: [Channel!]!
   findAllProtectedChannels: [Channel!]!
+  findAllChannelsForUser: [Channel!]!
+  checkChannelName(args: CheckChannelInput!): Boolean!
   findAllChannelMembersForChannel(args: FindAllChannelMembersForChannelInput!): [ChannelMember!]!
-  findAllChannelMembersForUser(args: FindAllChannelMembersForUserInput!): [ChannelMember!]!
   findAllChannelMessagesForChannel(args: FindAllMessagesForChannelInput!): [ChannelMessage!]!
   findAllGameMatchmakingMemberl: [GameMatchmakingMember!]!
 }
@@ -116,12 +118,12 @@ input FindChannelInput {
   id: String!
 }
 
-input FindAllChannelMembersForChannelInput {
-  channelId: String!
+input CheckChannelInput {
+  channelName: String!
 }
 
-input FindAllChannelMembersForUserInput {
-  userId: String!
+input FindAllChannelMembersForChannelInput {
+  channelId: String!
 }
 
 input FindAllMessagesForChannelInput {
@@ -265,11 +267,17 @@ input GoogleAuthCodeValidatorInput {
 type Subscription {
   onUpdateChannel(args: OnChannelInput!): Channel!
   onDeleteChannel(args: OnChannelInput!): Channel!
+  onCreateChannel: Channel!
+  onNewChannelMemberForUserId(args: OnNewChannelMemberForChannelIdInput!): Channel!
   onNewChannelMessageForChannelId(args: OnNewChannelMessageForChannelIdInput!): ChannelMessage!
 }
 
 input OnChannelInput {
   id: String!
+}
+
+input OnNewChannelMemberForChannelIdInput {
+  userId: String!
 }
 
 input OnNewChannelMessageForChannelIdInput {
