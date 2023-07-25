@@ -1,3 +1,4 @@
+export {}
 // eslint-disable-next-line
 declare module 'Pong' {
     export const Pong: {

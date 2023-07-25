@@ -1,4 +1,4 @@
-
+export {}
 import {Game} from './game.js'
 
 //=============================================================================
@@ -9,12 +9,12 @@ var Pong = {
 
     Defaults: {
       width:        640,   // logical canvas width (browser will scale to physical canvas size - which is controlled by @media css queries)
-      height:       480,   // logical canvas height (ditto)
+      height:       480,   // logical canvas height
       wallWidth:    12,
       paddleWidth:  12,
       paddleHeight: 60,
       paddleSpeed:  2,     // should be able to cross court vertically   in 2 seconds
-      ballSpeed:    4,     // should be able to cross court horizontally in 4 seconds, at starting speed ...
+      ballSpeed:    4,     // should be able to cross court horizontally in 4 seconds
       ballAccel:    8,     // ... but accelerate as time passes
       ballRadius:   5,
       sound:        true
@@ -542,7 +542,6 @@ var Pong = {
               pos.dy = -pos.dy
               break
           }
-  
           // add/remove spin based on paddle direction
           if (paddle.up)
             pos.dy = pos.dy * (pos.dy < 0 ? 0.5 : 1.5)
@@ -641,8 +640,6 @@ var Pong = {
       }
   
     }
-  
     //=============================================================================
-  
   } // Pong
   

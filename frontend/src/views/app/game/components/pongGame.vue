@@ -6,7 +6,7 @@
     <div class='description'>
       <p>
         Press <b>1</b> for a single player game.<br>
-        Press <b>2</b> for a double player game.<br>
+        Press <b>2</b> for a local multiplayer game.<br>
         Press <b>0</b> to watch the computer play itself.
       </p>
       <p>

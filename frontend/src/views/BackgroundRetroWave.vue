@@ -138,15 +138,15 @@ $--labs-sys-color-volume: $--labs-sys-color-triangle;
   filter: drop-shadow(0 0 4rem $--labs-sys-color-sun-glow);
 }
 
-@keyframes sun {
-  from {
-    --shift: 1;
-  }
+// @keyframes sun {
+//   from {
+//     --shift: 1;
+//   }
 
-  to {
-    --shift: 3.8;
-  }
-}
+//   to {
+//     --shift: 3.8;
+//   }
+// }
 
 .top-lines {
   background: linear-gradient(
@@ -289,15 +289,15 @@ $--labs-sys-color-volume: $--labs-sys-color-triangle;
   }
 }
 
-@keyframes grid {
-  from {
-    background-position-y: -30rem;
-  }
+// @keyframes grid {
+//   from {
+//     background-position-y: -30rem;
+//   }
 
-  to {
-    background-position-y: 0%;
-  }
-}
+//   to {
+//     background-position-y: 0%;
+//   }
+// }
 
 // ✨
 #stars {
@@ -321,17 +321,17 @@ $--labs-sys-color-volume: $--labs-sys-color-triangle;
   animation: stars 20s linear;
 }
 
-@keyframes stars {
-  from {
-    transform: translateX(0);
-  }
-  60% {
-    transform: translateX(3vmax) rotate(1deg);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
+// @keyframes stars {
+//   from {
+//     transform: translateX(0);
+//   }
+//   60% {
+//     transform: translateX(3vmax) rotate(1deg);
+//   }
+//   to {
+//     transform: translateX(0);
+//   }
+// }
 
 .startails {
   position: absolute;
