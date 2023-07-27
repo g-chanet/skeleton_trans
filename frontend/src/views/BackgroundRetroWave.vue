@@ -19,38 +19,16 @@
       <div class="m2" />
       <div class="bottom-overlay" />
     </div>
-    <div id="stars" />
+    <section class="shooting-stars">
+      <span></span>
+      <span></span>
+      <span></span>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-const getRandomInt = (min: number, max: number) => {
-  min = Math.ceil(min)
-  max = Math.floor(max)
-  return Math.floor(Math.random() * (max - min) + min) // The maximum is exclusive and the minimum is inclusive
-}
 
-const render = () => {
-  // Create stars ✨
-  const stars = document.getElementById("stars")
-  stars!.innerHTML = ""
-  const w = window.innerWidth
-  const h = window.innerHeight
-  const starCount = getRandomInt(42, 100)
-
-  for (let i = 0; i < starCount; i++) {
-    const star = document.createElement("div")
-    star.classList.add("star")
-    const x = getRandomInt(0, w)
-    const y = getRandomInt(0, h)
-    star.style.setProperty("$--x", `${x}px`)
-    star.style.setProperty("$--y", `${y}px`)
-    stars!.appendChild(star)
-  }
-}
-
-requestAnimationFrame(render)
-window.addEventListener("resize", () => requestAnimationFrame(render))
 </script>
 
 <style scoped lang="scss">
@@ -138,15 +116,15 @@ $--labs-sys-color-volume: $--labs-sys-color-triangle;
   filter: drop-shadow(0 0 4rem $--labs-sys-color-sun-glow);
 }
 
-// @keyframes sun {
-//   from {
-//     --shift: 1;
-//   }
+@keyframes sun {
+  from {
+    --shift: 1;
+  }
 
-//   to {
-//     --shift: 3.8;
-//   }
-// }
+  to {
+    --shift: 3.8;
+  }
+}
 
 .top-lines {
   background: linear-gradient(
@@ -215,7 +193,6 @@ $--labs-sys-color-volume: $--labs-sys-color-triangle;
     mix-blend-mode: soft-light;
     height: 15vmin;
     backdrop-filter: blur(20px);
-    // ⚙️ gen: https://unused-css.com/tools/clip-path-generator?p=22AwLgzAHANATAdANhAFmFArHZIbKhOAdhHQE4oBGMREQmSg9HemCo8dWQuGEaMbOjBQwpLHwpRkYin07pkcJgjwJQQqITa9CaQghq58bbGgjdZVKKUW8YhSsFBh6FJyDdpQngNx+AxE5BwEA
     clip-path: polygon(
       0% 38%,
       2.6% 40%,
@@ -289,49 +266,15 @@ $--labs-sys-color-volume: $--labs-sys-color-triangle;
   }
 }
 
-// @keyframes grid {
-//   from {
-//     background-position-y: -30rem;
-//   }
-
-//   to {
-//     background-position-y: 0%;
-//   }
-// }
-
-// ✨
-#stars {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 20rem;
-  overflow: hidden;
-  left: 0;
-  z-index: -1;
-
-  .star {
-    position: absolute;
-    background: $--labs-sys-color-star;
-    width: 0.15rem;
-    height: 0.15rem;
-    border-radius: 50%;
-    transform: translate(var(--x), var(--y));
-    box-shadow: 0 0 0.25rem $--labs-sys-color-sun-glow;
+@keyframes grid {
+  from {
+    background-position-y: -30rem;
   }
-  animation: stars 20s linear;
-}
 
-// @keyframes stars {
-//   from {
-//     transform: translateX(0);
-//   }
-//   60% {
-//     transform: translateX(3vmax) rotate(1deg);
-//   }
-//   to {
-//     transform: translateX(0);
-//   }
-// }
+  to {
+    background-position-y: 0%;
+  }
+}
 
 .startails {
   position: absolute;
@@ -423,6 +366,93 @@ body {
   width: 100vw;
   overflow: hidden;
   color: $--labs-sys-color-triangle;
+}
+
+.shooting-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: -1;
+  background-color: black;
+  background-position-x: center;
+  background-size: cover;
+  animation: animateBg 50s linear infinite;
+  overflow: hidden;
+}
+
+@keyframes animateBg {
+  0%, 100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.shooting-stars span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1),
+    0 0 0 8px rgba(255, 255, 255, 0.1), 0 0 20px rgba(255, 255, 255, 1);
+  animation: animate 5s linear infinite;
+}
+
+.shooting-stars span::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 300px;
+  height: 1px;
+  background: linear-gradient(90deg, #fff, transparent);
+}
+
+@keyframes animate {
+  0% {
+    transform: rotate(345deg) translateX(0);
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(345deg) translateX(-1500px);
+    opacity: 0;
+  }
+}
+
+.shooting-stars span:nth-child(1) {
+  top: 0;
+  right: 0;
+  left: initial;
+  animation-delay: 0;
+  animation-duration: 3s;
+}
+
+.shooting-stars span:nth-child(2) {
+  top: 0;
+  right: 600px;
+  left: initial;
+  animation-delay: 1.5s;
+  animation-duration: 3s;
+}
+
+.shooting-stars span:nth-child(3) {
+  top: 0;
+  right: 180px;
+  left: initial;
+  animation-delay: 4s;
+  animation-duration: 1.5s;
 }
 
 </style>
