@@ -45,6 +45,12 @@ export class FindAllMessagesForChannelInput {
   channelId: string
 }
 
+@InputType()
+export class FindUserForChannelMessageInput {
+  @Field(() => String)
+  id: string
+}
+
 //**************************************************//
 //  SUBSCRIPTION
 //**************************************************//

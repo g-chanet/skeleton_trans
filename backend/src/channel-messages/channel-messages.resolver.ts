@@ -5,7 +5,7 @@ import * as DTO from './dto/channel-message.input'
 import { UseGuards } from '@nestjs/common'
 import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
-import { User } from 'src/users/entities/user.entity'
+import { User, UserPublic } from 'src/users/entities/user.entity'
 import { PubSub } from 'graphql-subscriptions'
 
 const PUB_NEW_CHANNEL_MESSAGE = `onNewChannelMessageForChannelId`
@@ -62,6 +62,15 @@ export class ChannelMessagesResolver {
     @Args(`args`) args: DTO.FindAllMessagesForChannelInput,
   ) {
     return await this.channelMessagesService.findAllForChannel(args.channelId)
+  }
+
+  @Query(() => UserPublic)
+  async findUserForChannelMessage(
+    @Args(`args`) args: DTO.FindUserForChannelMessageInput,
+  ) {
+    return (
+      await this.channelMessagesService.findUserForChannelMessage(args.id)
+    ).user
   }
 
   //**************************************************//

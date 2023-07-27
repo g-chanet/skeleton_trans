@@ -27,9 +27,6 @@ import { AppGateway } from './app.gateway'
       subscriptions: {
         'graphql-ws': {
           path: `/graphql`,
-          onConnect: (context: any) => {
-            console.log(`OnConnect WS`)
-          },
         },
       },
       plugins: [ApolloServerPluginLandingPageLocalDefault()],

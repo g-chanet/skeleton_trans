@@ -1,14 +1,14 @@
 <template>
     <div class="active-channel">
         <div class="active-channel-header">
-          <h1 class="top">{{ resultChannel?.findChannel.name }}</h1>
+          <h2 class="top">{{ resultChannel?.findChannel.name }}</h2>
         </div>
-        <el-scrollbar>
-            <div class="active-channel-content">
-                <ChannelChatMessage v-for="message in query.result.value?.findAllChannelMessagesForChannel.slice().reverse()" :key="message.id" :channelMessage="message" />
-            </div> 
+        <el-scrollbar ref="chatScroll" v-loading="loading" element-loading-background="rgba(0, 0, 0, 0)">
+            <div ref="innerRef" class="active-channel-content">
+                <ChannelChatMessage v-for="(message, index) in query.result.value?.findAllChannelMessagesForChannel.slice().reverse()" :key="message.id" :message="message" :previousMessage="query.result.value?.findAllChannelMessagesForChannel.slice().reverse()[index + 1]" />
+            </div>
         </el-scrollbar>
-        <el-input placeholder="Message..." v-model="inputValue">
+        <el-input style="margin-top: 2%; margin-bottom: 2%;" @keyup.enter="onCreateMessage" placeholder="Message..." v-model="inputValue">
             <template #append><el-button @click="onCreateMessage"><el-icon><DArrowRight /></el-icon></el-button></template>
         </el-input>
     </div>
@@ -16,33 +16,56 @@
 
 <script setup lang="ts">
 import { useFindChannelQuery, useCreateMessageForChannelMutation, useFindAllChannelMessagesForChannelQuery, useOnNewChannelMessageForChannelIdSubscription} from '@/graphql/graphql-operations'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import ChannelChatMessage from './channelChatMessageComponent.vue'
 import { cacheUpsert } from "@/utils/cacheUtils"
+import type { ElScrollbar } from 'element-plus/es/components'
 
 const props = defineProps<{
     channelId: string
 }>()
+
+const loading = ref(true)
+const innerRef = ref<HTMLDivElement>()
+const chatScroll = ref<InstanceType<typeof ElScrollbar>>()
+
+
+onMounted(() => {
+    loading.value = true
+    setTimeout(() => {
+        loading.value = false
+        chatScroll.value?.setScrollTop(innerRef.value!.clientHeight)
+    }, 500)
+})
 
 const inputValue = ref(``)
 
 const query = useFindAllChannelMessagesForChannelQuery({args: {
     channelId: props.channelId
 }})
+
 const  { mutate } = useCreateMessageForChannelMutation({})
 
-useOnNewChannelMessageForChannelIdSubscription({ args: {channelId: props.channelId}}).onResult(({data}) => cacheUpsert(query, data?.onNewChannelMessageForChannelId))
+useOnNewChannelMessageForChannelIdSubscription({ args: {channelId: props.channelId}}).onResult(({data}) => {
+    cacheUpsert(query, data?.onNewChannelMessageForChannelId)
+    setTimeout(() => {
+        chatScroll.value?.setScrollTop(innerRef.value!.clientHeight)
+    }, 5)
+})
 
 const { result:resultChannel } = useFindChannelQuery({args: { 
     id: props.channelId
   }})
 
 const onCreateMessage = () => {
-    mutate({args: {
-        channelId: props.channelId,
-        message: inputValue.value,
-    }}).then(() => inputValue.value = ``)
+    if (inputValue.value.trim().length !== 0) {
+        mutate({args: {
+            channelId: props.channelId,
+            message: inputValue.value,
+        }}).then(() => inputValue.value = ``)
+    }
 }
+
 
 </script>
 
@@ -58,7 +81,8 @@ const onCreateMessage = () => {
     height: 100%
     display: flex
     flex-direction: column-reverse
-    padding: 5%
+    margin-left: 5%
+    margin-right: 5%
 .active-channel-header
     display: flex
     flex-direction: row
@@ -67,13 +91,10 @@ const onCreateMessage = () => {
 
 .el-input
     height: 7.5%
+    padding-left: 5%
+    padding-right: 5%
 
 .top
-    padding-bottom: 1%
-    z-index: 2
-    display: flex
-    justify-content: center
-    position: relative
     font-family: "Vaporfuturism", "Helvetica", sans-serif
     letter-spacing: -5px
     transform: rotate(0deg) skew(-3deg) translateX(-50%) scaleX(1.4)

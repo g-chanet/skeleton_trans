@@ -9,7 +9,7 @@
       >
         <div class="dialog-body">
           <div class="create-channel">
-            <el-alert v-if="invalidName" title="Warning alert" type="warning" description="This channel name is already used!" show-icon :closable="false"/>
+            <el-alert v-if="nameChecked?.checkChannelName" title="Warning" type="warning" description="This channel name is already used!" show-icon :closable="false"/>
             <el-input @keyup="search" type="text" placeholder="Channel name" v-model="channelName"/>
             <el-radio-group v-model="channelType">
               <el-radio label="Public" :change="onTypeChange()"/>
@@ -35,15 +35,31 @@ const { mutate:mutateChannelMember } = useCreateMemberForChannelMutation({})
 const createDialogVisible = ref(false)
 const router = useRouter()
 const channelName = ref(``)
-const invalidName = ref(false)
+
+const { result:nameChecked, refetch:checkName, loading} = useCheckChannelNameQuery({ args: {channelName: channelName.value} })
+let timeout: number | undefined
+const typing = ref(false)
+const search = () => {
+  typing.value = true
+  clearTimeout(timeout)
+  timeout = setTimeout(() => {
+    checkName({ args: {channelName: channelName.value} })
+    typing.value = false
+  }, 1000)
+}
+
 const channelPassword = ref(``)
 const channelType = ref(`Public`)
 const isDisabled = computed( () => {
-  if(channelName.value === ``)
+  if (typing.value)
     return true
-  if (channelType.value === `Protected` && channelPassword.value.toString().length < 8)
+  if (loading.value)
     return true
-  return false
+  if(channelName.value.trim().length === 0)
+    return true
+  if (channelType.value === `Protected` && channelPassword.value.toString().length < 8 && channelPassword.value.trim.length === 0)
+    return true
+  return nameChecked.value?.checkChannelName
 })
 
 const onTypeChange = () => {
@@ -116,14 +132,6 @@ const handleClose = () => {
   channelType.value = `Public`
 }
 
-const checkQuery =  useCheckChannelNameQuery({ args: {channelName: channelName.value} }).onResult(({data}) => invalidName.value = data.checkChannelName)
-let timeout: number | undefined
-const search = () => {
-  clearTimeout(timeout)
-  timeout = setTimeout(() => {
-    checkQuery.off()
-  }, 1000)
-}
 
 </script>
 
@@ -147,5 +155,9 @@ const search = () => {
   display: flex
   justify-content: space-evenly
   margin-top: 5%
+
+.el-alert
+  margin-top: -5%
+  margin-bottom: 5%
 
 </style>

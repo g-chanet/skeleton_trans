@@ -91,7 +91,6 @@ export class ChannelsResolver {
 
   @Query(() => Boolean)
   async checkChannelName(@Args(`args`) args: DTO.CheckChannelInput) {
-    console.log("input", args.channelName)
     return await this.channelsService.checkChannelName(args.channelName)
   }
 

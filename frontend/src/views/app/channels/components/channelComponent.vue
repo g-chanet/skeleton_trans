@@ -23,6 +23,9 @@ const channelId = computed( () => route.query.channelId ? route.query.channelId.
 <style scoped lang="sass">
 
 .chat-container
+  background: rgb(20,20,20)
+  border-start-end-radius: var(--el-border-radius-base)
+  border-end-end-radius: var(--el-border-radius-base)
   width: 100%
 
 .details-container

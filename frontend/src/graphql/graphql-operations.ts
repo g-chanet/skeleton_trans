@@ -128,6 +128,10 @@ export type FindChannelInput = {
   id: Scalars['String'];
 };
 
+export type FindUserForChannelMessageInput = {
+  id: Scalars['String'];
+};
+
 export type FindUserInput = {
   id: Scalars['String'];
 };
@@ -343,6 +347,7 @@ export type Query = {
   findLeaderboardUserList: Array<UserPublic>;
   findMyUser: User;
   findUser: UserPublic;
+  findUserForChannelMessage: UserPublic;
 };
 
 
@@ -368,6 +373,11 @@ export type QueryFindChannelArgs = {
 
 export type QueryFindUserArgs = {
   args: FindUserInput;
+};
+
+
+export type QueryFindUserForChannelMessageArgs = {
+  args: FindUserForChannelMessageInput;
 };
 
 export type SignInLocalInput = {
@@ -541,7 +551,7 @@ export type FindAllChannelMembersForChannelQueryVariables = Exact<{
 }>;
 
 
-export type FindAllChannelMembersForChannelQuery = { __typename?: 'Query', findAllChannelMembersForChannel: Array<{ __typename?: 'ChannelMember', type: EChannelMemberType, user?: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } | null }> };
+export type FindAllChannelMembersForChannelQuery = { __typename?: 'Query', findAllChannelMembersForChannel: Array<{ __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any, user?: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } | null }> };
 
 export type CreateMemberForChannelMutationVariables = Exact<{
   args: CreateMemberForChannelInput;
@@ -570,6 +580,13 @@ export type FindAllChannelMessagesForChannelQueryVariables = Exact<{
 
 
 export type FindAllChannelMessagesForChannelQuery = { __typename?: 'Query', findAllChannelMessagesForChannel: Array<{ __typename?: 'ChannelMessage', id: string, message: string, channelId: string, userId: string, createdAt: any, updatedAt: any }> };
+
+export type FindUserForChannelMessageQueryVariables = Exact<{
+  args: FindUserForChannelMessageInput;
+}>;
+
+
+export type FindUserForChannelMessageQuery = { __typename?: 'Query', findUserForChannelMessage: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } };
 
 export type OnNewChannelMessageForChannelIdSubscriptionVariables = Exact<{
   args: OnNewChannelMessageForChannelIdInput;
@@ -916,7 +933,12 @@ export type OnCreateChannelSubscriptionCompositionFunctionResult = VueApolloComp
 export const FindAllChannelMembersForChannelDocument = gql`
     query FindAllChannelMembersForChannel($args: FindAllChannelMembersForChannelInput!) {
   findAllChannelMembersForChannel(args: $args) {
+    channelId
+    userId
     type
+    muted
+    createdAt
+    updatedAt
     user {
       id
       username
@@ -1077,6 +1099,38 @@ export function useFindAllChannelMessagesForChannelLazyQuery(variables: FindAllC
   return VueApolloComposable.useLazyQuery<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>(FindAllChannelMessagesForChannelDocument, variables, options);
 }
 export type FindAllChannelMessagesForChannelQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllChannelMessagesForChannelQuery, FindAllChannelMessagesForChannelQueryVariables>;
+export const FindUserForChannelMessageDocument = gql`
+    query FindUserForChannelMessage($args: FindUserForChannelMessageInput!) {
+  findUserForChannelMessage(args: $args) {
+    id
+    username
+    avatarUrl
+  }
+}
+    `;
+
+/**
+ * __useFindUserForChannelMessageQuery__
+ *
+ * To run a query within a Vue component, call `useFindUserForChannelMessageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindUserForChannelMessageQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the query
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindUserForChannelMessageQuery({
+ *   args: // value for 'args'
+ * });
+ */
+export function useFindUserForChannelMessageQuery(variables: FindUserForChannelMessageQueryVariables | VueCompositionApi.Ref<FindUserForChannelMessageQueryVariables> | ReactiveFunction<FindUserForChannelMessageQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindUserForChannelMessageQuery, FindUserForChannelMessageQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindUserForChannelMessageQuery, FindUserForChannelMessageQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindUserForChannelMessageQuery, FindUserForChannelMessageQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindUserForChannelMessageQuery, FindUserForChannelMessageQueryVariables>(FindUserForChannelMessageDocument, variables, options);
+}
+export function useFindUserForChannelMessageLazyQuery(variables: FindUserForChannelMessageQueryVariables | VueCompositionApi.Ref<FindUserForChannelMessageQueryVariables> | ReactiveFunction<FindUserForChannelMessageQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindUserForChannelMessageQuery, FindUserForChannelMessageQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindUserForChannelMessageQuery, FindUserForChannelMessageQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindUserForChannelMessageQuery, FindUserForChannelMessageQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindUserForChannelMessageQuery, FindUserForChannelMessageQueryVariables>(FindUserForChannelMessageDocument, variables, options);
+}
+export type FindUserForChannelMessageQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindUserForChannelMessageQuery, FindUserForChannelMessageQueryVariables>;
 export const OnNewChannelMessageForChannelIdDocument = gql`
     subscription OnNewChannelMessageForChannelId($args: OnNewChannelMessageForChannelIdInput!) {
   onNewChannelMessageForChannelId(args: $args) {

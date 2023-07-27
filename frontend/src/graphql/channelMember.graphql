@@ -1,6 +1,11 @@
 query FindAllChannelMembersForChannel($args: FindAllChannelMembersForChannelInput!) {
   findAllChannelMembersForChannel(args: $args) {
+    channelId
+    userId
     type
+    muted
+    createdAt
+    updatedAt
     user {
       id
       username

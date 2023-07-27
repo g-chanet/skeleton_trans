@@ -1,55 +1,80 @@
 <template>
-    <div :class="messageOrigin">
-        <div class="content">
-            {{ props.channelMessage.message }}
-        </div>
-        <div class="timestamp">
-            {{ moment(props.channelMessage.createdAt).fromNow() }}
+    <div class="message">
+        <div v-if="showUser && !showDate" style="margin-bottom: 7%;"></div>
+        <el-divider v-if="showDate">
+            {{ moment(props.message.createdAt).format('LL') }}
+        </el-divider>
+        <div class="content" @mouseover="hover = true" @mouseleave="hover = false">
+            <div class="head">
+                <el-image v-if="showUser || showDate" style="width: 100%; background-size: cover; background-position: center; aspect-ratio: 1/1; border-radius: 100%;" fit="cover" :src="user?.findUserForChannelMessage.avatarUrl" />
+                <div v-if="hover && !showUser && !showDate" style="font-size: x-small;">{{ moment(props.message.createdAt).format('LT') }}</div>
+            </div>
+            <div class="body">
+                <div class="title" v-if="showUser || showDate">
+                    <div style="font-weight: bold;">{{ user?.findUserForChannelMessage.username }}</div>
+                    <div style="display: flex; flex: 1; justify-content: flex-end; font-size: small;">
+                        {{ moment(props.message.createdAt).calendar() }}
+                    </div>
+                </div>
+                <div class="text">
+                    {{ props.message.message }}
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import moment from  "moment"
-import { useFindMyUserQuery, type ChannelMessage } from '@/graphql/graphql-operations'
+import { useFindUserForChannelMessageQuery, type ChannelMessage } from '@/graphql/graphql-operations'
+import { computed, ref } from "vue"
 
-const { result } = useFindMyUserQuery()
-
+const hover = ref(false)
 const props = defineProps<{
-    channelMessage: ChannelMessage
+    message: ChannelMessage,
+    previousMessage?: ChannelMessage,
 }>()
 
-const messageOrigin = result.value?.findMyUser.id === props.channelMessage.userId ? `myMessages` : `otherMessages`
+const isNotNull = computed(() => props.previousMessage !== null)
+const showUser = computed(() => isNotNull.value && props.message.userId !== props.previousMessage?.userId)
+const showDate = computed(() => isNotNull.value && moment(props.message.createdAt).format(`LL`) !== moment(props.previousMessage?.createdAt).format(`LL`))
+
+const { result:user } = useFindUserForChannelMessageQuery({ args: {id: props.message.id }})
+
 </script>
 
 <style scoped lang="sass">
 
-.myMessages
-    border-top-left-radius: 20px
-    border-top-right-radius: 20px
-    border-bottom-left-radius: 20px
-    background: var(--el-color-primary)
-    margin-top: 5% 
-    .content
-        padding: 3%
+.message
+    display: flex
+    flex-direction: column
 
-    .timestamp
-        display: flex
-        justify-content: flex-end
-        padding: 1%
+.content
+    display: flex
+    flex-direction: row
 
-.otherMessages
-    border-top-left-radius: 20px
-    border-top-right-radius: 20px
-    border-bottom-right-radius: 20px
-    background: var(--el-color-primary-light-5)
-    margin-top: 5% 
-    .content
-        padding: 3%
-        display: flex
-        justify-content: flex-end
-    .timestamp
-        padding: 1%
+.head
+    display: flex
+    flex-direction: column
+    width: 10%
+    flex: 1
+    justify-content: center
 
+.body
+    display: flex
+    flex-direction: column
+    flex: 9
+    margin-left: 5%
+    margin-right: 5%
+
+.title
+    display: flex
+    flex-direction: row
+    margin-bottom: 2%
+
+.text
+    word-break: break-word
+    margin-bottom: 2%
+    margin-top: 2%
 
 </style>

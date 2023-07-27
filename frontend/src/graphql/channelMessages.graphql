@@ -15,6 +15,14 @@ query FindAllChannelMessagesForChannel($args: FindAllMessagesForChannelInput!) {
   }
 }
 
+query FindUserForChannelMessage($args: FindUserForChannelMessageInput!) {
+  findUserForChannelMessage(args: $args) {
+    id
+    username
+    avatarUrl
+  }
+}
+
 subscription OnNewChannelMessageForChannelId($args: OnNewChannelMessageForChannelIdInput!) {
   onNewChannelMessageForChannelId(args: $args) {
     id
