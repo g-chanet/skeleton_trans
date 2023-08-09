@@ -14,11 +14,10 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { fas } from "@fortawesome/free-solid-svg-icons"
 import { fab } from "@fortawesome/free-brands-svg-icons"
 
-library.add(fas,fab)
+library.add(fas, fab)
 
 import App from './App.vue'
-import {router} from './router/index'
-import VueKonva from 'vue-konva'
+import { router } from './router/index'
 
 
 const app = createApp(App)
@@ -32,4 +31,6 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(createPinia())
 app.use(router)
 app.use(apollo.install)
+
+
 app.mount(`#app`)

@@ -1,108 +1,109 @@
 <template>
-  <div class="profile-container">
-    <div class="resume-wrapper">
-      <div class="avatar">
-        <profileProfilePictureComponentVue>
-          
-        </profileProfilePictureComponentVue>
-      </div>
-      <div class="pseudo">SETTINGS...../OR/.....ADD AS A FRIEND + CHAT + CHALLENGE</div>
-    </div>
-    <div class="info">
-      <div class="graphs">
-        <div class="graphs-wrapper1">
-          <div class="graph">WINRATE</div>
-          <div class="graph">NB DE WIN/LOSE</div>
-        </div>
-        <div class="graphs-wrapper2">
-          <div class="graph">PLACE AU LEADERBOARD</div>
-          <div class="graph">ALED</div>
-        </div>
-      </div>
-      <el-scrollbar class="scroll">
-        <p v-for="item in 10" :key="item" class="history-scroll">{{ item }}</p>
-      </el-scrollbar>
-    </div>
-  </div>
+  <el-container>
+    <el-container>
+      <el-aside width="20%" class="debug-aside" >
+				<el-row justify="center"> 
+					<el-col span=8>
+						<el-avatar shape="square" :size="150" fit="cover" :src="loggedInUser?.avatarUrl" />
+					</el-col>
+				</el-row>
+				<el-row justify="center"><el-col span=8 style="font-size: x-large; font-weight: bold;">{{ loggedInUser?.username }}</el-col></el-row>
+				<el-row justify="center"><el-col span=8>john-doe@gmail.com</el-col></el-row>
+				<el-row justify="center">
+					<el-divider style="width: 75%;"/>
+				</el-row>
+        <el-row justify="center" >
+          <el-col span=8>
+            <el-button @click="testRefParams.changeDialogVisibility()">Paramètres</el-button>
+          </el-col>
+        </el-row>
+	  </el-aside>
+      <el-container>
+        <el-header class="debug-header">
+					<el-row :gutter="16">
+						<statisticCard/>
+						<statisticCard/>
+						<statisticCard/>
+					</el-row>
+		</el-header>
+
+        <el-main class="debug-main-component">
+			<el-container style="height: 100%; align-items: center;" direction="vertical">
+				<div class="graph-container">
+					<gameHistoryGraph style="height: 100%;"/>
+				</div>
+				<el-scrollbar height="400px" style="padding-top: 5%;">
+    				<div v-for="item in 20" :key="item">
+						<lastGameItem/>
+					</div>
+  				</el-scrollbar>
+			</el-container>
+		</el-main>
+      </el-container>
+    </el-container>
+    <el-footer class="debug-footer">
+		<el-container direction="horizontal" style="justify-content: center; align-items: center;">
+			<el-button>Add Friend</el-button>
+			<el-scrollbar style="margin-left: 20px;">
+				<div class="scrollbar-flex-content">
+					<p v-for="item in 50" :key="item" class="scrollbar-demo-item">
+						<friendCard/>
+					</p>
+				</div>
+  			</el-scrollbar>
+		</el-container>
+	</el-footer>
+  </el-container>
+  <parametersDialog ref="testRefParams"/>
 </template>
 
 <script setup lang="ts">
-import profileProfilePictureComponentVue from "./components/profileProfilePictureComponent.vue"
-import { computed, ref } from "vue"
-import { useRouter } from 'vue-router'
+
+import { ref } from "vue"
+import { ElMessageBox } from "element-plus"
+import { useFindMyUserQuery } from '@/graphql/graphql-operations'
+import gameHistoryGraph from "./components/game-history-graph.vue"
+import lastGameItem from "./components/lastGameItem.vue"
+import friendCard from "./components/friendCard.vue"
+import statisticCard from "./components/statisticCard.vue"
+import parametersDialog from "./components/parametersDialog.vue"
+
+const loggedInUser = useFindMyUserQuery().result.value?.findMyUser
+const testRefParams = ref()
+
+const showParameters = () => {
+	paramDialogVisible.value = true
+}
+
+
 </script>
 
 <style scoped lang="sass">
 
-.profile-container
-  width: 100%
-  display: flex
-  flex-direction: column
+.el-row
+	margin-bottom: 10px
+.el-avatar
+	margin-top: 35%
+.debug-footer
+	height: 17%
+	justify-content: center
+	align-items: center
+.debug-header
+	height: 17%
 
-.resume-wrapper
-  height: 50%
-  display: flex
-  flex-direction: column
-  align-items: center
-  background: var(--el-color-primary-light-5)
-  .avatar
-    display: flex
-    align-items: center
-    justify-content: center
-    background: red
-    height: 70%
-    width: 100%
-  .pseudo
-    display: flex
-    align-items: center
-    justify-content: center
-    background: blue
-    height: 30%
-    width: 100%
+.debug-main-component
+	justify-content: center
+	align-items: center
 
-.info
-  height: 50%
-  width: 100%
-  display: flex
-  flex-direction: row
-  background: transparent
-  gap: 20px
-.graphs
-  height: 100%
-  width: 60%
-  display: flex
-  flex-direction: row
-  background: var(--el-color-primary-light-3)
-  .graphs-wrapper1
-    height: 100%
-    width: 100%
-    display: flex
-    flex-direction: column
-    align-items: center
-    justify-content: space-evenly
-    background: green
-  .graphs-wrapper2
-    height: 100%
-    width: 100%
-    display: flex
-    flex-direction: column
-    align-items: center
-    justify-content: space-evenly
-    background: green
 
-.history-scroll
-  display: flex
-  flex-direction: column
-  align-items: center
-  min-height: 80px
-  text-align: center
-  border-radius: 4px
-  background: var(--el-color-primary-light-9)
-  color: var(--el-color-primary)
-  justify-content: center
-  top: 0
-  left: 0
-.scroll
-  height: 100%
-  width: 40%
+.graph-container
+	height: 45%
+	width: 80%
+	background: var(--el-color-primary-light-9)
+	border-radius: var(--el-border-radius-base)
+
+.scrollbar-flex-content
+	display: flex
+	align-items: center
+	align-self: center	  
 </style>
