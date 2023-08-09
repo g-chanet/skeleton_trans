@@ -229,8 +229,6 @@ input UpdateMyMessageForChannelInput {
 
 input DeleteMyMessageForChannelInput {
   id: String!
-  channelId: String!
-  message: String!
 }
 
 input CreateGameInput {
@@ -270,11 +268,13 @@ input GoogleAuthCodeValidatorInput {
 }
 
 type Subscription {
+  onCreateChannel: Channel!
   onUpdateChannel(args: OnChannelInput!): Channel!
   onDeleteChannel(args: OnChannelInput!): Channel!
-  onCreateChannel: Channel!
   onNewChannelMemberForUserId(args: OnNewChannelMemberForChannelIdInput!): Channel!
+  onDeleteChannelMemberForUserId(args: OnDeleteChannelMemberForChannelIdInput!): Channel!
   onNewChannelMessageForChannelId(args: OnNewChannelMessageForChannelIdInput!): ChannelMessage!
+  onDeleteChannelMessageForChannel(args: OnDeleteChannelMessageForChannel!): ChannelMessage!
 }
 
 input OnChannelInput {
@@ -285,6 +285,14 @@ input OnNewChannelMemberForChannelIdInput {
   userId: String!
 }
 
+input OnDeleteChannelMemberForChannelIdInput {
+  userId: String!
+}
+
 input OnNewChannelMessageForChannelIdInput {
+  channelId: String!
+}
+
+input OnDeleteChannelMessageForChannel {
   channelId: String!
 }

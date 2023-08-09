@@ -8,7 +8,8 @@ import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User, UserPublic } from 'src/users/entities/user.entity'
 import { PubSub } from 'graphql-subscriptions'
 
-const PUB_NEW_CHANNEL_MESSAGE = `onNewChannelMessageForChannelId`
+const PUB_UPSERT_CHANNEL_MESSAGE = `onUpsertChannelMessageForChannel`
+const PUB_DELETE_CHANNEL_MESSAGE = `onDeleteChannelMessageForChannel`
 
 @Resolver(() => ChannelMessage)
 export class ChannelMessagesResolver {
@@ -31,7 +32,7 @@ export class ChannelMessagesResolver {
       ...args,
       userId: user.id,
     })
-    await this.pubSub.publish(PUB_NEW_CHANNEL_MESSAGE, res)
+    await this.pubSub.publish(PUB_UPSERT_CHANNEL_MESSAGE, res)
     return res
   }
 
@@ -50,7 +51,9 @@ export class ChannelMessagesResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.DeleteMyMessageForChannelInput,
   ) {
-    return await this.channelMessagesService.delete(args.id, user.id)
+    const res = await this.channelMessagesService.delete(args.id, user.id)
+    this.pubSub.publish(PUB_DELETE_CHANNEL_MESSAGE, res)
+    return res
   }
 
   //**************************************************//
@@ -87,6 +90,19 @@ export class ChannelMessagesResolver {
   onNewChannelMessageForChannelId(
     @Args(`args`) args: DTO.OnNewChannelMessageForChannelIdInput,
   ) {
-    return this.pubSub.asyncIterator(PUB_NEW_CHANNEL_MESSAGE)
+    return this.pubSub.asyncIterator(PUB_UPSERT_CHANNEL_MESSAGE)
+  }
+
+  @Subscription(() => ChannelMessage, {
+    filter: (payload: ChannelMessage, variables: any) =>
+      payload.channelId === variables.args.channelId,
+    resolve: (payload) => {
+      return payload
+    },
+  })
+  onDeleteChannelMessageForChannel(
+    @Args(`args`) args: DTO.OnDeleteChannelMessageForChannel,
+  ) {
+    return this.pubSub.asyncIterator(PUB_DELETE_CHANNEL_MESSAGE)
   }
 }

@@ -1,17 +1,27 @@
+fragment channelMessage on ChannelMessage {
+  id
+  message
+  channelId
+  userId
+  createdAt
+  updatedAt
+}
+
 mutation CreateMessageForChannel($args: CreateMessageForChannelInput!) {
   createMessageForChannel(args: $args) {
     id
   }
 }
 
+mutation DeleteMyMessageForChannel($args: DeleteMyMessageForChannelInput!) {
+  deleteMyMessageForChannel(args: $args) {
+    id
+  }
+}
+
 query FindAllChannelMessagesForChannel($args: FindAllMessagesForChannelInput!) {
   findAllChannelMessagesForChannel(args: $args) {
-    id
-    message
-    channelId
-    userId
-    createdAt
-    updatedAt
+    ...channelMessage
   }
 }
 
@@ -25,11 +35,12 @@ query FindUserForChannelMessage($args: FindUserForChannelMessageInput!) {
 
 subscription OnNewChannelMessageForChannelId($args: OnNewChannelMessageForChannelIdInput!) {
   onNewChannelMessageForChannelId(args: $args) {
+    ...channelMessage
+  }
+}
+
+subscription OnDeleteChannelMessageForChannel($args: OnDeleteChannelMessageForChannel!) {
+  onDeleteChannelMessageForChannel(args: $args) {
     id
-    message
-    channelId
-    userId
-    createdAt
-    updatedAt
   }
 }

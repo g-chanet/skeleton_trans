@@ -15,7 +15,8 @@ import { ChannelsService } from 'src/channels/channels.service'
 import { PubSub } from 'graphql-subscriptions'
 import { Channel } from 'src/channels/entities/channel.entity'
 
-const PUB_NEW_CHANNEL_MEMBER = `onNewChannelMemberForUserId`
+const PUB_UPSERT_CHANNEL_MEMBER = `onUpsertChannelMemberForUserId`
+const PUB_DELETE_CHANNEL_MEMBER = `onDeleteChannelMemberForUserId`
 
 @Resolver(() => ChannelMember)
 export class ChannelMembersResolver {
@@ -49,7 +50,7 @@ export class ChannelMembersResolver {
       userId: user.id,
     })
     const channel = await this.channelsService.findOne(args.channelId)
-    await this.pubSub.publish(PUB_NEW_CHANNEL_MEMBER, channel)
+    await this.pubSub.publish(PUB_UPSERT_CHANNEL_MEMBER, channel)
     return res
   }
 
@@ -72,6 +73,8 @@ export class ChannelMembersResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.DeleteMyMemberForChannelInput,
   ) {
+    const channel = await this.channelsService.findOne(args.channelId)
+    await this.pubSub.publish(PUB_DELETE_CHANNEL_MEMBER, channel)
     return await this.channelMembersService.delete(user.id, args.channelId)
   }
 
@@ -103,6 +106,22 @@ export class ChannelMembersResolver {
   onNewChannelMemberForUserId(
     @Args(`args`) args: DTO.OnNewChannelMemberForChannelIdInput,
   ) {
-    return this.pubSub.asyncIterator(PUB_NEW_CHANNEL_MEMBER)
+    return this.pubSub.asyncIterator(PUB_UPSERT_CHANNEL_MEMBER)
+  }
+
+  @Subscription(() => Channel, {
+    filter: (payload: Channel, variables: any) => {
+      return payload.channelMembers.some((member: ChannelMember) => {
+        return member.userId === variables.args.userId
+      })
+    },
+    resolve: (payload) => {
+      return payload
+    },
+  })
+  onDeleteChannelMemberForUserId(
+    @Args(`args`) args: DTO.OnDeleteChannelMemberForChannelIdInput,
+  ) {
+    return this.pubSub.asyncIterator(PUB_DELETE_CHANNEL_MEMBER)
   }
 }

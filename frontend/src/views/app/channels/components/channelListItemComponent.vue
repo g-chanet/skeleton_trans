@@ -11,11 +11,14 @@
 </template>
 
 <script setup lang="ts">
-import type { Channel } from '@/graphql/graphql-operations'
+import { useOnDeleteChannelSubscription, type Channel } from '@/graphql/graphql-operations'
+import { cacheDelete } from '@/utils/cacheUtils'
 
  const props = defineProps<{
   channel: Channel
 }>()
+
+useOnDeleteChannelSubscription({ args: {id: props.channel.id}}).onResult(({data}) => cacheDelete(data?.onDeleteChannel))
 
 </script>
 

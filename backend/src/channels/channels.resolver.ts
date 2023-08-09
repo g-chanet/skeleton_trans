@@ -9,7 +9,8 @@ import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from 'src/users/entities/user.entity'
 import { EChannelType } from '@prisma/client'
 
-const PUB_NEW_CHANNEL = `onNewChannel`
+const PUB_UPSERT_CHANNEL = `onUpsertChannel`
+const PUB_DELETE_CHANNEL = `onDeleteChannel`
 
 @Resolver(Channel)
 export class ChannelsResolver {
@@ -32,7 +33,7 @@ export class ChannelsResolver {
   ) {
     const channel = await this.channelsService.create(args)
     if (!(channel.channelType === EChannelType.Private)) {
-      this.pubSub.publish(PUB_NEW_CHANNEL, channel)
+      this.pubSub.publish(PUB_UPSERT_CHANNEL, channel)
     }
     return channel
   }
@@ -44,7 +45,7 @@ export class ChannelsResolver {
     @Args(`args`) args: DTO.UpdateChannelInput,
   ) {
     const channel = await this.channelsService.update(args.id, args)
-    this.pubSub.publish(`onUpdateChannel`, channel)
+    this.pubSub.publish(PUB_UPSERT_CHANNEL, channel)
     return channel
   }
 
@@ -56,7 +57,7 @@ export class ChannelsResolver {
     @Args(`args`) args: DTO.DeleteChannelInput,
   ) {
     const channel = await this.channelsService.delete(args.id)
-    this.pubSub.publish(`onUpdateChannel`, channel)
+    this.pubSub.publish(PUB_DELETE_CHANNEL, channel)
     return channel
   }
 
@@ -99,29 +100,29 @@ export class ChannelsResolver {
   //**************************************************//
 
   @Subscription(() => Channel, {
+    resolve: (value) => value,
+  })
+  onCreateChannel() {
+    return this.pubSub.asyncIterator(PUB_UPSERT_CHANNEL)
+  }
+
+  @Subscription(() => Channel, {
     filter(payload: Channel, variables: DTO.OnChannelInput) {
       return payload.id === variables.id
     },
     resolve: (value) => value,
   })
   onUpdateChannel(@Args(`args`) args: DTO.OnChannelInput) {
-    return this.pubSub.asyncIterator(`onUpdateChannel`)
+    return this.pubSub.asyncIterator(PUB_UPSERT_CHANNEL)
   }
 
   @Subscription(() => Channel, {
-    filter(payload: Channel, variables: DTO.OnChannelInput) {
-      return payload.id === variables.id
+    filter(payload: Channel, variables: any) {
+      return payload.id === variables.args.id
     },
     resolve: (value) => value,
   })
   onDeleteChannel(@Args(`args`) args: DTO.OnChannelInput) {
-    return this.pubSub.asyncIterator(`onDeleteChannel`)
-  }
-
-  @Subscription(() => Channel, {
-    resolve: (value) => value,
-  })
-  onCreateChannel() {
-    return this.pubSub.asyncIterator(PUB_NEW_CHANNEL)
+    return this.pubSub.asyncIterator(PUB_DELETE_CHANNEL)
   }
 }

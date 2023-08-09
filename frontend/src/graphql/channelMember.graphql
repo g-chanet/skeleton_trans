@@ -1,3 +1,20 @@
+mutation CreateMemberForChannel($args: CreateMemberForChannelInput!) {
+  createMemberForChannel(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
+  }
+}
+
+mutation DeleteMyMemberForChannel($args: DeleteMyMemberForChannelInput!) {
+  deleteMyMemberForChannel(args: $args) {
+    channelId
+  }
+}
+
 query FindAllChannelMembersForChannel($args: FindAllChannelMembersForChannelInput!) {
   findAllChannelMembersForChannel(args: $args) {
     channelId
@@ -14,17 +31,6 @@ query FindAllChannelMembersForChannel($args: FindAllChannelMembersForChannelInpu
   }
 }
 
-mutation CreateMemberForChannel($args: CreateMemberForChannelInput!) {
-  createMemberForChannel(args: $args) {
-    channelId
-    userId
-    type
-    muted
-    createdAt
-    updatedAt
-  }
-}
-
 subscription OnNewChannelMemberForUserId($args: OnNewChannelMemberForChannelIdInput!) {
   onNewChannelMemberForUserId(args: $args) {
     id
@@ -32,5 +38,11 @@ subscription OnNewChannelMemberForUserId($args: OnNewChannelMemberForChannelIdIn
     avatarUrl
     channelType
     createdAt
+  }
+}
+
+subscription OnDeleteChannelMemberForUserId($args: OnDeleteChannelMemberForChannelIdInput!) {
+  onDeleteChannelMemberForUserId(args: $args) {
+    id
   }
 }

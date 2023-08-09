@@ -4,6 +4,15 @@ mutation CreateChannel($args: CreateChannelInput!) {
   }
 }
 
+mutation DeleteChannel($args: DeleteChannelInput!) {
+  deleteChannel(args: $args) {
+    id
+    name
+    channelType
+    createdAt
+  }
+}
+
 query FindAllPublicChannels {
   findAllPublicChannels {
     id
@@ -50,6 +59,16 @@ query CheckChannelName($args: CheckChannelInput!) {
 
 subscription OnCreateChannel {
   onCreateChannel {
+    id
+    name
+    avatarUrl
+    channelType
+    createdAt
+  }
+}
+
+subscription OnDeleteChannel($args: OnChannelInput!) {
+  onDeleteChannel(args: $args) {
     id
     name
     avatarUrl

@@ -27,12 +27,6 @@ export class UpdateMyMessageForChannelInput {
 export class DeleteMyMessageForChannelInput {
   @Field(() => String)
   id: string
-
-  @Field(() => String)
-  channelId: string
-
-  @Field(() => String)
-  message: string
 }
 
 //**************************************************//
@@ -57,6 +51,12 @@ export class FindUserForChannelMessageInput {
 
 @InputType()
 export class OnNewChannelMessageForChannelIdInput {
+  @Field(() => String)
+  channelId: string
+}
+
+@InputType()
+export class OnDeleteChannelMessageForChannel {
   @Field(() => String)
   channelId: string
 }

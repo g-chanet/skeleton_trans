@@ -1,41 +1,53 @@
 <template>
-    <el-dialog
-        v-model="joinDialogVisible"
-        title="Join Channel"
-        width="50%"
-        style="border-radius: var(--el-border-radius-base);"
-        close-on-press-escape
-      >
-        <div class="dialog-body">
-          <div class="channels">
-            <h1 class="dialog-header">Public channels:</h1>
-            <ListChannel :channels="publicChannels" :onSelectChannel="onSelectChannel" :height="`300px`"/>
-          </div>
-          <el-divider direction="vertical" style="height: auto;"></el-divider>
-          <div class="channels">
-            <h1 class="dialog-header">Protected channels:</h1>
-            <ListChannel :channels="protectedChannels" :onSelectChannel="openPasswordInput" :height="`300px`"/>
-          </div>
-        </div>
-      </el-dialog>
+  <el-dialog v-model="dialog" title="Join channel" width="42%" style="border-radius: var(--el-border-radius-base)"
+    :before-close="handleClose" close-on-press-escape>
+    <div class="dialog-body">
+      <div class="channels">
+        <h1 class="dialog-header">Public channels:</h1>
+        <el-scrollbar class="list-channel" max-height="300px">
+          <ItemChannel v-for="channel in publicChannels" :key="channel.id" :channel="channel"
+            @click="onSelectChannel(channel, '')" />
+        </el-scrollbar>
+      </div>
+      <el-divider direction="vertical" style="height: auto;"></el-divider>
+      <div class="channels">
+        <h1 class="dialog-header">Protected channels:</h1>
+        <el-scrollbar class="list-channel" max-height="300px">
+          <ItemChannel v-for="channel in protectedChannels" :key="channel.id" :channel="channel"
+            @click="openPasswordInput(channel)" />
+        </el-scrollbar>
+      </div>
+    </div>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { useCreateMemberForChannelMutation, useFindAllPublicChannelsQuery, useFindAllProtectedChannelsQuery, type Channel, useFindAllChannelsForUserQuery, useFindMyUserQuery, useOnNewChannelMemberForUserIdSubscription, useOnCreateChannelSubscription } from '@/graphql/graphql-operations'
-import { computed, ref } from 'vue'
+import { useCreateMemberForChannelMutation, useFindAllPublicChannelsQuery, useFindAllProtectedChannelsQuery, type Channel, useFindAllChannelsForUserQuery, useFindMyUserQuery, useOnNewChannelMemberForUserIdSubscription, useOnCreateChannelSubscription, useOnDeleteChannelMemberForUserIdSubscription } from '@/graphql/graphql-operations'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import ListChannel from './channelListComponent.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { cacheUpsert } from '@/utils/cacheUtils'
+import { cacheDelete, cacheUpsert } from '@/utils/cacheUtils'
 import { EChannelType } from '@/graphql/graphql-operations'
+import ItemChannel from "./channelListItemComponent.vue"
 
-const joinDialogVisible = ref(false)
+const props = defineProps([`modelValue`])
+const emit = defineEmits([`update:modelValue`])
+
+const dialog = computed({
+  get() {
+    return props.modelValue
+  },
+  set(value) {
+    emit(`update:modelValue`, value)
+  }
+})
 
 const router = useRouter()
-const { result:myUser } = useFindMyUserQuery()
+const { result: myUser } = useFindMyUserQuery()
 const query = useFindAllChannelsForUserQuery({})
 
-useOnNewChannelMemberForUserIdSubscription({ args: {userId: myUser.value!.findMyUser.id} }).onResult(({data}) => cacheUpsert(query, data?.onNewChannelMemberForUserId))
+useOnNewChannelMemberForUserIdSubscription({ args: { userId: myUser.value!.findMyUser.id } }).onResult(({ data }) => cacheUpsert(query, data?.onNewChannelMemberForUserId))
+useOnDeleteChannelMemberForUserIdSubscription({ args: { userId: myUser.value!.findMyUser.id } }).onResult(({ data }) => cacheDelete(data?.onDeleteChannelMemberForUserId))
 
 const excludeChannels = computed(() => {
   const array: string[] = []
@@ -47,16 +59,16 @@ const excludeChannels = computed(() => {
 
 const publicQuery = useFindAllPublicChannelsQuery()
 const protectedQuery = useFindAllProtectedChannelsQuery()
-const { mutate:mutateChannelMember, onError:createMemberError } = useCreateMemberForChannelMutation({})
+const { mutate: mutateChannelMember, onError: createMemberError } = useCreateMemberForChannelMutation({})
 
-useOnCreateChannelSubscription({}).onResult(({data}) => {
+useOnCreateChannelSubscription({}).onResult(({ data }) => {
   if (data?.onCreateChannel.channelType === EChannelType.Public)
     cacheUpsert(publicQuery, data.onCreateChannel)
   else
     cacheUpsert(protectedQuery, data?.onCreateChannel)
 })
 
-const publicChannels = computed(() => { 
+const publicChannels = computed(() => {
   return publicQuery.result.value?.findAllPublicChannels.filter(checkChannelId)
 })
 const protectedChannels = computed(() => {
@@ -68,22 +80,15 @@ function checkChannelId(channel: Channel) {
 }
 
 const onSelectChannel = (channel: Channel, password: string) => {
-  mutateChannelMember({ args: {
-    channelId: channel.id,
-    channelPassword: password,
-  }}).then((args) => {
-    router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId }})
+  mutateChannelMember({
+    args: {
+      channelId: channel.id,
+      channelPassword: password,
+    }
+  }).then((args) => {
+    router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId } })
   })
-  joinDialogVisible.value = false
 }
-
-const setJoinDialogVisible = () => {
-    joinDialogVisible.value = true
-}
-
-defineExpose({
-    setJoinDialogVisible,    
-})
 
 createMemberError((e) => {
   ElMessage({
@@ -94,7 +99,7 @@ createMemberError((e) => {
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const openPasswordInput = (channel: Channel, _value: string) => {
+const openPasswordInput = (channel: Channel) => {
   ElMessageBox.prompt(`Please input the channel password`, channel.name, {
     confirmButtonText: `Join`,
     cancelButtonText: `Cancel`,
@@ -112,6 +117,11 @@ const openPasswordInput = (channel: Channel, _value: string) => {
       })
     })
 }
+
+const handleClose = (() => {
+  dialog.value = false
+})
+
 
 </script>
 
