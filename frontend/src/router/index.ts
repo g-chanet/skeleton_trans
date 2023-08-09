@@ -35,7 +35,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: `game`,
-        component: ViewGame
+        component: ViewProfile
       }
     ]
   },

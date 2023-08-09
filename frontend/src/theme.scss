@@ -34,6 +34,11 @@ $default-font: 'BaseRetroWave', 'sans-serif';
   src: url("./assets/fonts/VaporfuturismCond.otf");
 }
 
+@font-face {
+  font-family: "WR";
+  src: url('./assets/fonts/WR.ttf')
+}
+
 body {
   font-family: $default-font;
 }

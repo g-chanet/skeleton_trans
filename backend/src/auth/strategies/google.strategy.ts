@@ -8,7 +8,6 @@ import { RedirectError } from '../custom-errors/redirect-errors'
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
-const usersService = UsersService
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, `google`) {
