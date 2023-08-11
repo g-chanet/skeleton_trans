@@ -1,54 +1,117 @@
 <template>
-    <div class="active-channel">
-        <div class="active-channel-header">
-          <h1 class="top">{{ resultChannel?.findChannel.name }}</h1>
-        </div>
-        <el-scrollbar>
-            <div class="active-channel-content">
-                <ChannelChatMessage v-for="message in resultMessages?.findAllChannelMessagesForChannel.slice().reverse()" :key="message.id" :channelMessage="message" />
-            </div> 
-        </el-scrollbar>
-        <el-input placeholder="Message..." v-model="inputValue">
-            <template #append><el-button @click="onCreateMessage"><el-icon><DArrowRight /></el-icon></el-button></template>
-        </el-input>
-    </div>
+    <el-container>
+        <el-header height="15%">
+            <h3 class="top">{{ resultChannel?.findChannel.name }}</h3>
+        </el-header>
+        <el-main>
+            <el-scrollbar ref="chatScroll" v-loading="loading" element-loading-background="rgba(0, 0, 0, 0)">
+                <div ref="innerRef">
+                    <ChannelChatMessage v-for="(message, index) in messages" :key="message.id" :message="message"
+                        :previousMessage="messages[index - 1]" @on-delete="mutateDelete({ args: { id: message.id } })" />
+                </div>
+            </el-scrollbar>
+        </el-main>
+        <el-footer>
+            <el-input @keyup.enter="onCreateMessage" placeholder="Message..." v-model="inputValue">
+                <template #append><el-button @click="onCreateMessage"><el-icon>
+                            <DArrowRight />
+                        </el-icon></el-button></template>
+            </el-input>
+            <el-button size="large" @click="drawer = true"><el-icon>
+                    <Menu />
+                </el-icon></el-button>
+            <el-button size="large" @click="closeChannel" type="info" plain><el-icon>
+                    <Close />
+                </el-icon></el-button>
+        </el-footer>
+    </el-container>
+    <el-drawer v-model="drawer" title="Channel details" direction="rtl" close-on-press-escape :with-header="false">
+        <ChannelDetails v-if="channelId" :channelId="channelId" :key="channelId" v-model="drawer" />
+    </el-drawer>
 </template>
 
 <script setup lang="ts">
-import { useFindChannelQuery, useCreateMessageForChannelMutation, useFindAllChannelMessagesForChannelQuery, useOnNewChannelMessageForChannelIdSubscription} from '@/graphql/graphql-operations'
-import { ref } from 'vue'
+import {
+    useFindChannelQuery,
+    useDeleteMyMessageForChannelMutation,
+    useCreateMessageForChannelMutation,
+    useFindAllChannelMessagesForChannelQuery,
+    useOnNewChannelMessageForChannelIdSubscription,
+    useOnDeleteChannelMessageForChannelSubscription
+} from '@/graphql/graphql-operations'
+import { computed, onMounted, ref } from 'vue'
 import ChannelChatMessage from './channelChatMessageComponent.vue'
+import ChannelDetails from './channelDetailsComponent.vue'
+import { cacheDelete, cacheUpsert } from '@/utils/cacheUtils'
+import type { ElScrollbar } from 'element-plus/es/components'
+import { router } from '@/router'
 
 const props = defineProps<{
-    channelId: string
+    channelId: string,
 }>()
+
+const drawer = ref(false)
+const loading = ref(true)
+const innerRef = ref<HTMLDivElement>()
+const chatScroll = ref<InstanceType<typeof ElScrollbar>>()
+
+onMounted(() => {
+    loading.value = true
+    setTimeout(() => {
+        loading.value = false
+        chatScroll.value?.setScrollTop(innerRef.value!.clientHeight)
+    }, 500)
+})
+
+const { result: resultChannel } = useFindChannelQuery({
+    args: {
+        id: props.channelId
+    }
+})
 
 const inputValue = ref(``)
 
-const { result:resultMessages, refetch } = useFindAllChannelMessagesForChannelQuery({args: {
-    channelId: props.channelId
-}})
-const  { mutate } = useCreateMessageForChannelMutation({})
-
-const { onResult:onNewMessage } = useOnNewChannelMessageForChannelIdSubscription({ args: {
-    channelId: props.channelId
-}})
-
-const { result:resultChannel } = useFindChannelQuery({args: { 
-    id: props.channelId
-  }})
-
-const onCreateMessage = () => {
-    mutate({args: {
-        channelId: props.channelId,
-        message: inputValue.value,
-    }}).then(() => refetch()).then(() => inputValue.value = ``)
-}
-
-onNewMessage((e) => {
-    console.log(e)
+const query = useFindAllChannelMessagesForChannelQuery({
+    args: {
+        channelId: props.channelId
+    }
 })
 
+const { mutate: mutateDelete } = useDeleteMyMessageForChannelMutation()
+
+const { mutate } = useCreateMessageForChannelMutation({})
+
+useOnNewChannelMessageForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(
+    ({ data }) => {
+        cacheUpsert(query, data?.onNewChannelMessageForChannelId)
+        setTimeout(() => {
+            chatScroll.value?.setScrollTop(innerRef.value!.clientHeight)
+        }, 5)
+    }
+)
+
+useOnDeleteChannelMessageForChannelSubscription({ args: { channelId: props.channelId } }).onResult(
+    ({ data }) => {
+        cacheDelete(data?.onDeleteChannelMessageForChannel)
+    }
+)
+
+const messages = computed(() => query.result.value?.findAllChannelMessagesForChannel ?? [])
+
+const onCreateMessage = () => {
+    if (inputValue.value.trim().length !== 0) {
+        mutate({
+            args: {
+                channelId: props.channelId,
+                message: inputValue.value
+            }
+        }).then(() => (inputValue.value = ``))
+    }
+}
+
+const closeChannel = () => {
+    router.replace({ query: {} })
+}
 </script>
 
 <style scoped lang="sass">
@@ -62,23 +125,30 @@ onNewMessage((e) => {
 .active-channel-content
     height: 100%
     display: flex
-    flex-direction: column-reverse
-    padding: 5%
-.active-channel-header
+    flex-direction: column
+    margin-left: 5%
+    margin-right: 5%
+.el-header
     display: flex
-    flex-direction: row
+    border-start-end-radius: var(--el-border-radius-base)
     justify-content: center
     align-items: center
+.el-main
+    display: flex
+    flex-direction: column
+    margin-left: 5%
+    margin-right: 5%
+.el-footer
+    display: flex
+    align-items: center
+    border-end-end-radius: var(--el-border-radius-base)
 
 .el-input
-    height: 7.5%
+    height: 75%
+    margin-left: 5%
+    margin-right: 5%
 
 .top
-    padding-bottom: 1%
-    z-index: 2
-    display: flex
-    justify-content: center
-    position: relative
     font-family: "Vaporfuturism", "Helvetica", sans-serif
     letter-spacing: -5px
     transform: rotate(0deg) skew(-3deg) translateX(-50%) scaleX(1.4)

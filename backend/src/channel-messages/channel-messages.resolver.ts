@@ -5,10 +5,11 @@ import * as DTO from './dto/channel-message.input'
 import { UseGuards } from '@nestjs/common'
 import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
-import { User } from 'src/users/entities/user.entity'
+import { User, UserPublic } from 'src/users/entities/user.entity'
 import { PubSub } from 'graphql-subscriptions'
 
-const PUB_NEW_CHANNEL_MESSAGE = `newChannelMessage`
+const PUB_UPSERT_CHANNEL_MESSAGE = `onUpsertChannelMessageForChannel`
+const PUB_DELETE_CHANNEL_MESSAGE = `onDeleteChannelMessageForChannel`
 
 @Resolver(() => ChannelMessage)
 export class ChannelMessagesResolver {
@@ -31,9 +32,7 @@ export class ChannelMessagesResolver {
       ...args,
       userId: user.id,
     })
-    console.log(`avant`)
-    await this.pubSub.publish(`toto`, { toto: res })
-    console.log(`apres`)
+    await this.pubSub.publish(PUB_UPSERT_CHANNEL_MESSAGE, res)
     return res
   }
 
@@ -52,7 +51,9 @@ export class ChannelMessagesResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.DeleteMyMessageForChannelInput,
   ) {
-    return await this.channelMessagesService.delete(args.id, user.id)
+    const res = await this.channelMessagesService.delete(args.id, user.id)
+    this.pubSub.publish(PUB_DELETE_CHANNEL_MESSAGE, res)
+    return res
   }
 
   //**************************************************//
@@ -66,23 +67,42 @@ export class ChannelMessagesResolver {
     return await this.channelMessagesService.findAllForChannel(args.channelId)
   }
 
+  @Query(() => UserPublic)
+  async findUserForChannelMessage(
+    @Args(`args`) args: DTO.FindUserForChannelMessageInput,
+  ) {
+    return (
+      await this.channelMessagesService.findUserForChannelMessage(args.id)
+    ).user
+  }
+
   //**************************************************//
   //  SUBSCRIPTION
   //**************************************************//
 
   @Subscription(() => ChannelMessage, {
-    filter(
-      payload: ChannelMessage,
-      variables: DTO.OnNewChannelMessageForChannelIdInput,
-    ) {
-      console.log(`filtre`)
-      return payload.channelId === variables.channelId
+    filter: (payload: ChannelMessage, variables: any) =>
+      payload.channelId === variables.args.channelId,
+    resolve: (payload) => {
+      return payload
     },
   })
   onNewChannelMessageForChannelId(
     @Args(`args`) args: DTO.OnNewChannelMessageForChannelIdInput,
   ) {
-    console.log(`oui`)
-    return this.pubSub.asyncIterator(`toto`)
+    return this.pubSub.asyncIterator(PUB_UPSERT_CHANNEL_MESSAGE)
+  }
+
+  @Subscription(() => ChannelMessage, {
+    filter: (payload: ChannelMessage, variables: any) =>
+      payload.channelId === variables.args.channelId,
+    resolve: (payload) => {
+      return payload
+    },
+  })
+  onDeleteChannelMessageForChannel(
+    @Args(`args`) args: DTO.OnDeleteChannelMessageForChannel,
+  ) {
+    return this.pubSub.asyncIterator(PUB_DELETE_CHANNEL_MESSAGE)
   }
 }

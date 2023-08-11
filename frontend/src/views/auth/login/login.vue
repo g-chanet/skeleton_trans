@@ -9,12 +9,7 @@
       </div>
     </div>
     <div class="form-container panel-blur">
-      <el-form
-        :model="form"
-        label-position="top"
-        @submit.prevent="onSubmitForm"
-        :style="{ width: '100%' }"
-      >
+      <el-form :model="form" label-position="top" @submit.prevent="onSubmitForm" :style="{ width: '100%' }">
         <el-form-item>
           <el-input v-model="form.email" placeholder="Email" />
         </el-form-item>
@@ -25,15 +20,12 @@
       </el-form>
       <el-divider> </el-divider>
       <div class="o-auth">
-        <el-button @click="onConnectWithGoogle" class="bt" circle
-          ><font-awesome-icon :icon="['fab', 'google']"
-        /></el-button>
-        <el-button @click="onConnectWithDiscord" class="bt" circle
-          ><font-awesome-icon :icon="['fab', 'discord']"
-        /></el-button>
-        <el-button @click="onConnectWithGithub" class="bt" circle
-          ><font-awesome-icon :icon="['fab', 'github']"
-        /></el-button>
+        <el-button @click="onConnectWithGoogle" class="bt" circle><font-awesome-icon
+            :icon="['fab', 'google']" /></el-button>
+        <el-button @click="onConnectWithDiscord" class="bt" circle><font-awesome-icon
+            :icon="['fab', 'discord']" /></el-button>
+        <el-button @click="onConnectWithGithub" class="bt" circle><font-awesome-icon
+            :icon="['fab', 'github']" /></el-button>
         <el-button @click="onConnectWithSchool42" class="bt" circle>42</el-button>
       </div>
       <el-divider> </el-divider>
@@ -81,7 +73,6 @@ onDone((e) => {
 })
 
 onError((e) => {
-  console.log(`test`)
   if (e.message == `GraphQL error: 4242`) {
     ElMessageBox.prompt(`veuillez remplir votre code Google Authenticator`, `2fa`, {
       confirmButtonText: `OK`,

@@ -5,3 +5,12 @@ query FindLeaderboardUserList {
     avatarUrl
   }
 }
+
+query FindLoggedInUser {
+  findMyUser {
+    id
+    doubleAuth
+    avatarUrl
+    username
+  }
+}

@@ -28,9 +28,6 @@ import { AppController } from './app.controller'
       subscriptions: {
         'graphql-ws': {
           path: `/graphql`,
-          onConnect: (context: any) => {
-            console.log(`OnConnect WS`)
-          },
         },
       },
       plugins: [ApolloServerPluginLandingPageLocalDefault()],

@@ -1,8 +1,8 @@
-import { ObjectType, Field } from '@nestjs/graphql'
+import { ObjectType, Field, ID } from '@nestjs/graphql'
 
 @ObjectType()
 export class ChannelMessage {
-  @Field(() => String)
+  @Field(() => ID)
   id: string
 
   @Field(() => String)

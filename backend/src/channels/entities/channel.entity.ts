@@ -1,10 +1,11 @@
-import { ObjectType, Field, registerEnumType } from '@nestjs/graphql'
-import { ChannelMessage, EChannelType } from '@prisma/client'
+import { ObjectType, Field, registerEnumType, ID } from '@nestjs/graphql'
+import { ChannelMember, ChannelMessage, EChannelType } from '@prisma/client'
+import { ChannelMember as ChannelMemberEntity } from 'src/channel-members/entities/channel-member.entity'
 import { ChannelMessage as ChannelMessageEntity } from 'src/channel-messages/entities/channel-message.entity'
 
 @ObjectType()
 export class Channel {
-  @Field(() => String)
+  @Field(() => ID)
   id: string
 
   @Field(() => String)
@@ -22,8 +23,11 @@ export class Channel {
   @Field(() => Date)
   createdAt: Date
 
-  @Field(() => ChannelMessageEntity, { nullable: true })
-  channelMessages?: ChannelMessage
+  @Field(() => [ChannelMemberEntity], { nullable: true })
+  channelMembers?: [ChannelMember]
+
+  @Field(() => [ChannelMessageEntity], { nullable: true })
+  channelMessages?: [ChannelMessage]
 }
 
 registerEnumType(EChannelType, {

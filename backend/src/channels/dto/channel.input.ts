@@ -54,6 +54,12 @@ export class FindChannelInput {
   id: string
 }
 
+@InputType()
+export class CheckChannelInput {
+  @Field(() => String)
+  channelName: string
+}
+
 //**************************************************//
 //  SUBSCRIPTION
 //**************************************************//

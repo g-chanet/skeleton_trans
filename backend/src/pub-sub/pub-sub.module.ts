@@ -1,5 +1,6 @@
 import { Module, Global } from '@nestjs/common'
 import { PubSub } from 'graphql-subscriptions'
+import { EventEmitter } from 'events'
 
 @Global()
 @Module({
@@ -7,7 +8,10 @@ import { PubSub } from 'graphql-subscriptions'
     {
       provide: PubSub,
       useFactory: () => {
-        return new PubSub()
+        const emitter = new EventEmitter()
+        emitter.setMaxListeners(0)
+        const pubsub = new PubSub({ eventEmitter: emitter })
+        return pubsub
       },
     },
   ],

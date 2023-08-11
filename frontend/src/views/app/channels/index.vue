@@ -1,97 +1,92 @@
 <template>
-  <div class="chat-view">
-    <div class="list-container">
-      <div class="list-container-header">
-        <h1 class="top">Channels</h1>
-        <div style="width: 35%; display: flex; justify-content: space-evenly;">
-          <el-button @click="onShowCreateDialog"><el-icon><Plus /></el-icon></el-button>
-          <CreateChannelDialog :refetchChannels="refetchChannels" ref="createDialogChild"/>
-          <el-button @click="onShowJoinDialog"><el-icon><Search /></el-icon></el-button>
-          <JoinChannelDialog :refetchChannels="refetchChannels" ref="joinDialogChild"/>
-        </div>
-      </div>
-      <ChannelList :channels="channels" :onSelectChannel="onSelectChannelInList" :height="`auto`"/>
+    <div class="common-layout">
+        <el-container>
+            <el-aside width="25%">
+                <div class="list-container-header">
+                    <h3 class="top">Channels</h3>
+                    <div>
+                        <el-button @click="createDialog = true"><el-icon>
+                                <Plus />
+                            </el-icon></el-button>
+                        <el-button @click="joinDialog = true"><el-icon>
+                                <Search />
+                            </el-icon></el-button>
+                    </div>
+                </div>
+                <el-scrollbar class="list-channel" height="100%">
+                    <ItemChannel v-for="channel in query.result.value?.findAllChannelsForUser" :key="channel.id"
+                        :channel="channel" @click="onSelectChannelInList(channel, '')" />
+                </el-scrollbar>
+            </el-aside>
+            <ChannelChat v-if="channelId" :channelId="channelId" :key="channelId" />
+        </el-container>
+        <CreateChannelDialog v-model="createDialog" />
+        <JoinChannelDialog v-model="joinDialog" />
     </div>
-    <ChannelComponent />
-  </div>
 </template>
 
 <script setup lang="ts">
-import ChannelComponent from "./components/channelComponent.vue"
-import ChannelList from "./components/channelListComponent.vue"
-import CreateChannelDialog from "./components/createChannelDialogComponent.vue"
-import JoinChannelDialog from "./components/joinChannelDialogComponent.vue"
-import { useFindMyUserQuery, useFindAllChannelMembersForUserQuery, type Channel } from "@/graphql/graphql-operations"
-import { computed, ref } from "vue"
-import { useRouter } from 'vue-router'
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { router } from '@/router'
+import {
+    useFindMyUserQuery,
+    useFindAllChannelsForUserQuery,
+    type Channel,
+    useOnNewChannelMemberForUserIdSubscription
+} from '@/graphql/graphql-operations'
+import ItemChannel from './components/channelListItemComponent.vue'
+import CreateChannelDialog from './components/createChannelDialogComponent.vue'
+import JoinChannelDialog from './components/joinChannelDialogComponent.vue'
+import ChannelChat from './components/channelChatComponent.vue'
+import { cacheUpsert } from '@/utils/cacheUtils'
 
-const router = useRouter()
-
-const { result:myUser } = useFindMyUserQuery()
-const { result:resultChannels, refetch:refetchChannels } = useFindAllChannelMembersForUserQuery({args: {
-  userId: myUser.value?.findMyUser.id!
-}})
-
-const channels = computed(() => {
-  var output: Channel[] = []
-  resultChannels.value?.findAllChannelMembersForUser.forEach((value) => output.push(value.channel!))
-  return output
+const route = useRoute()
+const channelId = computed(() => {
+    return route.query.channelId ? route.query.channelId.toString() : undefined
 })
 
-const createDialogChild = ref()
-const joinDialogChild = ref()
+const { result: myUser } = useFindMyUserQuery()
+const query = useFindAllChannelsForUserQuery({})
+useOnNewChannelMemberForUserIdSubscription({ args: { userId: myUser.value!.findMyUser.id } }).onResult(({ data }) => cacheUpsert(query, data?.onNewChannelMemberForUserId))
+
+const createDialog = ref(false)
+const joinDialog = ref(false)
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const onSelectChannelInList = ({ id }: Channel, _value: string) => {
-  router.replace({ query: { channelId: id }})
+    router.replace({ query: { channelId: id } })
 }
 
-const onShowCreateDialog = () => {
-  createDialogChild.value.setCreateDialogVisible()
-}
-
-const onShowJoinDialog = () => {
-  joinDialogChild.value.setJoinDialogVisible()
-}
 </script>
 
-
 <style scoped lang="sass">
-.chat-view
-  width: 100%
-  display: flex
-  flex-direction: row
-  border-radius:20px
 
-.list-container
-  overflow: hidden
-  display: flex
-  flex-direction: column
-  border-radius: var(--el-border-radius-base)
-  width: 75%
-  //background-image: linear-gradient( 45deg, hsl(0deg 0% 0%) 0%, hsl(323deg 22% 8%) 13%, hsl(322deg 25% 14%) 19%, hsl(322deg 28% 19%) 23%, hsl(321deg 30% 25%) 27%, hsl(321deg 32% 31%) 31%, hsl(321deg 33% 38%) 34%, hsl(320deg 34% 44%) 38%, hsl(320deg 35% 50%) 41%, hsl(320deg 47% 57%) 44%, hsl(320deg 63% 64%) 47%, hsl(320deg 88% 71%) 50%, hsl(328deg 91% 73%) 53%, hsl(336deg 93% 74%) 56%, hsl(344deg 95% 76%) 59%, hsl(354deg 97% 77%) 62%, hsl(4deg 98% 77%) 66%, hsl(12deg 99% 74%) 69%, hsl(19deg 99% 72%) 73%, hsl(25deg 99% 69%) 77%, hsl(30deg 99% 66%) 81%, hsl(34deg 98% 62%) 87%, hsl(39deg 97% 57%) 100%)
-  background: linear-gradient(225deg, var(--el-sun-yellow) 0%, var(--el-sun-pink) 50%, var(--el-trasparent) 81%)
-
+.common-layout
+    display: flex
+    flex: 1
 .list-container-header
   display: flex
   flex-direction: row
-  justify-content: space-around
+  justify-content: space-evenly
   align-items: center
-
+  background-color: rgb(32, 32, 32)
 .top
-  z-index: 2
-  left: 15%
-  position: relative
-  font-family: "Vaporfuturism", "Helvetica", sans-serif
-  letter-spacing: -3px
-  transform: rotate(0deg) skew(-3deg) translateX(-50%) scaleX(1.4)
-  background: linear-gradient(to bottom, #18191a 32%, #157be6 40%, #ffffff 52%, #18191a 56%, #157be6 85%, #ffffff, rgba(222,0,255,1) 0%, rgba(94,214,249,1) 100%)
-  -webkit-background-clip: text
-  -webkit-text-fill-color: transparent
-  -webkit-text-stroke-width: 0.1px
-  -webkit-text-stroke-color: #FFF
-  font-size: 2em
+    z-index: 2
+    left: 15%
+    position: relative
+    font-family: "Vaporfuturism", "Helvetica", sans-serif
+    letter-spacing: -3px
+    transform: rotate(0deg) skew(-3deg) translateX(-50%) scaleX(1.4)
+    background: linear-gradient(to bottom, #18191a 32%, #157be6 40%, #ffffff 52%, #18191a 56%, #157be6 85%, #ffffff, rgba(222,0,255,1) 0%, rgba(94,214,249,1) 100%)
+    -webkit-background-clip: text
+    -webkit-text-fill-color: transparent
+    -webkit-text-stroke-width: 0.1px
+    -webkit-text-stroke-color: #FFF
+    font-size: 2em
 
-
+.el-aside
+    border-start-start-radius: var(--el-border-radius-base)
+    border-end-start-radius: var(--el-border-radius-base)
+    overflow: hidden
 </style>
-

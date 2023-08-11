@@ -64,4 +64,11 @@ export class ChannelMessagesService {
   async findAllForChannel(channelId: string) {
     return await this.prisma.channelMessage.findMany({ where: { channelId } })
   }
+
+  async findUserForChannelMessage(id: string) {
+    return await this.prisma.channelMessage.findFirst({
+      where: { id },
+      include: { user: true },
+    })
+  }
 }

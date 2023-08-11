@@ -14,7 +14,7 @@ const httpLink = new HttpLink({
 // Create a GraphQLWsLink link:
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: `ws://localhost:5173/graphql`,
+    url: `ws://localhost:3000/graphql`
   })
 )
 
@@ -40,8 +40,6 @@ export const apolloClient = new ApolloClient({
   link,
   cache
 })
-
-
 
 // Install apollo client
 export const apollo = {

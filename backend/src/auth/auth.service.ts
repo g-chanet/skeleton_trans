@@ -92,7 +92,13 @@ export class AuthService {
   }
 
   async transOauthLogin(payload: TransOauthDto) {
-    this.sanitize(payload)
+    console.error(`entered auth Oauth`)
+    try {
+      this.sanitize(payload)
+    } catch (error) {
+      console.log(error)
+    }
+    console.error(`escaping auth Oauth`)
     // need to catch exceptions ?
     let dbUser = await this.usersService.findOneByEmail(payload.mail)
     // We enter login flow
