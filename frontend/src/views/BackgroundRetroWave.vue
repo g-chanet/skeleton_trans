@@ -1,11 +1,6 @@
 <template>
   <div class="background-scene">
     <div class="top">
-      <div class="startails">
-        <div class="startail-r" />
-        <div class="startail-l" />
-        <div class="startail-m" />
-      </div>
       <div class="top-lines" />
       <div class="brand">
         <div class=".triangle" />
@@ -274,65 +269,6 @@ $--labs-sys-color-volume: $--labs-sys-color-triangle;
   to {
     background-position-y: 0%;
   }
-}
-
-.startails {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  mix-blend-mode: lighten;
-}
-
-.startail-r {
-  position: absolute;
-  left: 75vw;
-  bottom: 0;
-  background: linear-gradient(
-    to right,
-    $--labs-sys-color-sun-glow 10%,
-    $--labs-sys-color-triangle 50%,
-    transparent 80%
-  );
-  height: 0.2vmin;
-  width: 15vmin;
-  border-radius: 50%;
-  filter: drop-shadow(0 0 15px white);
-  transform: translateY(-32vmin) rotate(-20deg);
-}
-
-.startail-l {
-  position: absolute;
-  left: 16vw;
-  bottom: 0;
-  background: linear-gradient(
-    to right,
-    $--labs-sys-color-sun-glow 10%,
-    $--labs-sys-color-triangle 30%,
-    transparent 60%
-  );
-  height: 0.2vmin;
-  width: 17vmin;
-  border-radius: 50%;
-  filter: drop-shadow(0 0 15px white);
-  transform: translateY(-7vmin) rotate(-20deg);
-}
-
-.startail-m {
-  position: absolute;
-  left: 18vw;
-  bottom: 0;
-  background: linear-gradient(
-    to right,
-    $--labs-sys-color-sun-glow 10%,
-    $--labs-sys-color-triangle 50%,
-    transparent 80%
-  );
-  height: 0.2vmin;
-  width: 14vmin;
-  border-radius: 50%;
-  filter: drop-shadow(0 0 15px white);
-  transform: translateY(-18vmin) rotate(-20deg);
-  opacity: 0.5;
 }
 
 // 🌎

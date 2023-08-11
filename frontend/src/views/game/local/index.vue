@@ -14,4 +14,12 @@ const pong = new Pong()
 
 <style scoped lang="sass">
 
+.konva-container
+  display: flex
+  justify-content: center
+  align-items: center
+  margin-top: 25px
+  height: 90%
+  width: 95%
+
 </style> 

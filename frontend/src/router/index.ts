@@ -9,8 +9,8 @@ import ViewHome from "../views/app/home/index.vue"
 import ViewMessages from "../views/app/channels/index.vue"
 import ViewLeaderboard from "../views/app/leaderboard/index.vue"
 import ViewProfile from "../views/app/profile/index.vue"
-import ViewGame from "../views/game/index.vue"
-
+import ViewGameLocal from "../views/game/local/index.vue"
+import ViewGameOnline from "../views/game/online/index.vue"
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -34,8 +34,12 @@ const routes: Array<RouteRecordRaw> = [
         component: ViewProfile
       },
       {
-        path: `game`,
-        component: ViewGame
+        path: `game/local`,
+        component: ViewGameLocal
+      },
+      {
+        path: `game/online/:roomId`,
+        component: ViewGameOnline
       }
     ]
   },

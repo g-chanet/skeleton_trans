@@ -144,13 +144,13 @@ const userThird = computed(() => {
   left: 7%
   position: relative
   font-family: "Vaporfuturism", "Helvetica", sans-serif
-  letter-spacing: -5px
-  transform: rotate(0) skew(-3deg) translateX(-50%) scaleX(1.4)
+  letter-spacing: -6px
+  transform: rotate(0) skew(0deg) translateX(-55%) scaleX(1.4)
   background: linear-gradient(to bottom, #18191a 32%, #157be6 40%, #ffffff 52%, #18191a 56%, #157be6 85%, #ffffff, rgba(222,0,255,1) 0%, rgba(94,214,249,1) 100%)
   -webkit-background-clip: text
   -webkit-text-fill-color: transparent
-  -webkit-text-stroke-width: 1px
-  -webkit-text-stroke-color: #FFF
+  -webkit-text-stroke-width: 2px
+  -webkit-text-stroke-color: var(--el-color-primary)
   font-size: 3em
 .scroll
   height: 100%
