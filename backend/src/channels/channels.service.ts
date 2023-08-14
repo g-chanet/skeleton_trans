@@ -14,12 +14,17 @@ export class ChannelsService {
   //**************************************************//
 
   async create(data: Prisma.ChannelCreateInput) {
-    if (data.password !== undefined)
+    if (
+      data.channelType === EChannelType.Protected &&
+      data.password !== undefined
+    )
       data.password = await AuthHelper.hash(data.password)
     return await this.prisma.channel.create({ data })
   }
 
-  async update(id: string, data: Prisma.ChannelUpdateInput) {
+  async update(id: string, password: string, data: Prisma.ChannelUpdateInput) {
+    if (data.channelType === EChannelType.Protected && password !== undefined)
+      data.password = await AuthHelper.hash(password)
     return await this.prisma.channel.update({ where: { id }, data })
   }
 

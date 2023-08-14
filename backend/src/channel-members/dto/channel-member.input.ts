@@ -21,8 +21,23 @@ export class UpdateMyMemberForChannelInput {
   @Field(() => String)
   channelId: string
 
-  @Field(() => EChannelMemberType)
-  type: EChannelMemberType
+  @Field(() => String)
+  userId: string
+
+  @Field(() => Date, { nullable: true })
+  mute?: Date
+
+  @Field(() => EChannelMemberType, { nullable: true })
+  type?: EChannelMemberType
+}
+
+@InputType()
+export class DeleteMemberForChannelInput {
+  @Field(() => String)
+  channelId: string
+
+  @Field(() => String)
+  userId: string
 }
 
 @InputType()
@@ -34,6 +49,12 @@ export class DeleteMyMemberForChannelInput {
 //**************************************************//
 //  QUERY
 //**************************************************//
+
+@InputType()
+export class FindMyChannelMemberForChannelInput {
+  @Field(() => String)
+  channelId: string
+}
 
 @InputType()
 export class FindAllChannelMembersForChannelInput {
@@ -52,13 +73,13 @@ export class FindAllChannelMembersForUserInput {
 //**************************************************//
 
 @InputType()
-export class OnNewChannelMemberForChannelIdInput {
+export class OnChannelMemberChannelInput {
   @Field(() => String)
-  userId: string
+  channelId: string
 }
 
 @InputType()
-export class OnDeleteChannelMemberForChannelIdInput {
+export class OnChannelMemberUserInput {
   @Field(() => String)
   userId: string
 }

@@ -47,7 +47,6 @@ type Channel {
   id: ID!
   name: String!
   avatarUrl: String
-  password: String
   channelType: EChannelType!
   createdAt: DateTime!
   channelMembers: [ChannelMember!]
@@ -105,6 +104,7 @@ type Query {
   findAllProtectedChannels: [Channel!]!
   findAllChannelsForUser: [Channel!]!
   checkChannelName(args: CheckChannelInput!): Boolean!
+  findMyChannelMemberForChannel(args: FindMyChannelMemberForChannelInput!): ChannelMember!
   findAllChannelMembersForChannel(args: FindAllChannelMembersForChannelInput!): [ChannelMember!]!
   findAllChannelMessagesForChannel(args: FindAllMessagesForChannelInput!): [ChannelMessage!]!
   findUserForChannelMessage(args: FindUserForChannelMessageInput!): UserPublic!
@@ -121,6 +121,10 @@ input FindChannelInput {
 
 input CheckChannelInput {
   channelName: String!
+}
+
+input FindMyChannelMemberForChannelInput {
+  channelId: String!
 }
 
 input FindAllChannelMembersForChannelInput {
@@ -148,7 +152,8 @@ type Mutation {
   updateChannel(args: UpdateChannelInput!): Channel!
   deleteChannel(args: DeleteChannelInput!): Channel!
   createMemberForChannel(args: CreateMemberForChannelInput!): ChannelMember!
-  updateMyMemberForChannel(args: UpdateMyMemberForChannelInput!): ChannelMember!
+  updateMemberForChannel(args: UpdateMyMemberForChannelInput!): ChannelMember!
+  deleteMemberForChannel(args: DeleteMemberForChannelInput!): ChannelMember!
   deleteMyMemberForChannel(args: DeleteMyMemberForChannelInput!): ChannelMember!
   createMessageForChannel(args: CreateMessageForChannelInput!): ChannelMessage!
   updateMyMessageForChannel(args: UpdateMyMessageForChannelInput!): ChannelMessage!
@@ -193,8 +198,8 @@ input UpdateChannelInput {
   id: String!
   name: String
   avatarUrl: String
-  password: String
   channelType: EChannelType
+  password: String
 }
 
 input DeleteChannelInput {
@@ -209,7 +214,14 @@ input CreateMemberForChannelInput {
 
 input UpdateMyMemberForChannelInput {
   channelId: String!
-  type: EChannelMemberType!
+  userId: String!
+  mute: DateTime
+  type: EChannelMemberType
+}
+
+input DeleteMemberForChannelInput {
+  channelId: String!
+  userId: String!
 }
 
 input DeleteMyMemberForChannelInput {
@@ -271,8 +283,9 @@ type Subscription {
   onCreateChannel: Channel!
   onUpdateChannel(args: OnChannelInput!): Channel!
   onDeleteChannel(args: OnChannelInput!): Channel!
-  onNewChannelMemberForUserId(args: OnNewChannelMemberForChannelIdInput!): Channel!
-  onDeleteChannelMemberForUserId(args: OnDeleteChannelMemberForChannelIdInput!): Channel!
+  onNewChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!
+  onUpdateChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!
+  onDeleteChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!
   onNewChannelMessageForChannelId(args: OnNewChannelMessageForChannelIdInput!): ChannelMessage!
   onDeleteChannelMessageForChannel(args: OnDeleteChannelMessageForChannel!): ChannelMessage!
 }
@@ -281,12 +294,8 @@ input OnChannelInput {
   id: String!
 }
 
-input OnNewChannelMemberForChannelIdInput {
-  userId: String!
-}
-
-input OnDeleteChannelMemberForChannelIdInput {
-  userId: String!
+input OnChannelMemberChannelInput {
+  channelId: String!
 }
 
 input OnNewChannelMessageForChannelIdInput {

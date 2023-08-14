@@ -22,13 +22,13 @@
 </template>
 
 <script setup lang="ts">
-import { useCreateMemberForChannelMutation, useFindAllPublicChannelsQuery, useFindAllProtectedChannelsQuery, type Channel, useFindAllChannelsForUserQuery, useFindMyUserQuery, useOnNewChannelMemberForUserIdSubscription, useOnCreateChannelSubscription, useOnDeleteChannelMemberForUserIdSubscription } from '@/graphql/graphql-operations'
+import { useCreateMemberForChannelMutation, useFindAllPublicChannelsQuery, useFindAllProtectedChannelsQuery, type Channel, useFindAllChannelsForUserQuery, useFindMyUserQuery, useOnCreateChannelSubscription } from '@/graphql/graphql-operations'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { cacheDelete, cacheUpsert } from '@/utils/cacheUtils'
 import { EChannelType } from '@/graphql/graphql-operations'
-import ItemChannel from "./channelListItemComponent.vue"
+import ItemChannel from "../../components/channelListItemComponent.vue"
+import { cacheUpsert } from '@/utils/cacheUtils'
 
 const props = defineProps([`modelValue`])
 const emit = defineEmits([`update:modelValue`])
@@ -45,9 +45,6 @@ const dialog = computed({
 const router = useRouter()
 const { result: myUser } = useFindMyUserQuery()
 const query = useFindAllChannelsForUserQuery({})
-
-useOnNewChannelMemberForUserIdSubscription({ args: { userId: myUser.value!.findMyUser.id } }).onResult(({ data }) => cacheUpsert(query, data?.onNewChannelMemberForUserId))
-useOnDeleteChannelMemberForUserIdSubscription({ args: { userId: myUser.value!.findMyUser.id } }).onResult(({ data }) => cacheDelete(data?.onDeleteChannelMemberForUserId))
 
 const excludeChannels = computed(() => {
   const array: string[] = []

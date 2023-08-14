@@ -13,9 +13,10 @@ import { User } from 'src/users/entities/user.entity'
 import * as DTO from './dto/channel-member.input'
 import { ChannelsService } from 'src/channels/channels.service'
 import { PubSub } from 'graphql-subscriptions'
-import { Channel } from 'src/channels/entities/channel.entity'
+import { EChannelMemberType } from '@prisma/client'
 
-const PUB_UPSERT_CHANNEL_MEMBER = `onUpsertChannelMemberForUserId`
+const PUB_INSERT_CHANNEL_MEMBER = `onInsertChannelMemberForUserId`
+const PUB_UPDATE_CHANNEL_MEMBER = `onUpdataChannelMemberForUserId`
 const PUB_DELETE_CHANNEL_MEMBER = `onDeleteChannelMemberForUserId`
 
 @Resolver(() => ChannelMember)
@@ -49,22 +50,55 @@ export class ChannelMembersResolver {
       ...args,
       userId: user.id,
     })
-    const channel = await this.channelsService.findOne(args.channelId)
-    await this.pubSub.publish(PUB_UPSERT_CHANNEL_MEMBER, channel)
+    await this.pubSub.publish(PUB_INSERT_CHANNEL_MEMBER, res)
     return res
   }
 
   @Mutation(() => ChannelMember)
   @UseGuards(GqlAuthGuard)
-  async updateMyMemberForChannel(
+  async updateMemberForChannel(
     @CtxUser() user: User,
     @Args(`args`) args: DTO.UpdateMyMemberForChannelInput,
   ) {
-    return await this.channelMembersService.update(
+    const member = await this.channelMembersService.findOne(
+      args.channelId,
       user.id,
+    )
+    if (
+      member.type !== EChannelMemberType.Owner &&
+      member.type !== EChannelMemberType.Admin
+    )
+      throw new UnauthorizedException(`Invalid member type`)
+    const res = await this.channelMembersService.update(
+      args.userId,
       args.channelId,
       args,
     )
+    await this.pubSub.publish(PUB_UPDATE_CHANNEL_MEMBER, res)
+    return res
+  }
+
+  @Mutation(() => ChannelMember)
+  @UseGuards(GqlAuthGuard)
+  async deleteMemberForChannel(
+    @CtxUser() user: User,
+    @Args(`args`) args: DTO.DeleteMemberForChannelInput,
+  ) {
+    const member = await this.channelMembersService.findOne(
+      args.channelId,
+      user.id,
+    )
+    if (
+      member.type !== EChannelMemberType.Owner &&
+      member.type !== EChannelMemberType.Admin
+    )
+      throw new UnauthorizedException(`Invalid member type`)
+    const res = await this.channelMembersService.delete(
+      args.userId,
+      args.channelId,
+    )
+    await this.pubSub.publish(PUB_DELETE_CHANNEL_MEMBER, res)
+    return res
   }
 
   @Mutation(() => ChannelMember)
@@ -73,14 +107,22 @@ export class ChannelMembersResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.DeleteMyMemberForChannelInput,
   ) {
-    const channel = await this.channelsService.findOne(args.channelId)
-    await this.pubSub.publish(PUB_DELETE_CHANNEL_MEMBER, channel)
-    return await this.channelMembersService.delete(user.id, args.channelId)
+    const res = await this.channelMembersService.delete(user.id, args.channelId)
+    await this.pubSub.publish(PUB_DELETE_CHANNEL_MEMBER, res)
+    return res
   }
 
   //**************************************************//
   //  QUERY
   //**************************************************//
+
+  @Query(() => ChannelMember)
+  async findMyChannelMemberForChannel(
+    @CtxUser() user: User,
+    @Args(`args`) args: DTO.FindMyChannelMemberForChannelInput,
+  ) {
+    return await this.channelMembersService.findOne(args.channelId, user.id)
+  }
 
   @Query(() => [ChannelMember])
   async findAllChannelMembersForChannel(
@@ -93,34 +135,44 @@ export class ChannelMembersResolver {
   //  SUBSCRIPTION
   //**************************************************//
 
-  @Subscription(() => Channel, {
-    filter: (payload: Channel, variables: any) => {
-      return payload.channelMembers.some((member: ChannelMember) => {
-        return member.userId === variables.args.userId
-      })
+  @Subscription(() => ChannelMember, {
+    filter: (payload: ChannelMember, variables: any) => {
+      return payload.channelId === variables.args.channelId
     },
     resolve: (payload) => {
       return payload
     },
   })
-  onNewChannelMemberForUserId(
-    @Args(`args`) args: DTO.OnNewChannelMemberForChannelIdInput,
+  onNewChannelMemberForChannelId(
+    @Args(`args`) args: DTO.OnChannelMemberChannelInput,
   ) {
-    return this.pubSub.asyncIterator(PUB_UPSERT_CHANNEL_MEMBER)
+    return this.pubSub.asyncIterator(PUB_INSERT_CHANNEL_MEMBER)
   }
 
-  @Subscription(() => Channel, {
-    filter: (payload: Channel, variables: any) => {
-      return payload.channelMembers.some((member: ChannelMember) => {
-        return member.userId === variables.args.userId
-      })
+  @Subscription(() => ChannelMember, {
+    filter: (payload: ChannelMember, variables: any) => {
+      return payload.channelId === variables.args.channelId
     },
     resolve: (payload) => {
       return payload
     },
   })
-  onDeleteChannelMemberForUserId(
-    @Args(`args`) args: DTO.OnDeleteChannelMemberForChannelIdInput,
+  onUpdateChannelMemberForChannelId(
+    @Args(`args`) args: DTO.OnChannelMemberChannelInput,
+  ) {
+    return this.pubSub.asyncIterator(PUB_UPDATE_CHANNEL_MEMBER)
+  }
+
+  @Subscription(() => ChannelMember, {
+    filter: (payload: ChannelMember, variables: any) => {
+      return payload.channelId === variables.args.channelId
+    },
+    resolve: (payload) => {
+      return payload
+    },
+  })
+  onDeleteChannelMemberForChannelId(
+    @Args(`args`) args: DTO.OnChannelMemberChannelInput,
   ) {
     return this.pubSub.asyncIterator(PUB_DELETE_CHANNEL_MEMBER)
   }

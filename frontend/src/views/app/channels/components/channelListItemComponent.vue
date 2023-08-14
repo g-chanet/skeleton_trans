@@ -1,24 +1,59 @@
 <template>
   <div class="channel-item-container">
-    <el-image style="width: 42px; height: 100%;  border-radius: 100%; margin-right: 2%;" :src="props.channel.avatarUrl"></el-image>
-      <div class="channel-description">
-        <div class="channel-name">
-          {{channel.name}}
-        </div>
-        {{ channel.channelType }}
+    <el-image style="width: 42px; height: 100%;  border-radius: 100%; margin-right: 2%;"
+      :src="props.channel.avatarUrl"></el-image>
+    <div class="channel-description">
+      <div class="channel-name">
+        {{ channel.name }}
       </div>
+      {{ channel.channelType }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useOnDeleteChannelSubscription, type Channel } from '@/graphql/graphql-operations'
-import { cacheDelete } from '@/utils/cacheUtils'
+import { useFindMyChannelMemberForChannelQuery, type Channel, EChannelMemberType, useFindMyUserQuery, useOnDeleteChannelSubscription, useFindAllChannelsForUserQuery, useOnUpdateChannelSubscription } from '@/graphql/graphql-operations'
+import { router } from '@/router'
+import { cacheDelete, cacheUpsert } from '@/utils/cacheUtils'
+import { ElNotification } from 'element-plus'
+import { computed, h } from 'vue'
+import { useRoute } from 'vue-router'
 
- const props = defineProps<{
+const route = useRoute()
+
+const props = defineProps<{
   channel: Channel
 }>()
 
-useOnDeleteChannelSubscription({ args: {id: props.channel.id}}).onResult(({data}) => cacheDelete(data?.onDeleteChannel))
+const { result: myUser } = useFindMyUserQuery({})
+
+const query = useFindMyChannelMemberForChannelQuery({ args: { channelId: props.channel.id } }).onResult(({ data }) => {
+  if (data.findMyChannelMemberForChannel.type === EChannelMemberType.Banned || data.findMyChannelMemberForChannel.type === EChannelMemberType.Invited)
+    cacheDelete(props.channel)
+})
+
+const queryChannels = useFindAllChannelsForUserQuery({})
+
+useOnDeleteChannelSubscription(({ args: { id: props.channel.id } })).onResult(({ data }) => {
+  cacheDelete(data?.onDeleteChannel)
+  if (route.query.channelId && route.query.channelId.toString() === data?.onDeleteChannel.id) {
+    router.replace({ query: {} })
+  }
+  ElNotification({
+    title: 'Channel deleted',
+    message: h('i', { style: 'color: teal' }, 'Channel' + data?.onDeleteChannel.name + ' has been deleted'),
+    type: 'info'
+  })
+})
+
+useOnUpdateChannelSubscription(({ args: { id: props.channel.id } })).onResult(({ data }) => {
+  cacheUpsert(queryChannels, data?.onUpdateChannel)
+  ElNotification({
+    title: 'Channel updated',
+    message: h('i', { style: 'color: teal' }, 'Channel ' + data?.onUpdateChannel.name + ' has been updated'),
+    type: 'info'
+  })
+})
 
 </script>
 

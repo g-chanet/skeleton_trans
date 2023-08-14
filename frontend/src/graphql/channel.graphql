@@ -4,12 +4,15 @@ mutation CreateChannel($args: CreateChannelInput!) {
   }
 }
 
+mutation UpdateChannel($args: UpdateChannelInput!) {
+  updateChannel(args: $args) {
+    id
+  }
+}
+
 mutation DeleteChannel($args: DeleteChannelInput!) {
   deleteChannel(args: $args) {
     id
-    name
-    channelType
-    createdAt
   }
 }
 
@@ -59,6 +62,16 @@ query CheckChannelName($args: CheckChannelInput!) {
 
 subscription OnCreateChannel {
   onCreateChannel {
+    id
+    name
+    avatarUrl
+    channelType
+    createdAt
+  }
+}
+
+subscription OnUpdateChannel($args: OnChannelInput!) {
+  onUpdateChannel(args: $args) {
     id
     name
     avatarUrl

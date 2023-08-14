@@ -31,17 +31,26 @@ export class UpdateChannelInput {
   @Field(() => String, { nullable: true })
   avatarUrl?: string
 
-  @Field(() => String, { nullable: true })
-  password?: string
-
   @Field(() => EChannelType, { nullable: true })
   channelType?: EChannelType
+
+  @Field(() => String, { nullable: true })
+  password?: string
 }
 
 @InputType()
 export class DeleteChannelInput {
   @Field(() => String)
   id: string
+}
+
+@InputType()
+export class UpdateChannelPasswordInput {
+  @Field(() => String)
+  id: string
+
+  @Field(() => String)
+  password: string
 }
 
 //**************************************************//

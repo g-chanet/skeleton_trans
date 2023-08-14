@@ -4,20 +4,27 @@ import { ChannelsService } from './channels.service'
 import { Channel } from './entities/channel.entity'
 import { PubSub } from 'graphql-subscriptions'
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard'
-import { Inject, UseGuards, forwardRef } from '@nestjs/common'
+import {
+  Inject,
+  UnauthorizedException,
+  UseGuards,
+  forwardRef,
+} from '@nestjs/common'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from 'src/users/entities/user.entity'
-import { EChannelType } from '@prisma/client'
+import { EChannelMemberType, EChannelType } from '@prisma/client'
+import { ChannelMembersService } from 'src/channel-members/channel-members.service'
 
-const PUB_UPSERT_CHANNEL = `onUpsertChannel`
+const PUB_INSERT_CHANNEL = `onInsertChannel`
+const PUB_UPDATE_CHANNEL = `onUpdateChannel`
 const PUB_DELETE_CHANNEL = `onDeleteChannel`
 
 @Resolver(Channel)
 export class ChannelsResolver {
   constructor(
     private readonly channelsService: ChannelsService,
-    @Inject(forwardRef(() => ChannelsService))
-    private readonly channelMembersService: ChannelsService,
+    @Inject(forwardRef(() => ChannelMembersService))
+    private readonly channelMembersService: ChannelMembersService,
     private readonly pubSub: PubSub,
   ) {}
 
@@ -32,9 +39,7 @@ export class ChannelsResolver {
     @Args(`args`) args: DTO.CreateChannelInput,
   ) {
     const channel = await this.channelsService.create(args)
-    if (!(channel.channelType === EChannelType.Private)) {
-      this.pubSub.publish(PUB_UPSERT_CHANNEL, channel)
-    }
+    this.pubSub.publish(PUB_INSERT_CHANNEL, channel)
     return channel
   }
 
@@ -44,8 +49,15 @@ export class ChannelsResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.UpdateChannelInput,
   ) {
-    const channel = await this.channelsService.update(args.id, args)
-    this.pubSub.publish(PUB_UPSERT_CHANNEL, channel)
+    const member = await this.channelMembersService.findOne(args.id, user.id)
+    if (member.type !== EChannelMemberType.Owner)
+      throw new UnauthorizedException(`Invalid member type`)
+    const channel = await this.channelsService.update(
+      args.id,
+      args.password,
+      args,
+    )
+    this.pubSub.publish(PUB_UPDATE_CHANNEL, channel)
     return channel
   }
 
@@ -100,20 +112,23 @@ export class ChannelsResolver {
   //**************************************************//
 
   @Subscription(() => Channel, {
+    filter(payload: Channel, variables: DTO.OnChannelInput) {
+      return payload.channelType !== EChannelType.Private
+    },
     resolve: (value) => value,
   })
   onCreateChannel() {
-    return this.pubSub.asyncIterator(PUB_UPSERT_CHANNEL)
+    return this.pubSub.asyncIterator(PUB_INSERT_CHANNEL)
   }
 
   @Subscription(() => Channel, {
-    filter(payload: Channel, variables: DTO.OnChannelInput) {
-      return payload.id === variables.id
+    filter(payload: Channel, variables: any) {
+      return payload.id === variables.args.id
     },
     resolve: (value) => value,
   })
   onUpdateChannel(@Args(`args`) args: DTO.OnChannelInput) {
-    return this.pubSub.asyncIterator(PUB_UPSERT_CHANNEL)
+    return this.pubSub.asyncIterator(PUB_UPDATE_CHANNEL)
   }
 
   @Subscription(() => Channel, {
