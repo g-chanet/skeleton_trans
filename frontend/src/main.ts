@@ -6,6 +6,8 @@ import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import "./theme.scss"
+import VueKonva from 'vue-konva'
+
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -17,11 +19,12 @@ library.add(fas, fab)
 
 import App from './App.vue'
 import { router } from './router/index'
+import { cmp } from './components/index'
 
 
 const app = createApp(App)
 app.use(VueKonva)
-
+app.use(cmp)
 app.component(`font-awesome-icon`, FontAwesomeIcon)
 app.use(ElementPlus)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

@@ -30,25 +30,20 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { router } from '@/router'
 import {
-    useFindMyUserQuery,
     useFindAllChannelsForUserQuery,
     type Channel,
-    useOnNewChannelMemberForUserIdSubscription
 } from '@/graphql/graphql-operations'
 import ItemChannel from './components/channelListItemComponent.vue'
-import CreateChannelDialog from './components/createChannelDialogComponent.vue'
-import JoinChannelDialog from './components/joinChannelDialogComponent.vue'
+import CreateChannelDialog from './dialogs/createChannel/createChannelDialog.vue'
+import JoinChannelDialog from './dialogs/joinChannel/joinChannelDialog.vue'
 import ChannelChat from './components/channelChatComponent.vue'
-import { cacheUpsert } from '@/utils/cacheUtils'
 
 const route = useRoute()
 const channelId = computed(() => {
     return route.query.channelId ? route.query.channelId.toString() : undefined
 })
 
-const { result: myUser } = useFindMyUserQuery()
 const query = useFindAllChannelsForUserQuery({})
-useOnNewChannelMemberForUserIdSubscription({ args: { userId: myUser.value!.findMyUser.id } }).onResult(({ data }) => cacheUpsert(query, data?.onNewChannelMemberForUserId))
 
 const createDialog = ref(false)
 const joinDialog = ref(false)

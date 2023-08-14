@@ -1,8 +1,7 @@
 <template>
-	<div>
-		<Line :data="data" :options="options" />
-	</div>
-
+  <div>
+    <Line :data="data" :options="options" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -42,6 +41,4 @@ export default {
 
 </script>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

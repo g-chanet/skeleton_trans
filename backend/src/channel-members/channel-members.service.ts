@@ -11,7 +11,12 @@ export class ChannelMembersService {
   //**************************************************//
 
   async create(data: Prisma.ChannelMemberUncheckedCreateInput) {
-    return await this.prisma.channelMember.create({ data })
+    return await this.prisma.channelMember.create({
+      data,
+      include: {
+        user: true,
+      },
+    })
   }
 
   async update(
@@ -22,6 +27,9 @@ export class ChannelMembersService {
     return await this.prisma.channelMember.update({
       where: { channelId_userId: { userId, channelId } },
       data,
+      include: {
+        user: true,
+      },
     })
   }
 
@@ -48,8 +56,8 @@ export class ChannelMembersService {
     return await this.prisma.channelMember.findUnique({
       where: {
         channelId_userId: {
-          userId,
           channelId,
+          userId,
         },
       },
     })

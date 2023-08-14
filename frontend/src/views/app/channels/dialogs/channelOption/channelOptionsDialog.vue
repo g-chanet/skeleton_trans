@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="dialog" v-loading="loading" title="Channel options" width="52%"
+    <el-dialog v-model="dialog" v-loading="queryChannel.loading" title="Channel options" width="52%"
         style="border-radius: var(--el-border-radius-base)" :before-close="handleClose" close-on-press-escape>
         <el-tabs v-model="activeTab" style="margin-top: -20px; margin-bottom: -10px;">
             <el-tab-pane label="Edit channel" name="first">
@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { EChannelType, useFindChannelQuery } from '@/graphql/graphql-operations'
+import { useFindChannelQuery } from '@/graphql/graphql-operations'
 
 import TabDetails from './channelOptionsDialog_Details.vue'
 import TabVisibility from './channelOptionsDialog_Visibility.vue'
@@ -28,18 +28,19 @@ const props = defineProps<{
     channelId: string
 }>()
 
+
 const emit = defineEmits<{
     (e: `update:modelValue`, value: boolean): void
 }>()
 
-const { loading, result } = useFindChannelQuery({
+const queryChannel = useFindChannelQuery({
     args: {
         id: props.channelId
     }
 })
 
 const activeTab = ref(`first`)
-const channel = computed(() => result)
+const channel = computed(() => queryChannel.result.value?.findChannel)
 const dialog = computed({
     get() {
         return props.modelValue
@@ -55,17 +56,5 @@ const handleClose = () => dialog.value = false
 
 <style scoped lang="sass">
 
-.members-scroll
-    display: flex
-    flex-direction: row
-    align-items: center
-    min-height: 40px
-    text-align: center
-    border-radius: 4px
-    background: rgb(20, 20, 20)
-    justify-content: space-between
-    margin: 2%
-    padding-right: 2% 
-    padding-left: 2%
 
 </style>

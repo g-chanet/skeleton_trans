@@ -12,18 +12,18 @@
           <el-radio label="Private" disabled />
         </el-radio-group>
       </div>
-      <div style="align-self: center;">Owner: {{ channelOwner }}</div>
+      <div style="align-self: center;">Owner: {{ channelOwnerName }}</div>
       <div style="align-self: center;">Created: {{ moment(channel?.createdAt).format('L') }}</div>
       <div class="scroll">
         Channel Members:
         <el-scrollbar max-height="300px">
-          <div v-for="item in channelMembers" :key="item.user?.id" class="members-scroll">
+          <div v-for="item in members" :key="item.id" class="members-scroll">
             <div style="display: flex; flex-direction: column; justify-content: space-evenly;">
               <div>
-                {{ item.user?.username }}
+                {{ item.name }}
               </div>
               <div style="color: white; font-size: small;">
-                {{ memberType(item.type) }}
+                {{ item.type.toString() }}
               </div>
             </div>
             <div>
@@ -43,7 +43,7 @@
       <el-button
         @click="leaveChannel({ args: { channelId: props.channelId } }).then(() => router.replace({ query: {} }))">Leave
         Channel</el-button>
-      <el-button v-if="isOwner" @click="optionsDialog = true">Edit channel</el-button>
+      <el-button v-if="isAdmin || isOwner" @click="optionsDialog = true">Edit channel</el-button>
       <el-button v-if="isOwner"
         @click="drawer = false, deleteChannel({ args: { id: props.channelId } }).then(() => router.replace({ query: {} }))"
         type="warning" plain>Remove Channel</el-button>
@@ -54,18 +54,26 @@
 
 <script setup lang="ts">
 import type { ChannelMember } from '@/graphql/graphql-operations'
-import { EChannelMemberType, useDeleteChannelMutation, useFindMyUserQuery } from '@/graphql/graphql-operations'
+import { EChannelMemberType, useDeleteChannelMutation, useFindMyChannelMemberForChannelQuery, useFindMyUserQuery, useOnDeleteChannelMemberForChannelIdSubscription, useOnNewChannelMemberForChannelIdSubscription, useOnUpdateChannelMemberForChannelIdSubscription, useOnUpdateChannelSubscription } from '@/graphql/graphql-operations'
 import { useFindChannelQuery, EChannelType, useFindAllChannelMembersForChannelQuery, useDeleteMyMemberForChannelMutation } from '@/graphql/graphql-operations'
-import ChannelOptionsDialog from "./channelOptionsDialogComponent.vue"
+import ChannelOptionsDialog from "../dialogs/channelOption/channelOptionsDialog.vue"
 import { computed, ref } from 'vue'
 import moment from "moment"
 import { useRouter } from 'vue-router'
+import { cacheDelete, cacheUpsert } from '@/utils/cacheUtils'
 
 const router = useRouter()
 const { result: myUser } = useFindMyUserQuery()
 
-const props = defineProps([`modelValue`, `channelId`])
-const emit = defineEmits([`update:modelValue`])
+const props = defineProps<{
+  modelValue: boolean
+  channelId: string
+}>()
+
+
+const emit = defineEmits<{
+  (e: `update:modelValue`, value: boolean): void
+}>()
 
 const drawer = computed({
   get() {
@@ -78,21 +86,29 @@ const drawer = computed({
 
 const optionsDialog = ref(false)
 
-const { result: resultChannel } = useFindChannelQuery({
+const queryChannel = useFindChannelQuery({
   args: {
     id: props.channelId
   }
 })
-const { result: resultMembers } = useFindAllChannelMembersForChannelQuery({
+
+const channel = computed(() => { return queryChannel.result.value?.findChannel })
+
+const queryMyMemberForChannel = useFindMyChannelMemberForChannelQuery({ args: { channelId: props.channelId } })
+
+const queryMembers = useFindAllChannelMembersForChannelQuery({
   args: {
     channelId: props.channelId
   }
 })
 
+useOnNewChannelMemberForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(({ data }) => cacheUpsert(queryMembers, data?.onNewChannelMemberForChannelId))
+useOnUpdateChannelMemberForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(({ data }) => cacheUpsert(queryMembers, data?.onUpdateChannelMemberForChannelId))
+useOnDeleteChannelMemberForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(({ data }) => cacheDelete(data?.onDeleteChannelMemberForChannelId))
+
 const { mutate: deleteChannel } = useDeleteChannelMutation({})
 const { mutate: leaveChannel } = useDeleteMyMemberForChannelMutation({})
 
-const channel = computed(() => { return resultChannel.value?.findChannel })
 const channelType = computed(() => {
   if (channel.value?.channelType === EChannelType.Private)
     return `Private`
@@ -101,37 +117,29 @@ const channelType = computed(() => {
   return `Public`
 })
 
-const channelOwner = ref(``)
-const myChannelMember = ref<ChannelMember>()
+const channelOwnerName = ref<string>(``)
 
-const channelMembers = computed(() => {
-  resultMembers.value?.findAllChannelMembersForChannel.forEach((value) => {
-    if (value.type === EChannelMemberType.Owner)
-      channelOwner.value = value.user!.username
-    if (value.user?.id === myUser.value?.findMyUser.id)
-      myChannelMember.value = value
+interface MemberForTable {
+  id: string
+  name: string
+  type: EChannelMemberType
+}
+
+const members = computed(() => {
+  const data: MemberForTable[] = []
+  queryMembers.result.value?.findAllChannelMembersForChannel.forEach((member) => {
+    data.push({
+      id: member.user!.id,
+      name: member.user!.username,
+      type: member.type,
+    })
   })
-  return resultMembers.value?.findAllChannelMembersForChannel
+  return data
 })
 
+const myChannelMember = computed(() => queryMyMemberForChannel.result.value?.findMyChannelMemberForChannel)
 const isOwner = computed(() => myChannelMember.value?.type === EChannelMemberType.Owner)
 const isAdmin = computed(() => myChannelMember.value?.type === EChannelMemberType.Admin)
-
-const memberType = ((type: EChannelMemberType) => {
-  if (type === EChannelMemberType.Owner)
-    return `Owner`
-  if (type === EChannelMemberType.Admin)
-    return `Admin`
-  if (type === EChannelMemberType.Invited)
-    return `Invited`
-  return `Default`
-})
-
-const changePasswordDialogChild = ref()
-
-const onShowChannelOptionsDialog = () => {
-  changePasswordDialogChild.value.setChangePasswordDialogVisible()
-}
 
 </script>
 

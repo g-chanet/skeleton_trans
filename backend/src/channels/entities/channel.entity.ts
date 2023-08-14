@@ -5,6 +5,8 @@ import { ChannelMessage as ChannelMessageEntity } from 'src/channel-messages/ent
 
 @ObjectType()
 export class Channel {
+  password?: string
+
   @Field(() => ID)
   id: string
 
@@ -13,9 +15,6 @@ export class Channel {
 
   @Field(() => String, { nullable: true })
   avatarUrl?: string
-
-  @Field(() => String, { nullable: true })
-  password?: string
 
   @Field(() => EChannelType)
   channelType: EChannelType

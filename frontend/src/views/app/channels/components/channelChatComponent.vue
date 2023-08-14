@@ -1,7 +1,7 @@
 <template>
     <el-container>
         <el-header height="15%">
-            <h3 class="top">{{ resultChannel?.findChannel.name }}</h3>
+            <h3 class="top">{{ channelName }}</h3>
         </el-header>
         <el-main>
             <el-scrollbar ref="chatScroll" v-loading="loading" element-loading-background="rgba(0, 0, 0, 0)">
@@ -37,7 +37,7 @@ import {
     useCreateMessageForChannelMutation,
     useFindAllChannelMessagesForChannelQuery,
     useOnNewChannelMessageForChannelIdSubscription,
-    useOnDeleteChannelMessageForChannelSubscription
+    useOnDeleteChannelMessageForChannelSubscription,
 } from '@/graphql/graphql-operations'
 import { computed, onMounted, ref } from 'vue'
 import ChannelChatMessage from './channelChatMessageComponent.vue'
@@ -63,15 +63,17 @@ onMounted(() => {
     }, 500)
 })
 
-const { result: resultChannel } = useFindChannelQuery({
+const queryChannel = useFindChannelQuery({
     args: {
         id: props.channelId
     }
 })
 
+const channelName = computed(() => queryChannel.result.value?.findChannel.name ?? '')
+
 const inputValue = ref(``)
 
-const query = useFindAllChannelMessagesForChannelQuery({
+const queryMessages = useFindAllChannelMessagesForChannelQuery({
     args: {
         channelId: props.channelId
     }
@@ -83,7 +85,7 @@ const { mutate } = useCreateMessageForChannelMutation({})
 
 useOnNewChannelMessageForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(
     ({ data }) => {
-        cacheUpsert(query, data?.onNewChannelMessageForChannelId)
+        cacheUpsert(queryMessages, data?.onNewChannelMessageForChannelId)
         setTimeout(() => {
             chatScroll.value?.setScrollTop(innerRef.value!.clientHeight)
         }, 5)
@@ -96,7 +98,7 @@ useOnDeleteChannelMessageForChannelSubscription({ args: { channelId: props.chann
     }
 )
 
-const messages = computed(() => query.result.value?.findAllChannelMessagesForChannel ?? [])
+const messages = computed(() => queryMessages.result.value?.findAllChannelMessagesForChannel ?? [])
 
 const onCreateMessage = () => {
     if (inputValue.value.trim().length !== 0) {

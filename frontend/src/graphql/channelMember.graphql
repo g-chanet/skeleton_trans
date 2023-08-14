@@ -2,16 +2,27 @@ mutation CreateMemberForChannel($args: CreateMemberForChannelInput!) {
   createMemberForChannel(args: $args) {
     channelId
     userId
-    type
-    muted
-    createdAt
-    updatedAt
+  }
+}
+
+mutation UpdateMemberForChannel($args: UpdateMyMemberForChannelInput!) {
+  updateMemberForChannel(args: $args) {
+    channelId
+    userId
+  }
+}
+
+mutation DeleteMemberForChannel($args: DeleteMemberForChannelInput!) {
+  deleteMemberForChannel(args: $args) {
+    channelId
+    userId
   }
 }
 
 mutation DeleteMyMemberForChannel($args: DeleteMyMemberForChannelInput!) {
   deleteMyMemberForChannel(args: $args) {
     channelId
+    userId
   }
 }
 
@@ -31,18 +42,56 @@ query FindAllChannelMembersForChannel($args: FindAllChannelMembersForChannelInpu
   }
 }
 
-subscription OnNewChannelMemberForUserId($args: OnNewChannelMemberForChannelIdInput!) {
-  onNewChannelMemberForUserId(args: $args) {
-    id
-    name
-    avatarUrl
-    channelType
+query FindMyChannelMemberForChannel($args: FindMyChannelMemberForChannelInput!) {
+  findMyChannelMemberForChannel(args: $args) {
+    channelId
+    userId
+    type
+    muted
     createdAt
+    updatedAt
   }
 }
 
-subscription OnDeleteChannelMemberForUserId($args: OnDeleteChannelMemberForChannelIdInput!) {
-  onDeleteChannelMemberForUserId(args: $args) {
-    id
+subscription OnNewChannelMemberForChannelId($args: OnChannelMemberChannelInput!) {
+  onNewChannelMemberForChannelId(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
+    user {
+      id
+      username
+      avatarUrl
+    }
+  }
+}
+
+subscription OnUpdateChannelMemberForChannelId($args: OnChannelMemberChannelInput!) {
+  onUpdateChannelMemberForChannelId(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
+    user {
+      id
+      username
+      avatarUrl
+    }
+  }
+}
+
+subscription OnDeleteChannelMemberForChannelId($args: OnChannelMemberChannelInput!) {
+  onDeleteChannelMemberForChannelId(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
   }
 }

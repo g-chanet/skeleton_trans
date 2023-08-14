@@ -1,10 +1,10 @@
 <template>
     <el-form ref="editChannelFormRef" :model="editChannelForm" :rules="rules" label-width="30%" :label-position="'left'"
-        status-icon>
+        status-icon @submit.prevent="submitForm" :disabled="loadingUpdate">
         <el-form-item label="Channel avatar" prop="imageUrl">
             <el-upload action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15" :show-file-list="false"
                 :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
-                <el-avatar :size="150" :src="editChannelForm.imageUrl" />
+                <el-avatar :size="90" :src="editChannelForm.imageUrl" />
             </el-upload>
         </el-form-item>
         <el-form-item label="Channel name" prop="channelName">
@@ -14,17 +14,22 @@
             <el-input :disabled="true" />
         </el-form-item>
         <div style="display: flex; justify-content: space-between;">
-            <el-button @click="resetForm(editChannelFormRef)" style="margin-right: 3%;">Reset</el-button>
-            <el-button type="primary" @click="submitForm(editChannelFormRef)"> Update </el-button>
+            <el-button @click="onResetForm()" :disabled="loadingUpdate" style="margin-right: 3%;">Reset</el-button>
+            <el-button type="primary" :loading="loadingUpdate" native-type="submit"> Update </el-button>
         </div>
     </el-form>
 </template>
 
 <script setup lang="ts">
-import { useCheckChannelNameQuery, EChannelType } from '@/graphql/graphql-operations'
+import { useCheckChannelNameQuery, type Channel, useUpdateChannelMutation } from '@/graphql/graphql-operations'
 import { ElMessage, type FormInstance, type FormRules, type UploadProps } from 'element-plus'
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 
+const { mutate, onDone, onError, loading: loadingUpdate } = useUpdateChannelMutation({})
+
+const props = defineProps<{
+    channel: Channel
+}>()
 
 interface EditChannelForm {
     imageUrl?: string | null
@@ -32,10 +37,21 @@ interface EditChannelForm {
 }
 
 const editChannelFormRef = ref<FormInstance>()
+
 const editChannelForm = reactive<EditChannelForm>({
-    imageUrl: ``,
+    imageUrl: '',
     channelName: ``,
 })
+
+const onResetForm = () => {
+    editChannelForm.imageUrl = props.channel.avatarUrl
+    editChannelForm.channelName = props.channel.name
+}
+
+onMounted(() => {
+    onResetForm()
+})
+
 
 const { result: nameChecked, refetch: checkName } = useCheckChannelNameQuery({
     args: { channelName: editChannelForm.channelName }
@@ -58,11 +74,37 @@ const rules = reactive<FormRules>({
     ],
 })
 
-const submitForm = async (formEl: FormInstance | undefined) => {
-    if (!formEl) return
-    await formEl.validate((valid, fields) => {
+const onUpdateChannel = (() => {
+    mutate({
+        args: {
+            id: props.channel.id,
+            name: editChannelForm.channelName,
+            avatarUrl: editChannelForm.imageUrl,
+        }
+    })
+})
+
+onDone(() => {
+    ElMessage({
+        showClose: true,
+        message: `Update complete`,
+        type: `success`
+    })
+})
+
+onError((e) => {
+    ElMessage({
+        showClose: true,
+        message: e.message,
+        type: `error`
+    })
+})
+
+const submitForm = async () => {
+    if (!editChannelFormRef.value) return
+    await editChannelFormRef.value.validate((valid, fields) => {
         if (valid) {
-            //onUpdateChannel()
+            onUpdateChannel()//.then(() => alert confirm).catch(() => alert error)
         } else {
             ElMessage({
                 showClose: true,
@@ -71,9 +113,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             })
         }
     })
-}
-
-const resetForm = (formEl: FormInstance | undefined) => {
 }
 
 const handleAvatarSuccess: UploadProps[`onSuccess`] = (
