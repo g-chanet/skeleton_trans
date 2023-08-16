@@ -1,0 +1,7 @@
+// Synchronisation des scores ?
+// Implémentation du countdownGameReady
+// Logique de la balle sur le back / Synchronisation entre les deux joueurs
+// Bouton START qui lance le countdownGameReady si 2 prêts (URGENT)
+// check les options de jeu (ballSpeed, PaddleHeight, PaddleSpeed)
+// scaling du stage - responsive
+// Math.random de la direction de la ball dans le back!!! (URGENT)
