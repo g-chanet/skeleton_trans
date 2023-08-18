@@ -83,11 +83,30 @@ export class PongSession {
     this._pongData.isPaused = !this._pongData.isPaused
   }
 
-  public setRandomVelocity() {
+  public resetBall() {
+    this._pongData.ball.position.x = 800 / 2
+    this._pongData.ball.position.y = 600 / 2
     const { velocity } = this._pongData.ball
-    const rand = Math.random()
-    velocity.x = Math.sin(rand)
-    velocity.y = Math.cos(rand)
+    console.log(`backend`, velocity)
+    const minAngle = Math.PI / 6
+    const maxAngle = (5 * Math.PI) / 6
+    let randomAngle = Math.random() * (maxAngle - minAngle) + minAngle
+    // Avoid certain angles
+    const avoidAngles = [
+      Math.PI / 2, // 90 degrees (straight up)
+      (3 * Math.PI) / 2, // 270 degrees (straight down)
+      // Add more angles to avoid as needed
+    ]
+    while (avoidAngles.some((angle) => Math.abs(randomAngle - angle) < 0.1)) {
+      randomAngle = Math.random() * (maxAngle - minAngle) + minAngle
+    }
+    if (Math.random() < 0.5) {
+      velocity.x = Math.sin(randomAngle)
+      velocity.y = Math.cos(randomAngle)
+    } else {
+      velocity.x = -Math.sin(randomAngle) // Flip the x component for opposite direction
+      velocity.y = -Math.cos(randomAngle) // Flip the y component for opposite direction
+    }
   }
 
   /*------------  GETTER ------------*/

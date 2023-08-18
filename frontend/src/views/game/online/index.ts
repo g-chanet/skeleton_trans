@@ -33,6 +33,12 @@ export interface PongData {
   }
 }
 
+export interface PongPlayer {
+  socketId: string
+  position?: number
+  score: number
+}
+
 export class Pong {
 
   public width = 800
@@ -54,6 +60,8 @@ export class Pong {
   private paddleLayer: Konva.Layer
   private startGameLayer!: Konva.Layer
   private gameStarted: boolean = false
+  private ballXDirection!: number
+  private ballYDirection!: number
 
   constructor(private socket: Socket, pongData: PongData) {
 
@@ -75,10 +83,64 @@ export class Pong {
       if (socket.id === this.pongData.playerB?.socketId && pongData.playerA?.position)
         this.paddleA.y(pongData.playerA.position)
 
-      this.ball.x(pongData.ball.position.x)
-      this.ball.y(pongData.ball.position.y)
+      // this.ball.x(pongData.ball.position.x)
+      // this.ball.y(pongData.ball.position.y)
+      this.ballXDirection = pongData.ball.velocity.x
+      this.ballYDirection = pongData.ball.velocity.y
 
       this.pongData = pongData
+    })
+
+    if (!this.pongData.playerA) {
+      this.pongData.playerA = {
+        socketId: '',
+        isReady: false,
+        score: 0
+      }
+    }
+  
+    if (!this.pongData.playerB) {
+      this.pongData.playerB = {
+        socketId: '',
+        isReady: false,
+        score: 0
+      }
+    }
+
+    socket.on(`setCountdown`, ({ amount, serverTime }) => {
+      console.log('Received setCountdown event. amount:', amount, 'serverTime:', serverTime)
+      const countdownText = new Konva.Text({
+        x: this.width / 2 - 20,
+        y: this.height / 2 + 30,
+        text: ``,
+        fontSize: 100,
+        fontFamily: `BaseRetroWave`,
+        fill: `black`,
+        shadowColor: `rgba(255, 154, 0, 0.9)`,
+        shadowBlur: 10,
+        align: 'center'
+      })
+    
+      this.paddleLayer.add(countdownText)
+
+    const updateCountdown = () => {
+        const currentTime = Date.now()
+        const timeRemaining = Math.max(0, serverTime + amount * 1000 - currentTime)
+        console.log('Current time:', currentTime, 'Time remaining:', timeRemaining)
+
+        if (timeRemaining > 0) {
+            countdownText.text(Math.ceil(timeRemaining / 1000).toString())
+            this.stage.batchDraw()
+            requestAnimationFrame(updateCountdown)
+        } else {
+            countdownText.text('')
+            this.paddleLayer.draw()
+            countdownText.destroy()
+            this.startGame()
+        }
+    }
+
+    updateCountdown()
     })
 
     // Bind les fonctions handler à la window, qui repère le user input
@@ -88,7 +150,7 @@ export class Pong {
     // Création de la ballz
     this.ball = this.generateBall()
     // Set les base values ici pour init
-    this.ballSpeed = 10
+    this.ballSpeed = 5
     this.ballX = this.width / 2
     this.ballY = this.height / 2
 
@@ -106,8 +168,8 @@ export class Pong {
     this.scoreLayer = new Konva.Layer()
     this.stage.add(this.scoreLayer)
     this.scoreLayer.hide()
-    this.player1Score = 0
-    this.player2Score = 0
+    this.pongData.playerA.score = 0
+    this.pongData.playerB.score = 0
     this.updateScoreText()
 
     // Layer de victoire
@@ -132,8 +194,9 @@ export class Pong {
     
     if (this.keysPressed[`ArrowUp`] && this.myPaddle) 
       this.movePaddle(this.myPaddle, 1)
-    if (this.keysPressed[`ArrowDown`] && this.myPaddle) 
+    if (this.keysPressed[`ArrowDown`] && this.myPaddle) {
       this.movePaddle(this.myPaddle, -1)
+    }
   
     this.collisionCheck()
     this.moveBall()
@@ -256,7 +319,7 @@ export class Pong {
       startButtonRect.stroke(``)
   })
 
-    startButtonRect.on(`click`, this.startGame.bind(this))
+    startButtonRect.on(`click`, this.setPlayerReady.bind(this))
 
     const ball = new Konva.Circle({
       x: this.width / 2,
@@ -287,11 +350,9 @@ export class Pong {
   }
 
     private ballSpeed!: number
-    private ballXDirection = 1
-    private ballYDirection = 1
     private ballColor = `#0065FF`
     private ballBorderColor = `black`
-    private ballRadius = 12
+    private ballRadius = 8
     private ballX = 0
     private ballY = 0
 
@@ -318,7 +379,7 @@ export class Pong {
     // On représente les paddles par un .Group de .Rect
     generatePaddle(side: `Left` | `Right`, color: string): Konva.Group {
       const paddleWidth = 15
-      const paddleHeight = 150
+      const paddleHeight = 100
       const stageHeight = this.height
     
       const paddleX = side === `Left` ? paddleWidth : this.width - paddleWidth * 2
@@ -345,6 +406,12 @@ export class Pong {
       paddleGroup.add(paddle)
     
       return paddleGroup
+    }
+
+    setPlayerReady() {
+      this.socket.emit(`setPlayerReady`)
+      // if (this.pongData.playerA?.isReady && this.pongData.playerB?.isReady)
+      //   this.startGame()
     }
 
     startGame() {
@@ -433,16 +500,16 @@ export class Pong {
 
   // Incrémente les scores en fonction du joueur qui marque le but / lance le victory screen à scoreMax
   updateScore(player: `player1` | `player2`) {
-    this.ballSpeed = 10
+    this.ballSpeed = 5
     if (player === `player1`) {
-      this.player1Score += 1
-      if (this.player1Score === 11) {
+      this.pongData.playerA!.score += 1
+      if (this.pongData.playerA?.score === 11) {
         this.displayVictoryScreen(`player1`)
         return
       }
     } else if (player === `player2`) {
-      this.player2Score += 1
-      if (this.player2Score === 11) {
+      this.pongData.playerB!.score += 1
+      if (this.pongData.playerB?.score === 11) {
         this.displayVictoryScreen(`player2`)
         return
       }
@@ -606,7 +673,7 @@ export class Pong {
       const scoreText = new Konva.Text({
         x: this.width / 2,
         y: this.height / 2,
-        text: `${this.player1Score} : ${this.player2Score}`,
+        text: `${this.pongData.playerA?.score} : ${this.pongData.playerB?.score}`,
         fontSize: 30,
         fontFamily: `BaseRetroWave`,
         fill: `black`,
@@ -697,8 +764,8 @@ export class Pong {
     }
     
     resetScore() {
-      this.player1Score = 0
-      this.player2Score = 0
+      this.pongData.playerA!.score = 0
+      this.pongData.playerB!.score = 0
       this.updateScoreText()
       this.scoreLayer.draw()
     }
@@ -725,7 +792,7 @@ export class Pong {
     const paddleRightX = this.paddleB.x()
     const paddleRightY = this.paddleB.y()
     const paddleWidth = 10
-    const paddleHeight = 150
+    const paddleHeight = 100
 
     // On check si la position de la balle se trouve à l'intérieur des coordonnées de la paddle
     // la paddle dans sa largeur est représentée par paddleX + paddleWidth _
@@ -746,19 +813,32 @@ export class Pong {
     // Check si un `BUT` est marqué
     if (this.ballX - ballRadius <= 0) {
       // Reset la balle + update le score
+      this.goalScored()
       this.updateScore(`player2`)
-      this.ballX = this.width / 2
-      this.ballY = this.height / 2
-      this.ballXDirection = Math.random() < 0.5 ? 1 : -1
-      this.ballYDirection = Math.random() * 2 - 1
+
+      this.ballX = this.pongData.ball.position.x
+      this.ballY = this.pongData.ball.position.y
+      this.ballXDirection = this.pongData.ball.velocity.x
+      this.ballYDirection = this.pongData.ball.velocity.y
+      console.log(`client1`, this.ballXDirection, this.ballYDirection)
     } 
     else if (this.ballX + ballRadius >= this.width) {
+      this.goalScored()
       this.updateScore(`player1`)
-      this.ballX = this.width / 2
-      this.ballY = this.height / 2
-      this.ballXDirection = Math.random() < 0.5 ? 1 : -1
-      this.ballYDirection = Math.random() * 2 - 1
+
+      this.ballX = this.pongData.ball.position.x
+      this.ballY = this.pongData.ball.position.y
+      
+      this.ballXDirection = this.pongData.ball.velocity.x
+      this.ballYDirection = this.pongData.ball.velocity.y
+      console.log(`client2`, this.ballXDirection, this.ballYDirection)
     }
+  }
+
+  goalScored() {
+    this.gameRunning = false
+    this.socket.emit(`goalScored`)
+    this.gameRunning = true
   }
 
   /* ---------------------------------------- Ball Movement ---------------------------------------- */
@@ -771,9 +851,12 @@ export class Pong {
     // Update la pos de la balle
     this.ballX = ballX
     this.ballY = ballY
+    this.pongData.ball.position.x = ballX
+    this.pongData.ball.position.y = ballY
   }
     
   drawBall() {
+    console.log(`DRAWBALL`) // ICI CA BOGUE - x & y undefined
     const { position } = this.pongData.ball
     this.ball.x(position.x)
     this.ball.y(position.y)
@@ -795,7 +878,7 @@ export class Pong {
         const paddleHeight = paddle.height()
         const stageHeight = this.height
         
-        if (paddleY < (stageHeight - paddleHeight) - 140) {
+        if (paddleY < (stageHeight - paddleHeight) - 100) {
             paddle.y(paddleY)
         }
       }

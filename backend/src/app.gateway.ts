@@ -56,7 +56,14 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const pongSession = this.pongSessions.get(roomId)
     pongSession.setPlayerReady(socket)
     this.server.to(roomId).emit(`updatePongData`, pongSession.pongData)
-    if (pongSession.allPlayersReady) this.countdownGameReady(pongSession)
+    console.log(
+      pongSession.pongData.playerA.isReady,
+      pongSession.pongData.playerB.isReady,
+    )
+    if (pongSession.allPlayersReady) {
+      pongSession.resetBall()
+      this.countdownGameReady(pongSession)
+    }
   }
 
   @SubscribeMessage(`switchPaused`)
@@ -67,17 +74,32 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(roomId).emit(`updatePongData`, pongSession.pongData)
   }
 
+  @SubscribeMessage(`goalScored`)
+  goalScored(socket: Socket) {
+    const { roomId } = socket.data
+    const pongSession = this.pongSessions.get(roomId)
+    pongSession.resetBall()
+    this.server
+      .to(pongSession.roomId)
+      .emit(`updatePongData`, pongSession.pongData)
+  }
+
   /*------------  GAME ACTIONS UTILS ------------*/
 
   countdownGameReady(pongSession: PongSession, amount = 3) {
+    const serverTime = Date.now()
     if (amount === 0) {
-      this.server.to(pongSession.roomId).emit(`setCountdown`, 0)
-      //Set Random velocity
+      this.server
+        .to(pongSession.roomId)
+        .emit(`setCountdown`, { amount: 0, serverTime })
+      pongSession.resetBall
       this.server
         .to(pongSession.roomId)
         .emit(`updatePongData`, pongSession.pongData)
     } else {
-      this.server.to(pongSession.roomId).emit(`setCountdown`, amount)
+      this.server
+        .to(pongSession.roomId)
+        .emit(`setCountdown`, { amount, serverTime })
       setTimeout(() => this.countdownGameReady(pongSession, --amount), 1000)
     }
   }

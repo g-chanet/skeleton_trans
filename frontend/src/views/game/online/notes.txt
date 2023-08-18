@@ -1,7 +1,51 @@
-// Synchronisation des scores ?
-// Implémentation du countdownGameReady
-// Logique de la balle sur le back / Synchronisation entre les deux joueurs
-// Bouton START qui lance le countdownGameReady si 2 prêts (URGENT)
-// check les options de jeu (ballSpeed, PaddleHeight, PaddleSpeed)
 // scaling du stage - responsive
-// Math.random de la direction de la ball dans le back!!! (URGENT)
+// !!!!!!!!!!!!!!! countdownGameReady Pour que les deux game start en meme temps = pas de décalage
+
+Check la ballSpeed en fonction de l'angle de la ballXDirection
+-> Maintenant la balle update sa dir en plein movement (a fix)
+Synchronisation des scores entre les deux joueurs (move la logique Score dans le back)
+Check la cohérence des infos entre clients --> Décalage de + en + évident au fur et a mesure de l'échange
+
+---------------------------------------
+-----------------18-08-----------------
+---------------CHANGELOG---------------
+---------------------------------------
+
+1. Implémentation d'une logique isReady pour lancer la partie uniquement avec 2 joueurs prêts
+    => Déplacement de certaines logiques 'gameLoop' dans le back par cohérence
+    => Réhabilitation des checks playerA et playerB dans le pongSession.ts
+
+2. Fix du countdownGameReady
+    => Display accurate chez les deux clients.
+    => Le countdown est lancé quand les deux joueurs ont press 'START GAME'.
+    => On se sert d'un 'server time' synchronisé pour bien caler les clients sur le CD, sans diff.
+
+3. Fix du setRandomVelocity -->
+    => Le setter de direction de la balle est maintenant bien randomisé
+    => Implémentation de thresholds d'angles qu'on ne veut pas (Exemple: On ne veut pas que la balle aille
+        entre π et π /3 ni entre π  et 2π / 3)
+    => La vectorisation de la balle est bien effectuée de façon random entre joueur1 et joueur2
+    => Le setRandomVelocity reset désormais aussi la pongData.ball.position directement chez les clients
+
+4. Rework de la logique de la balle dans le back
+    => Le back dispatch désormais les ballData aux deux clients qui se contentent de display leur ball
+    => Les déplacements et draw de balles sont maintenant accurate et synchronisées
+
+5. Implémentation de socket handlers pour faire la liaison du score entre front et back
+    => Lorsqu'un goal est marqué, le backend signale et reset les ball des deux joueurs
+
+6. Fix des updatePongData
+    => Les updatePlayerPosition() ne provoquent plus de redraw intempestifs
+    => Les updates de vecteurs sont maintenant accurate et synchronisées
+
+6. Divers
+    => Réadaptation des gameData pour un jeu online plus fonctionnel (ballSpeed, paddleSpeed...)
+    => Nettoyage des fonctions 'proto' dans le front et le back
+    => Nettoyage des commentaires 'inutiles' et peu clairs
+
+---------------------------------------
+-----------------19-08-----------------
+---------------CHANGELOG---------------
+---------------------------------------
+
+1.
