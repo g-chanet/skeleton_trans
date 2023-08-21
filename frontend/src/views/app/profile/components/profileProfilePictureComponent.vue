@@ -13,8 +13,6 @@ import { computed } from "vue"
 import { useFindMyUserQuery } from '@/graphql/graphql-operations'
 
 const loggedInUser = useFindMyUserQuery().result.value?.findMyUser
-console.log(loggedInUser?.avatarUrl)
-console.log(loggedInUser)
 </script>
 
 <style scoped lang="sass">

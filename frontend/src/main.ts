@@ -23,8 +23,8 @@ import { cmp } from './components/index'
 
 
 const app = createApp(App)
-app.use(VueKonva)
-app.use(cmp)
+//app.use(VueKonva)
+
 app.component(`font-awesome-icon`, FontAwesomeIcon)
 app.use(ElementPlus)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

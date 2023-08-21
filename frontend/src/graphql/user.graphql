@@ -6,11 +6,91 @@ query FindLeaderboardUserList {
   }
 }
 
-query FindLoggedInUser {
+query FindMyUser {
   findMyUser {
     id
     doubleAuth
     avatarUrl
     username
+    isOauth
   }
+}
+
+query findUserTwoFaSettings {
+  findUserTwoFaSettings {
+    googleAuthenticatorQrCode
+  }
+}
+
+mutation updateMyUser($args: UpdateMyUserInput!) {
+  updateMyUser(args: $args)
+  {
+    id
+    doubleAuth
+    avatarUrl
+    username
+    isOauth
+  }
+}
+
+mutation updateMyPassword($args: UpdateMyPasswordInput!)
+{
+  updateMyPassword(args: $args)
+}
+
+mutation isGoogleAuthCodeValid($args: GoogleAuthCodeValidatorInput!) {
+  isGoogleAuthCodeValid(args: $args)
+}
+
+query findDailyGameRatios {
+  findDailyGameRatios{
+    date
+    wins
+    losses
+    ratio
+  }
+  
+}
+
+query findGeneralGameStatsForUser{
+  findGeneralGameStatsForUser {
+    gamesCount
+    allTimeRatio
+    MeanPoints
+  }
+}
+
+query FindAllGameStatsForUser {
+    findAllGameStatsForUser {
+        id
+        opponentId
+        isWinner
+        userScore
+        opponentScore
+        createdAt
+    }
+}
+
+query FindUser($args: FindUserInput!) {
+    findUser(args: $args) {
+        id
+        username
+        avatarUrl
+    }
+}
+
+mutation InjectFalseGameStatData {
+    injectFalseGameStatData
+}
+
+mutation removeFalseGameStatData {
+    removeFalseGameStatData
+}
+
+query FindPublicUsersList {
+    findPublicUsersList {
+        id
+        username
+        avatarUrl
+    }
 }

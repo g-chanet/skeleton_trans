@@ -1,6 +1,9 @@
 import gql from 'graphql-tag';
 import * as VueApolloComposable from '@vue/apollo-composable';
 import * as VueCompositionApi from 'vue';
+import gql from 'graphql-tag';
+import * as VueApolloComposable from '@vue/apollo-composable';
+import * as VueCompositionApi from 'vue';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -20,23 +23,26 @@ export type Scalars = {
 export type Channel = {
   __typename?: 'Channel';
   avatarUrl?: Maybe<Scalars['String']>;
-  channelMembers?: Maybe<Array<ChannelMember>>;
-  channelMessages?: Maybe<Array<ChannelMessage>>;
+  channelMessages?: Maybe<ChannelMessage>;
   channelType: EChannelType;
   createdAt: Scalars['DateTime'];
-  id: Scalars['ID'];
+  id: Scalars['String'];
   name: Scalars['String'];
+  password?: Maybe<Scalars['String']>;
 };
 
 export type ChannelMember = {
   __typename?: 'ChannelMember';
+  __typename?: 'ChannelMember';
   channel?: Maybe<Channel>;
-  channelId: Scalars['ID'];
+  channelId: Scalars['String'];
   createdAt: Scalars['DateTime'];
   muted: Scalars['DateTime'];
   type: EChannelMemberType;
   updatedAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
   user?: Maybe<UserPublic>;
+  userId: Scalars['String'];
   userId: Scalars['String'];
 };
 
@@ -44,28 +50,30 @@ export type ChannelMessage = {
   __typename?: 'ChannelMessage';
   channelId: Scalars['String'];
   createdAt: Scalars['DateTime'];
-  id: Scalars['ID'];
+  id: Scalars['String'];
   message: Scalars['String'];
   updatedAt: Scalars['DateTime'];
   userId: Scalars['String'];
 };
 
-export type CheckChannelInput = {
-  channelName: Scalars['String'];
-};
-
 export type CreateChannelInput = {
   avatarUrl?: InputMaybe<Scalars['String']>;
+  avatarUrl?: InputMaybe<Scalars['String']>;
   channelType: EChannelType;
+  name: Scalars['String'];
+  password?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
   password?: InputMaybe<Scalars['String']>;
 };
 
 export type CreateGameInput = {
   userIds: Array<Scalars['String']>;
+  userIds: Array<Scalars['String']>;
 };
 
 export type CreateMemberForChannelInput = {
+  channelId: Scalars['String'];
+  channelPassword?: InputMaybe<Scalars['String']>;
   channelId: Scalars['String'];
   channelPassword?: InputMaybe<Scalars['String']>;
   type?: InputMaybe<EChannelMemberType>;
@@ -74,30 +82,43 @@ export type CreateMemberForChannelInput = {
 export type CreateMessageForChannelInput = {
   channelId: Scalars['String'];
   message: Scalars['String'];
+  channelId: Scalars['String'];
+  message: Scalars['String'];
 };
 
 export type CreateRequestFriendInput = {
   userTargetId: Scalars['String'];
 };
 
+export type DailyGameRatios = {
+  __typename?: 'DailyGameRatios';
+  date: Scalars['DateTime'];
+  losses: Scalars['Float'];
+  ratio: Scalars['Float'];
+  wins: Scalars['Float'];
+};
+
 export type DeleteChannelInput = {
   id: Scalars['String'];
 };
 
-export type DeleteMemberForChannelInput = {
-  channelId: Scalars['String'];
-  userId: Scalars['String'];
-};
-
 export type DeleteMyMemberForChannelInput = {
+  channelId: Scalars['String'];
   channelId: Scalars['String'];
 };
 
 export type DeleteMyMessageForChannelInput = {
+  channelId: Scalars['String'];
   id: Scalars['String'];
+  message: Scalars['String'];
 };
 
 export enum EChannelMemberType {
+  Admin = 'Admin',
+  Banned = 'Banned',
+  Default = 'Default',
+  Invited = 'Invited',
+  Owner = 'Owner'
   Admin = 'Admin',
   Banned = 'Banned',
   Default = 'Default',
@@ -109,9 +130,16 @@ export enum EChannelType {
   Private = 'Private',
   Protected = 'Protected',
   Public = 'Public'
+  Private = 'Private',
+  Protected = 'Protected',
+  Public = 'Public'
 }
 
 export enum EUserRealtionType {
+  Blocked = 'Blocked',
+  Friend = 'Friend',
+  PendingAccept = 'PendingAccept',
+  WaitingAccept = 'WaitingAccept'
   Blocked = 'Blocked',
   Friend = 'Friend',
   PendingAccept = 'PendingAccept',
@@ -120,9 +148,15 @@ export enum EUserRealtionType {
 
 export type FindAllChannelMembersForChannelInput = {
   channelId: Scalars['String'];
+  channelId: Scalars['String'];
+};
+
+export type FindAllChannelMembersForUserInput = {
+  userId: Scalars['String'];
 };
 
 export type FindAllMessagesForChannelInput = {
+  channelId: Scalars['String'];
   channelId: Scalars['String'];
 };
 
@@ -130,25 +164,21 @@ export type FindChannelInput = {
   id: Scalars['String'];
 };
 
-export type FindMyChannelMemberForChannelInput = {
-  channelId: Scalars['String'];
-};
-
-export type FindUserForChannelMessageInput = {
-  id: Scalars['String'];
-};
-
 export type FindUserInput = {
+  id: Scalars['String'];
   id: Scalars['String'];
 };
 
 export type GameData = {
+  __typename?: 'GameData';
   __typename?: 'GameData';
   gameMembers: Array<GameMember>;
   id: Scalars['String'];
 };
 
 export type GameMatchmakingMember = {
+  __typename?: 'GameMatchmakingMember';
+  userId: Scalars['String'];
   __typename?: 'GameMatchmakingMember';
   userId: Scalars['String'];
 };
@@ -159,11 +189,31 @@ export type GameMember = {
   userId: Scalars['String'];
 };
 
+export type GameStat = {
+  __typename?: 'GameStat';
+  createdAt: Scalars['String'];
+  id: Scalars['String'];
+  isWinner: Scalars['Boolean'];
+  opponentId: Scalars['String'];
+  opponentScore: Scalars['String'];
+  user: User;
+  userScore: Scalars['String'];
+};
+
+export type GeneralUserGameStats = {
+  __typename?: 'GeneralUserGameStats';
+  MeanPoints: Scalars['Float'];
+  allTimeRatio: Scalars['Float'];
+  gamesCount: Scalars['Float'];
+};
+
 export type GoogleAuthCodeValidatorInput = {
+  code: Scalars['String'];
   code: Scalars['String'];
 };
 
 export type JoinGameInput = {
+  id: Scalars['String'];
   id: Scalars['String'];
 };
 
@@ -178,6 +228,7 @@ export type Mutation = {
   commentAdded: Scalars['Boolean'];
   createChannel: Channel;
   createGame: GameData;
+  createGameStat: GameStat;
   createMemberForChannel: ChannelMember;
   createMessageForChannel: ChannelMessage;
   createRequestFriend: UserRelation;
@@ -185,14 +236,15 @@ export type Mutation = {
   deleteMemberForChannel: ChannelMember;
   deleteMyMemberForChannel: ChannelMember;
   deleteMyMessageForChannel: ChannelMessage;
-  deleteMyUser: Scalars['Boolean'];
-  isGoogleAuthCodeValid: Scalars['Boolean'];
+  deleteMyUser: Scalars[`Boolean`];
+  isGoogleAuthCodeValid: Scalars[`Boolean`];
   joinGame: GameData;
   joinGameMatchmakingMember: GameMatchmakingMember;
   leaveGame: Scalars['Boolean'];
   leaveGameMatchmakingMember: GameMatchmakingMember;
   logout: Scalars['Boolean'];
   refuseFriendRequest: UserRelation;
+  removeFalseGameStatData: Scalars['Boolean'];
   removeFriend: UserRelation;
   signIn42: Scalars['Boolean'];
   signInDiscord: Scalars['Boolean'];
@@ -205,7 +257,7 @@ export type Mutation = {
   updateGameMemberForGame: GameMember;
   updateMemberForChannel: ChannelMember;
   updateMyMessageForChannel: ChannelMessage;
-  updateMyUser: Scalars['Boolean'];
+  updateMyUser: Scalars[`Boolean`];
 };
 
 
@@ -231,6 +283,11 @@ export type MutationCreateChannelArgs = {
 
 export type MutationCreateGameArgs = {
   args: CreateGameInput;
+};
+
+
+export type MutationCreateGameStatArgs = {
+  args: CreateGameStatInput;
 };
 
 
@@ -329,42 +386,39 @@ export type MutationUpdateMyMessageForChannelArgs = {
 };
 
 
+export type MutationUpdateMyPasswordArgs = {
+  args: UpdateMyPasswordInput;
+};
+
+
 export type MutationUpdateMyUserArgs = {
   args: UpdateMyUserInput;
 };
 
 export type OnChannelInput = {
-  id: Scalars['String'];
-};
-
-export type OnChannelMemberChannelInput = {
-  channelId: Scalars['String'];
-};
-
-export type OnDeleteChannelMessageForChannel = {
-  channelId: Scalars['String'];
-};
-
-export type OnNewChannelMessageForChannelIdInput = {
-  channelId: Scalars['String'];
+  id: Scalars[`String`];
 };
 
 export type Query = {
-  __typename?: 'Query';
-  checkChannelName: Scalars['Boolean'];
+  __typename?: `Query`;
   findAllChannelMembersForChannel: Array<ChannelMember>;
   findAllChannelMessagesForChannel: Array<ChannelMessage>;
   findAllChannels: Array<Channel>;
   findAllChannelsForUser: Array<Channel>;
   findAllGameMatchmakingMemberl: Array<GameMatchmakingMember>;
+  findAllGameStatsForUser: Array<GameStat>;
   findAllProtectedChannels: Array<Channel>;
   findAllPublicChannels: Array<Channel>;
+  findAllRelations: Array<UserRelation>;
+  findAllRelationsForMyUser: Array<UserRelation>;
   findChannel: Channel;
+  findDailyGameRatios: Array<DailyGameRatios>;
+  findGeneralGameStatsForUser: GeneralUserGameStats;
   findLeaderboardUserList: Array<UserPublic>;
   findMyChannelMemberForChannel: ChannelMember;
   findMyUser: User;
+  findPublicUsersList: Array<UserPublic>;
   findUser: UserPublic;
-  findUserForChannelMessage: UserPublic;
 };
 
 
@@ -415,15 +469,13 @@ export type SignUpLocalInput = {
 };
 
 export type Subscription = {
-  __typename?: 'Subscription';
-  onCreateChannel: Channel;
+  __typename?: `Subscription`;
   onDeleteChannel: Channel;
   onDeleteChannelMemberForChannelId: ChannelMember;
   onDeleteChannelMessageForChannel: ChannelMessage;
   onNewChannelMemberForChannelId: ChannelMember;
   onNewChannelMessageForChannelId: ChannelMessage;
   onUpdateChannel: Channel;
-  onUpdateChannelMemberForChannelId: ChannelMember;
 };
 
 
@@ -478,20 +530,18 @@ export type UpdateGameMemberInput = {
 };
 
 export type UpdateMyMemberForChannelInput = {
-  channelId: Scalars['String'];
-  mute?: InputMaybe<Scalars['DateTime']>;
-  type?: InputMaybe<EChannelMemberType>;
-  userId: Scalars['String'];
+  channelId: Scalars[`String`];
+  type: EChannelMemberType;
 };
 
 export type UpdateMyMessageForChannelInput = {
-  channelId: Scalars['String'];
-  id: Scalars['String'];
-  message: Scalars['String'];
+  channelId: Scalars[`String`];
+  id: Scalars[`String`];
+  message: Scalars[`String`];
 };
 
 export type UpdateMyUserInput = {
-  id: Scalars['String'];
+  id: Scalars[`String`];
 };
 
 export type UpdateUserRelationInput = {
@@ -499,28 +549,28 @@ export type UpdateUserRelationInput = {
 };
 
 export type User = {
-  __typename?: 'User';
-  avatarUrl?: Maybe<Scalars['String']>;
-  doubleAuth: Scalars['Boolean'];
-  id: Scalars['ID'];
-  username: Scalars['String'];
+  __typename?: `User`;
+  avatarUrl?: Maybe<Scalars[`String`]>;
+  doubleAuth: Scalars[`Boolean`];
+  id: Scalars[`String`];
+  username: Scalars[`String`];
 };
 
 export type UserPublic = {
-  __typename?: 'UserPublic';
-  avatarUrl?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  username: Scalars['String'];
+  __typename?: `UserPublic`;
+  avatarUrl?: Maybe<Scalars[`String`]>;
+  id: Scalars[`String`];
+  username: Scalars[`String`];
 };
 
 export type UserRelation = {
-  __typename?: 'UserRelation';
-  createdAt: Scalars['DateTime'];
-  id: Scalars['ID'];
+  __typename?: `UserRelation`;
+  createdAt: Scalars[`DateTime`];
+  id: Scalars[`String`];
   type: EUserRealtionType;
-  updatedAt: Scalars['DateTime'];
-  userOwnerId: Scalars['String'];
-  userTargetId: Scalars['String'];
+  updatedAt: Scalars[`DateTime`];
+  userOwnerId: Scalars[`String`];
+  userTargetId: Scalars[`String`];
 };
 
 export type SignInLocalMutationVariables = Exact<{
@@ -540,7 +590,7 @@ export type SignUpLocalMutation = { __typename?: 'Mutation', signUpLocal: { __ty
 export type FindMyUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindMyUserQuery = { __typename?: 'Query', findMyUser: { __typename?: 'User', doubleAuth: boolean, avatarUrl?: string | null, id: string, username: string } };
+export type FindMyUserQuery = { __typename?: `Query`, findMyUser: { __typename?: `User`, doubleAuth: boolean, avatarUrl?: string | null, id: string, username: string } };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -552,21 +602,7 @@ export type CreateChannelMutationVariables = Exact<{
 }>;
 
 
-export type CreateChannelMutation = { __typename?: 'Mutation', createChannel: { __typename?: 'Channel', id: string } };
-
-export type UpdateChannelMutationVariables = Exact<{
-  args: UpdateChannelInput;
-}>;
-
-
-export type UpdateChannelMutation = { __typename?: 'Mutation', updateChannel: { __typename?: 'Channel', id: string } };
-
-export type DeleteChannelMutationVariables = Exact<{
-  args: DeleteChannelInput;
-}>;
-
-
-export type DeleteChannelMutation = { __typename?: 'Mutation', deleteChannel: { __typename?: 'Channel', id: string } };
+export type CreateChannelMutation = { __typename?: `Mutation`, createChannel: { __typename?: `Channel`, id: string } };
 
 export type FindAllPublicChannelsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -576,12 +612,7 @@ export type FindAllPublicChannelsQuery = { __typename?: 'Query', findAllPublicCh
 export type FindAllProtectedChannelsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllProtectedChannelsQuery = { __typename?: 'Query', findAllProtectedChannels: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any }> };
-
-export type FindAllChannelsForUserQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type FindAllChannelsForUserQuery = { __typename?: 'Query', findAllChannelsForUser: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any }> };
+export type FindAllProtectedChannelsQuery = { __typename?: `Query`, findAllProtectedChannels: Array<{ __typename?: `Channel`, id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any }> };
 
 export type FindChannelQueryVariables = Exact<{
   args: FindChannelInput;
@@ -595,7 +626,7 @@ export type CheckChannelNameQueryVariables = Exact<{
 }>;
 
 
-export type CheckChannelNameQuery = { __typename?: 'Query', checkChannelName: boolean };
+export type FindAllChannelMembersForChannelQuery = { __typename?: `Query`, findAllChannelMembersForChannel: Array<{ __typename?: `ChannelMember`, type: EChannelMemberType, user?: { __typename?: `UserPublic`, id: string, username: string, avatarUrl?: string | null } | null }> };
 
 export type OnCreateChannelSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -607,93 +638,21 @@ export type OnUpdateChannelSubscriptionVariables = Exact<{
 }>;
 
 
-export type OnUpdateChannelSubscription = { __typename?: 'Subscription', onUpdateChannel: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } };
-
-export type OnDeleteChannelSubscriptionVariables = Exact<{
-  args: OnChannelInput;
-}>;
-
-
-export type OnDeleteChannelSubscription = { __typename?: 'Subscription', onDeleteChannel: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } };
+export type FindAllChannelMembersForUserQuery = { __typename?: `Query`, findAllChannelMembersForUser: Array<{ __typename?: `ChannelMember`, channel?: { __typename?: `Channel`, id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } | null }> };
 
 export type CreateMemberForChannelMutationVariables = Exact<{
   args: CreateMemberForChannelInput;
 }>;
 
 
-export type CreateMemberForChannelMutation = { __typename?: 'Mutation', createMemberForChannel: { __typename?: 'ChannelMember', channelId: string, userId: string } };
-
-export type UpdateMemberForChannelMutationVariables = Exact<{
-  args: UpdateMyMemberForChannelInput;
-}>;
-
-
-export type UpdateMemberForChannelMutation = { __typename?: 'Mutation', updateMemberForChannel: { __typename?: 'ChannelMember', channelId: string, userId: string } };
-
-export type DeleteMemberForChannelMutationVariables = Exact<{
-  args: DeleteMemberForChannelInput;
-}>;
-
-
-export type DeleteMemberForChannelMutation = { __typename?: 'Mutation', deleteMemberForChannel: { __typename?: 'ChannelMember', channelId: string, userId: string } };
-
-export type DeleteMyMemberForChannelMutationVariables = Exact<{
-  args: DeleteMyMemberForChannelInput;
-}>;
-
-
-export type DeleteMyMemberForChannelMutation = { __typename?: 'Mutation', deleteMyMemberForChannel: { __typename?: 'ChannelMember', channelId: string, userId: string } };
-
-export type FindAllChannelMembersForChannelQueryVariables = Exact<{
-  args: FindAllChannelMembersForChannelInput;
-}>;
-
-
-export type FindAllChannelMembersForChannelQuery = { __typename?: 'Query', findAllChannelMembersForChannel: Array<{ __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any, user?: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } | null }> };
-
-export type FindMyChannelMemberForChannelQueryVariables = Exact<{
-  args: FindMyChannelMemberForChannelInput;
-}>;
-
-
-export type FindMyChannelMemberForChannelQuery = { __typename?: 'Query', findMyChannelMemberForChannel: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any } };
-
-export type OnNewChannelMemberForChannelIdSubscriptionVariables = Exact<{
-  args: OnChannelMemberChannelInput;
-}>;
-
-
-export type OnNewChannelMemberForChannelIdSubscription = { __typename?: 'Subscription', onNewChannelMemberForChannelId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any, user?: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } | null } };
-
-export type OnUpdateChannelMemberForChannelIdSubscriptionVariables = Exact<{
-  args: OnChannelMemberChannelInput;
-}>;
-
-
-export type OnUpdateChannelMemberForChannelIdSubscription = { __typename?: 'Subscription', onUpdateChannelMemberForChannelId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any, user?: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } | null } };
-
-export type OnDeleteChannelMemberForChannelIdSubscriptionVariables = Exact<{
-  args: OnChannelMemberChannelInput;
-}>;
-
-
-export type OnDeleteChannelMemberForChannelIdSubscription = { __typename?: 'Subscription', onDeleteChannelMemberForChannelId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any } };
-
-export type ChannelMessageFragment = { __typename?: 'ChannelMessage', id: string, message: string, channelId: string, userId: string, createdAt: any, updatedAt: any };
+export type CreateMemberForChannelMutation = { __typename?: `Mutation`, createMemberForChannel: { __typename?: `ChannelMember`, channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any } };
 
 export type CreateMessageForChannelMutationVariables = Exact<{
   args: CreateMessageForChannelInput;
 }>;
 
 
-export type CreateMessageForChannelMutation = { __typename?: 'Mutation', createMessageForChannel: { __typename?: 'ChannelMessage', id: string } };
-
-export type DeleteMyMessageForChannelMutationVariables = Exact<{
-  args: DeleteMyMessageForChannelInput;
-}>;
-
-
-export type DeleteMyMessageForChannelMutation = { __typename?: 'Mutation', deleteMyMessageForChannel: { __typename?: 'ChannelMessage', id: string } };
+export type CreateMessageForChannelMutation = { __typename?: `Mutation`, createMessageForChannel: { __typename?: `ChannelMessage`, id: string } };
 
 export type FindAllChannelMessagesForChannelQueryVariables = Exact<{
   args: FindAllMessagesForChannelInput;
@@ -702,9 +661,6 @@ export type FindAllChannelMessagesForChannelQueryVariables = Exact<{
 
 export type FindAllChannelMessagesForChannelQuery = { __typename?: 'Query', findAllChannelMessagesForChannel: Array<{ __typename?: 'ChannelMessage', id: string, message: string, channelId: string, userId: string, createdAt: any, updatedAt: any }> };
 
-export type FindUserForChannelMessageQueryVariables = Exact<{
-  args: FindUserForChannelMessageInput;
-}>;
 
 
 export type FindUserForChannelMessageQuery = { __typename?: 'Query', findUserForChannelMessage: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } };
@@ -816,7 +772,7 @@ export const FindMyUserDocument = gql`
     username
   }
 }
-    `;
+    `
 
 /**
  * __useFindMyUserQuery__
@@ -831,10 +787,10 @@ export const FindMyUserDocument = gql`
  * const { result, loading, error } = useFindMyUserQuery();
  */
 export function useFindMyUserQuery(options: VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options);
+  return VueApolloComposable.useQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options)
 }
 export function useFindMyUserLazyQuery(options: VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options);
+  return VueApolloComposable.useLazyQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options)
 }
 export type FindMyUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindMyUserQuery, FindMyUserQueryVariables>;
 export const LogoutDocument = gql`
@@ -1352,18 +1308,19 @@ export function useFindAllChannelMembersForChannelLazyQuery(variables: FindAllCh
   return VueApolloComposable.useLazyQuery<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>(FindAllChannelMembersForChannelDocument, variables, options);
 }
 export type FindAllChannelMembersForChannelQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>;
-export const FindMyChannelMemberForChannelDocument = gql`
-    query FindMyChannelMemberForChannel($args: FindMyChannelMemberForChannelInput!) {
-  findMyChannelMemberForChannel(args: $args) {
-    channelId
-    userId
-    type
-    muted
-    createdAt
-    updatedAt
+export const FindAllChannelMembersForUserDocument = gql`
+    query FindAllChannelMembersForUser($args: FindAllChannelMembersForUserInput!) {
+  findAllChannelMembersForUser(args: $args) {
+    channel {
+      id
+      name
+      avatarUrl
+      channelType
+      createdAt
+    }
   }
 }
-    `;
+    `
 
 /**
  * __useFindMyChannelMemberForChannelQuery__
@@ -1380,11 +1337,11 @@ export const FindMyChannelMemberForChannelDocument = gql`
  *   args: // value for 'args'
  * });
  */
-export function useFindMyChannelMemberForChannelQuery(variables: FindMyChannelMemberForChannelQueryVariables | VueCompositionApi.Ref<FindMyChannelMemberForChannelQueryVariables> | ReactiveFunction<FindMyChannelMemberForChannelQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>(FindMyChannelMemberForChannelDocument, variables, options);
+export function useFindAllChannelMembersForUserQuery(variables: FindAllChannelMembersForUserQueryVariables | VueCompositionApi.Ref<FindAllChannelMembersForUserQueryVariables> | ReactiveFunction<FindAllChannelMembersForUserQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables>(FindAllChannelMembersForUserDocument, variables, options)
 }
-export function useFindMyChannelMemberForChannelLazyQuery(variables: FindMyChannelMemberForChannelQueryVariables | VueCompositionApi.Ref<FindMyChannelMemberForChannelQueryVariables> | ReactiveFunction<FindMyChannelMemberForChannelQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>(FindMyChannelMemberForChannelDocument, variables, options);
+export function useFindAllChannelMembersForUserLazyQuery(variables: FindAllChannelMembersForUserQueryVariables | VueCompositionApi.Ref<FindAllChannelMembersForUserQueryVariables> | ReactiveFunction<FindAllChannelMembersForUserQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables>(FindAllChannelMembersForUserDocument, variables, options)
 }
 export type FindMyChannelMemberForChannelQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>;
 export const OnNewChannelMemberForChannelIdDocument = gql`
@@ -1396,14 +1353,9 @@ export const OnNewChannelMemberForChannelIdDocument = gql`
     muted
     createdAt
     updatedAt
-    user {
-      id
-      username
-      avatarUrl
-    }
   }
 }
-    `;
+    `
 
 /**
  * __useOnNewChannelMemberForChannelIdSubscription__
@@ -1420,8 +1372,8 @@ export const OnNewChannelMemberForChannelIdDocument = gql`
  *   args: // value for 'args'
  * });
  */
-export function useOnNewChannelMemberForChannelIdSubscription(variables: OnNewChannelMemberForChannelIdSubscriptionVariables | VueCompositionApi.Ref<OnNewChannelMemberForChannelIdSubscriptionVariables> | ReactiveFunction<OnNewChannelMemberForChannelIdSubscriptionVariables>, options: VueApolloComposable.UseSubscriptionOptions<OnNewChannelMemberForChannelIdSubscription, OnNewChannelMemberForChannelIdSubscriptionVariables> | VueCompositionApi.Ref<VueApolloComposable.UseSubscriptionOptions<OnNewChannelMemberForChannelIdSubscription, OnNewChannelMemberForChannelIdSubscriptionVariables>> | ReactiveFunction<VueApolloComposable.UseSubscriptionOptions<OnNewChannelMemberForChannelIdSubscription, OnNewChannelMemberForChannelIdSubscriptionVariables>> = {}) {
-  return VueApolloComposable.useSubscription<OnNewChannelMemberForChannelIdSubscription, OnNewChannelMemberForChannelIdSubscriptionVariables>(OnNewChannelMemberForChannelIdDocument, variables, options);
+export function useCreateMemberForChannelMutation(options: VueApolloComposable.UseMutationOptions<CreateMemberForChannelMutation, CreateMemberForChannelMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateMemberForChannelMutation, CreateMemberForChannelMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<CreateMemberForChannelMutation, CreateMemberForChannelMutationVariables>(CreateMemberForChannelDocument, options)
 }
 export type OnNewChannelMemberForChannelIdSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<OnNewChannelMemberForChannelIdSubscription, OnNewChannelMemberForChannelIdSubscriptionVariables>;
 export const OnUpdateChannelMemberForChannelIdDocument = gql`
@@ -1557,7 +1509,7 @@ export const FindAllChannelMessagesForChannelDocument = gql`
     ...channelMessage
   }
 }
-    ${ChannelMessageFragmentDoc}`;
+    `
 
 /**
  * __useFindAllChannelMessagesForChannelQuery__
@@ -1696,33 +1648,3 @@ export function useFindLeaderboardUserListLazyQuery(options: VueApolloComposable
   return VueApolloComposable.useLazyQuery<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables>(FindLeaderboardUserListDocument, {}, options);
 }
 export type FindLeaderboardUserListQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables>;
-export const FindLoggedInUserDocument = gql`
-    query FindLoggedInUser {
-  findMyUser {
-    id
-    doubleAuth
-    avatarUrl
-    username
-  }
-}
-    `;
-
-/**
- * __useFindLoggedInUserQuery__
- *
- * To run a query within a Vue component, call `useFindLoggedInUserQuery` and pass it any options that fit your needs.
- * When your component renders, `useFindLoggedInUserQuery` returns an object from Apollo Client that contains result, loading and error properties
- * you can use to render your UI.
- *
- * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
- *
- * @example
- * const { result, loading, error } = useFindLoggedInUserQuery();
- */
-export function useFindLoggedInUserQuery(options: VueApolloComposable.UseQueryOptions<FindLoggedInUserQuery, FindLoggedInUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindLoggedInUserQuery, FindLoggedInUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindLoggedInUserQuery, FindLoggedInUserQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<FindLoggedInUserQuery, FindLoggedInUserQueryVariables>(FindLoggedInUserDocument, {}, options);
-}
-export function useFindLoggedInUserLazyQuery(options: VueApolloComposable.UseQueryOptions<FindLoggedInUserQuery, FindLoggedInUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindLoggedInUserQuery, FindLoggedInUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindLoggedInUserQuery, FindLoggedInUserQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<FindLoggedInUserQuery, FindLoggedInUserQueryVariables>(FindLoggedInUserDocument, {}, options);
-}
-export type FindLoggedInUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindLoggedInUserQuery, FindLoggedInUserQueryVariables>;

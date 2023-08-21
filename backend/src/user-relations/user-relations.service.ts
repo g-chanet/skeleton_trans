@@ -8,7 +8,7 @@ import {
 
 @Injectable()
 export class UserRelationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   //**************************************************//
   //  MUTATION
   //**************************************************//
@@ -137,14 +137,6 @@ export class UserRelationsService {
   }
 
   async removeFriend(userOwnerId: string, userTargetId: string) {
-    const relationOT = await this.findRelation(userOwnerId, userTargetId)
-    const relationTO = await this.findRelation(userTargetId, userOwnerId)
-
-    if (
-      relationOT !== EUserRelationType.Friend ||
-      relationTO !== EUserRelationType.Friend
-    )
-      throw new BadRequestException()
 
     await this.prisma.userRelation.delete({
       where: {
@@ -185,6 +177,9 @@ export class UserRelationsService {
     })
   }
 
+  async findAll() {
+    return await this.prisma.userRelation.findMany({ where: {} })
+  }
   //**************************************************//
   //  UTILS
   //**************************************************//
