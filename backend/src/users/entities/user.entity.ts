@@ -3,7 +3,7 @@ import { GameStat } from 'src/games/entities/gameStat.entity'
 
 @ObjectType()
 export class UserPublic {
-  @Field(() => ID)
+  @Field(() => String)
   id: string
 
   @Field(() => String)

@@ -13,13 +13,13 @@ type GameStat {
 }
 
 type UserPublic {
-  id: ID!
+  id: String!
   username: String!
   avatarUrl: String
 }
 
 type User {
-  id: ID!
+  id: String!
   username: String!
   avatarUrl: String
   doubleAuth: Boolean!
@@ -333,8 +333,8 @@ input GoogleAuthCodeValidatorInput {
 }
 
 type Subscription {
-  onCreateChannel: Channel!
   userRelationsChanged: [UserRelation!]!
+  onCreateChannel: Channel!
   onUpdateChannel(args: OnChannelInput!): Channel!
   onDeleteChannel(args: OnChannelInput!): Channel!
   onNewChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!

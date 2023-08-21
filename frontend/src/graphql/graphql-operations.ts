@@ -1,9 +1,6 @@
 import gql from 'graphql-tag';
 import * as VueApolloComposable from '@vue/apollo-composable';
 import * as VueCompositionApi from 'vue';
-import gql from 'graphql-tag';
-import * as VueApolloComposable from '@vue/apollo-composable';
-import * as VueCompositionApi from 'vue';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -23,26 +20,23 @@ export type Scalars = {
 export type Channel = {
   __typename?: 'Channel';
   avatarUrl?: Maybe<Scalars['String']>;
-  channelMessages?: Maybe<ChannelMessage>;
+  channelMembers?: Maybe<Array<ChannelMember>>;
+  channelMessages?: Maybe<Array<ChannelMessage>>;
   channelType: EChannelType;
   createdAt: Scalars['DateTime'];
-  id: Scalars['String'];
+  id: Scalars['ID'];
   name: Scalars['String'];
-  password?: Maybe<Scalars['String']>;
 };
 
 export type ChannelMember = {
   __typename?: 'ChannelMember';
-  __typename?: 'ChannelMember';
   channel?: Maybe<Channel>;
-  channelId: Scalars['String'];
+  channelId: Scalars['ID'];
   createdAt: Scalars['DateTime'];
   muted: Scalars['DateTime'];
   type: EChannelMemberType;
   updatedAt: Scalars['DateTime'];
-  updatedAt: Scalars['DateTime'];
   user?: Maybe<UserPublic>;
-  userId: Scalars['String'];
   userId: Scalars['String'];
 };
 
@@ -50,38 +44,34 @@ export type ChannelMessage = {
   __typename?: 'ChannelMessage';
   channelId: Scalars['String'];
   createdAt: Scalars['DateTime'];
-  id: Scalars['String'];
+  id: Scalars['ID'];
   message: Scalars['String'];
   updatedAt: Scalars['DateTime'];
   userId: Scalars['String'];
 };
 
+export type CheckChannelInput = {
+  channelName: Scalars['String'];
+};
+
 export type CreateChannelInput = {
   avatarUrl?: InputMaybe<Scalars['String']>;
-  avatarUrl?: InputMaybe<Scalars['String']>;
   channelType: EChannelType;
-  name: Scalars['String'];
-  password?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
   password?: InputMaybe<Scalars['String']>;
 };
 
 export type CreateGameInput = {
   userIds: Array<Scalars['String']>;
-  userIds: Array<Scalars['String']>;
 };
 
 export type CreateMemberForChannelInput = {
-  channelId: Scalars['String'];
-  channelPassword?: InputMaybe<Scalars['String']>;
   channelId: Scalars['String'];
   channelPassword?: InputMaybe<Scalars['String']>;
   type?: InputMaybe<EChannelMemberType>;
 };
 
 export type CreateMessageForChannelInput = {
-  channelId: Scalars['String'];
-  message: Scalars['String'];
   channelId: Scalars['String'];
   message: Scalars['String'];
 };
@@ -102,23 +92,20 @@ export type DeleteChannelInput = {
   id: Scalars['String'];
 };
 
-export type DeleteMyMemberForChannelInput = {
+export type DeleteMemberForChannelInput = {
   channelId: Scalars['String'];
+  userId: Scalars['String'];
+};
+
+export type DeleteMyMemberForChannelInput = {
   channelId: Scalars['String'];
 };
 
 export type DeleteMyMessageForChannelInput = {
-  channelId: Scalars['String'];
   id: Scalars['String'];
-  message: Scalars['String'];
 };
 
 export enum EChannelMemberType {
-  Admin = 'Admin',
-  Banned = 'Banned',
-  Default = 'Default',
-  Invited = 'Invited',
-  Owner = 'Owner'
   Admin = 'Admin',
   Banned = 'Banned',
   Default = 'Default',
@@ -130,16 +117,9 @@ export enum EChannelType {
   Private = 'Private',
   Protected = 'Protected',
   Public = 'Public'
-  Private = 'Private',
-  Protected = 'Protected',
-  Public = 'Public'
 }
 
 export enum EUserRealtionType {
-  Blocked = 'Blocked',
-  Friend = 'Friend',
-  PendingAccept = 'PendingAccept',
-  WaitingAccept = 'WaitingAccept'
   Blocked = 'Blocked',
   Friend = 'Friend',
   PendingAccept = 'PendingAccept',
@@ -148,15 +128,9 @@ export enum EUserRealtionType {
 
 export type FindAllChannelMembersForChannelInput = {
   channelId: Scalars['String'];
-  channelId: Scalars['String'];
-};
-
-export type FindAllChannelMembersForUserInput = {
-  userId: Scalars['String'];
 };
 
 export type FindAllMessagesForChannelInput = {
-  channelId: Scalars['String'];
   channelId: Scalars['String'];
 };
 
@@ -164,21 +138,25 @@ export type FindChannelInput = {
   id: Scalars['String'];
 };
 
-export type FindUserInput = {
+export type FindMyChannelMemberForChannelInput = {
+  channelId: Scalars['String'];
+};
+
+export type FindUserForChannelMessageInput = {
   id: Scalars['String'];
+};
+
+export type FindUserInput = {
   id: Scalars['String'];
 };
 
 export type GameData = {
-  __typename?: 'GameData';
   __typename?: 'GameData';
   gameMembers: Array<GameMember>;
   id: Scalars['String'];
 };
 
 export type GameMatchmakingMember = {
-  __typename?: 'GameMatchmakingMember';
-  userId: Scalars['String'];
   __typename?: 'GameMatchmakingMember';
   userId: Scalars['String'];
 };
@@ -209,11 +187,9 @@ export type GeneralUserGameStats = {
 
 export type GoogleAuthCodeValidatorInput = {
   code: Scalars['String'];
-  code: Scalars['String'];
 };
 
 export type JoinGameInput = {
-  id: Scalars['String'];
   id: Scalars['String'];
 };
 
@@ -236,8 +212,9 @@ export type Mutation = {
   deleteMemberForChannel: ChannelMember;
   deleteMyMemberForChannel: ChannelMember;
   deleteMyMessageForChannel: ChannelMessage;
-  deleteMyUser: Scalars[`Boolean`];
-  isGoogleAuthCodeValid: Scalars[`Boolean`];
+  deleteMyUser: Scalars['Boolean'];
+  injectFalseGameStatData: Scalars['Boolean'];
+  isGoogleAuthCodeValid: Scalars['Boolean'];
   joinGame: GameData;
   joinGameMatchmakingMember: GameMatchmakingMember;
   leaveGame: Scalars['Boolean'];
@@ -257,7 +234,8 @@ export type Mutation = {
   updateGameMemberForGame: GameMember;
   updateMemberForChannel: ChannelMember;
   updateMyMessageForChannel: ChannelMessage;
-  updateMyUser: Scalars[`Boolean`];
+  updateMyPassword: Scalars['Boolean'];
+  updateMyUser: User;
 };
 
 
@@ -396,11 +374,24 @@ export type MutationUpdateMyUserArgs = {
 };
 
 export type OnChannelInput = {
-  id: Scalars[`String`];
+  id: Scalars['String'];
+};
+
+export type OnChannelMemberChannelInput = {
+  channelId: Scalars['String'];
+};
+
+export type OnDeleteChannelMessageForChannel = {
+  channelId: Scalars['String'];
+};
+
+export type OnNewChannelMessageForChannelIdInput = {
+  channelId: Scalars['String'];
 };
 
 export type Query = {
-  __typename?: `Query`;
+  __typename?: 'Query';
+  checkChannelName: Scalars['Boolean'];
   findAllChannelMembersForChannel: Array<ChannelMember>;
   findAllChannelMessagesForChannel: Array<ChannelMessage>;
   findAllChannels: Array<Channel>;
@@ -419,6 +410,8 @@ export type Query = {
   findMyUser: User;
   findPublicUsersList: Array<UserPublic>;
   findUser: UserPublic;
+  findUserForChannelMessage: UserPublic;
+  findUserTwoFaSettings: UserTwoFaSettings;
 };
 
 
@@ -469,13 +462,16 @@ export type SignUpLocalInput = {
 };
 
 export type Subscription = {
-  __typename?: `Subscription`;
+  __typename?: 'Subscription';
+  onCreateChannel: Channel;
   onDeleteChannel: Channel;
   onDeleteChannelMemberForChannelId: ChannelMember;
   onDeleteChannelMessageForChannel: ChannelMessage;
   onNewChannelMemberForChannelId: ChannelMember;
   onNewChannelMessageForChannelId: ChannelMessage;
   onUpdateChannel: Channel;
+  onUpdateChannelMemberForChannelId: ChannelMember;
+  userRelationsChanged: Array<UserRelation>;
 };
 
 
@@ -530,18 +526,27 @@ export type UpdateGameMemberInput = {
 };
 
 export type UpdateMyMemberForChannelInput = {
-  channelId: Scalars[`String`];
-  type: EChannelMemberType;
+  channelId: Scalars['String'];
+  mute?: InputMaybe<Scalars['DateTime']>;
+  type?: InputMaybe<EChannelMemberType>;
+  userId: Scalars['String'];
 };
 
 export type UpdateMyMessageForChannelInput = {
-  channelId: Scalars[`String`];
-  id: Scalars[`String`];
-  message: Scalars[`String`];
+  channelId: Scalars['String'];
+  id: Scalars['String'];
+  message: Scalars['String'];
+};
+
+export type UpdateMyPasswordInput = {
+  newPassword: Scalars['String'];
+  oldPassword: Scalars['String'];
 };
 
 export type UpdateMyUserInput = {
-  id: Scalars[`String`];
+  avatarUrl?: InputMaybe<Scalars['String']>;
+  doubleAuth?: InputMaybe<Scalars['Boolean']>;
+  username?: InputMaybe<Scalars['String']>;
 };
 
 export type UpdateUserRelationInput = {
@@ -549,28 +554,41 @@ export type UpdateUserRelationInput = {
 };
 
 export type User = {
-  __typename?: `User`;
-  avatarUrl?: Maybe<Scalars[`String`]>;
-  doubleAuth: Scalars[`Boolean`];
-  id: Scalars[`String`];
-  username: Scalars[`String`];
+  __typename?: 'User';
+  avatarUrl?: Maybe<Scalars['String']>;
+  doubleAuth: Scalars['Boolean'];
+  id: Scalars['String'];
+  isOauth: Scalars['Boolean'];
+  username: Scalars['String'];
 };
 
 export type UserPublic = {
-  __typename?: `UserPublic`;
-  avatarUrl?: Maybe<Scalars[`String`]>;
-  id: Scalars[`String`];
-  username: Scalars[`String`];
+  __typename?: 'UserPublic';
+  avatarUrl?: Maybe<Scalars['String']>;
+  id: Scalars['String'];
+  username: Scalars['String'];
 };
 
 export type UserRelation = {
-  __typename?: `UserRelation`;
-  createdAt: Scalars[`DateTime`];
-  id: Scalars[`String`];
+  __typename?: 'UserRelation';
+  createdAt: Scalars['DateTime'];
+  id: Scalars['ID'];
   type: EUserRealtionType;
-  updatedAt: Scalars[`DateTime`];
-  userOwnerId: Scalars[`String`];
-  userTargetId: Scalars[`String`];
+  updatedAt: Scalars['DateTime'];
+  userOwnerId: Scalars['String'];
+  userTargetId: Scalars['String'];
+};
+
+export type UserTwoFaSettings = {
+  __typename?: 'UserTwoFaSettings';
+  googleAuthenticatorQrCode: Scalars['String'];
+};
+
+export type CreateGameStatInput = {
+  isFakeData: Scalars['Boolean'];
+  opponentId: Scalars['String'];
+  opponentScore: Scalars['String'];
+  userScore: Scalars['String'];
 };
 
 export type SignInLocalMutationVariables = Exact<{
@@ -587,11 +605,6 @@ export type SignUpLocalMutationVariables = Exact<{
 
 export type SignUpLocalMutation = { __typename?: 'Mutation', signUpLocal: { __typename?: 'User', id: string, username: string, avatarUrl?: string | null, doubleAuth: boolean } };
 
-export type FindMyUserQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type FindMyUserQuery = { __typename?: `Query`, findMyUser: { __typename?: `User`, doubleAuth: boolean, avatarUrl?: string | null, id: string, username: string } };
-
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -602,7 +615,21 @@ export type CreateChannelMutationVariables = Exact<{
 }>;
 
 
-export type CreateChannelMutation = { __typename?: `Mutation`, createChannel: { __typename?: `Channel`, id: string } };
+export type CreateChannelMutation = { __typename?: 'Mutation', createChannel: { __typename?: 'Channel', id: string } };
+
+export type UpdateChannelMutationVariables = Exact<{
+  args: UpdateChannelInput;
+}>;
+
+
+export type UpdateChannelMutation = { __typename?: 'Mutation', updateChannel: { __typename?: 'Channel', id: string } };
+
+export type DeleteChannelMutationVariables = Exact<{
+  args: DeleteChannelInput;
+}>;
+
+
+export type DeleteChannelMutation = { __typename?: 'Mutation', deleteChannel: { __typename?: 'Channel', id: string } };
 
 export type FindAllPublicChannelsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -612,7 +639,12 @@ export type FindAllPublicChannelsQuery = { __typename?: 'Query', findAllPublicCh
 export type FindAllProtectedChannelsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllProtectedChannelsQuery = { __typename?: `Query`, findAllProtectedChannels: Array<{ __typename?: `Channel`, id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any }> };
+export type FindAllProtectedChannelsQuery = { __typename?: 'Query', findAllProtectedChannels: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any }> };
+
+export type FindAllChannelsForUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FindAllChannelsForUserQuery = { __typename?: 'Query', findAllChannelsForUser: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any }> };
 
 export type FindChannelQueryVariables = Exact<{
   args: FindChannelInput;
@@ -626,7 +658,7 @@ export type CheckChannelNameQueryVariables = Exact<{
 }>;
 
 
-export type FindAllChannelMembersForChannelQuery = { __typename?: `Query`, findAllChannelMembersForChannel: Array<{ __typename?: `ChannelMember`, type: EChannelMemberType, user?: { __typename?: `UserPublic`, id: string, username: string, avatarUrl?: string | null } | null }> };
+export type CheckChannelNameQuery = { __typename?: 'Query', checkChannelName: boolean };
 
 export type OnCreateChannelSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -638,21 +670,93 @@ export type OnUpdateChannelSubscriptionVariables = Exact<{
 }>;
 
 
-export type FindAllChannelMembersForUserQuery = { __typename?: `Query`, findAllChannelMembersForUser: Array<{ __typename?: `ChannelMember`, channel?: { __typename?: `Channel`, id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } | null }> };
+export type OnUpdateChannelSubscription = { __typename?: 'Subscription', onUpdateChannel: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } };
+
+export type OnDeleteChannelSubscriptionVariables = Exact<{
+  args: OnChannelInput;
+}>;
+
+
+export type OnDeleteChannelSubscription = { __typename?: 'Subscription', onDeleteChannel: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } };
 
 export type CreateMemberForChannelMutationVariables = Exact<{
   args: CreateMemberForChannelInput;
 }>;
 
 
-export type CreateMemberForChannelMutation = { __typename?: `Mutation`, createMemberForChannel: { __typename?: `ChannelMember`, channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any } };
+export type CreateMemberForChannelMutation = { __typename?: 'Mutation', createMemberForChannel: { __typename?: 'ChannelMember', channelId: string, userId: string } };
+
+export type UpdateMemberForChannelMutationVariables = Exact<{
+  args: UpdateMyMemberForChannelInput;
+}>;
+
+
+export type UpdateMemberForChannelMutation = { __typename?: 'Mutation', updateMemberForChannel: { __typename?: 'ChannelMember', channelId: string, userId: string } };
+
+export type DeleteMemberForChannelMutationVariables = Exact<{
+  args: DeleteMemberForChannelInput;
+}>;
+
+
+export type DeleteMemberForChannelMutation = { __typename?: 'Mutation', deleteMemberForChannel: { __typename?: 'ChannelMember', channelId: string, userId: string } };
+
+export type DeleteMyMemberForChannelMutationVariables = Exact<{
+  args: DeleteMyMemberForChannelInput;
+}>;
+
+
+export type DeleteMyMemberForChannelMutation = { __typename?: 'Mutation', deleteMyMemberForChannel: { __typename?: 'ChannelMember', channelId: string, userId: string } };
+
+export type FindAllChannelMembersForChannelQueryVariables = Exact<{
+  args: FindAllChannelMembersForChannelInput;
+}>;
+
+
+export type FindAllChannelMembersForChannelQuery = { __typename?: 'Query', findAllChannelMembersForChannel: Array<{ __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any, user?: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } | null }> };
+
+export type FindMyChannelMemberForChannelQueryVariables = Exact<{
+  args: FindMyChannelMemberForChannelInput;
+}>;
+
+
+export type FindMyChannelMemberForChannelQuery = { __typename?: 'Query', findMyChannelMemberForChannel: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any } };
+
+export type OnNewChannelMemberForChannelIdSubscriptionVariables = Exact<{
+  args: OnChannelMemberChannelInput;
+}>;
+
+
+export type OnNewChannelMemberForChannelIdSubscription = { __typename?: 'Subscription', onNewChannelMemberForChannelId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any, user?: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } | null } };
+
+export type OnUpdateChannelMemberForChannelIdSubscriptionVariables = Exact<{
+  args: OnChannelMemberChannelInput;
+}>;
+
+
+export type OnUpdateChannelMemberForChannelIdSubscription = { __typename?: 'Subscription', onUpdateChannelMemberForChannelId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any, user?: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } | null } };
+
+export type OnDeleteChannelMemberForChannelIdSubscriptionVariables = Exact<{
+  args: OnChannelMemberChannelInput;
+}>;
+
+
+export type OnDeleteChannelMemberForChannelIdSubscription = { __typename?: 'Subscription', onDeleteChannelMemberForChannelId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any } };
+
+export type ChannelMessageFragment = { __typename?: 'ChannelMessage', id: string, message: string, channelId: string, userId: string, createdAt: any, updatedAt: any };
 
 export type CreateMessageForChannelMutationVariables = Exact<{
   args: CreateMessageForChannelInput;
 }>;
 
 
-export type CreateMessageForChannelMutation = { __typename?: `Mutation`, createMessageForChannel: { __typename?: `ChannelMessage`, id: string } };
+export type CreateMessageForChannelMutation = { __typename?: 'Mutation', createMessageForChannel: { __typename?: 'ChannelMessage', id: string } };
+
+export type DeleteMyMessageForChannelMutationVariables = Exact<{
+  args: DeleteMyMessageForChannelInput;
+}>;
+
+
+export type DeleteMyMessageForChannelMutation = { __typename?: 'Mutation', deleteMyMessageForChannel: { __typename?: 'ChannelMessage', id: string } };
 
 export type FindAllChannelMessagesForChannelQueryVariables = Exact<{
   args: FindAllMessagesForChannelInput;
@@ -661,6 +765,9 @@ export type FindAllChannelMessagesForChannelQueryVariables = Exact<{
 
 export type FindAllChannelMessagesForChannelQuery = { __typename?: 'Query', findAllChannelMessagesForChannel: Array<{ __typename?: 'ChannelMessage', id: string, message: string, channelId: string, userId: string, createdAt: any, updatedAt: any }> };
 
+export type FindUserForChannelMessageQueryVariables = Exact<{
+  args: FindUserForChannelMessageInput;
+}>;
 
 
 export type FindUserForChannelMessageQuery = { __typename?: 'Query', findUserForChannelMessage: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } };
@@ -684,10 +791,111 @@ export type FindLeaderboardUserListQueryVariables = Exact<{ [key: string]: never
 
 export type FindLeaderboardUserListQuery = { __typename?: 'Query', findLeaderboardUserList: Array<{ __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null }> };
 
-export type FindLoggedInUserQueryVariables = Exact<{ [key: string]: never; }>;
+export type FindMyUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindLoggedInUserQuery = { __typename?: 'Query', findMyUser: { __typename?: 'User', id: string, doubleAuth: boolean, avatarUrl?: string | null, username: string } };
+export type FindMyUserQuery = { __typename?: 'Query', findMyUser: { __typename?: 'User', id: string, doubleAuth: boolean, avatarUrl?: string | null, username: string, isOauth: boolean } };
+
+export type FindUserTwoFaSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FindUserTwoFaSettingsQuery = { __typename?: 'Query', findUserTwoFaSettings: { __typename?: 'UserTwoFaSettings', googleAuthenticatorQrCode: string } };
+
+export type UpdateMyUserMutationVariables = Exact<{
+  args: UpdateMyUserInput;
+}>;
+
+
+export type UpdateMyUserMutation = { __typename?: 'Mutation', updateMyUser: { __typename?: 'User', id: string, doubleAuth: boolean, avatarUrl?: string | null, username: string, isOauth: boolean } };
+
+export type UpdateMyPasswordMutationVariables = Exact<{
+  args: UpdateMyPasswordInput;
+}>;
+
+
+export type UpdateMyPasswordMutation = { __typename?: 'Mutation', updateMyPassword: boolean };
+
+export type IsGoogleAuthCodeValidMutationVariables = Exact<{
+  args: GoogleAuthCodeValidatorInput;
+}>;
+
+
+export type IsGoogleAuthCodeValidMutation = { __typename?: 'Mutation', isGoogleAuthCodeValid: boolean };
+
+export type FindDailyGameRatiosQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FindDailyGameRatiosQuery = { __typename?: 'Query', findDailyGameRatios: Array<{ __typename?: 'DailyGameRatios', date: any, wins: number, losses: number, ratio: number }> };
+
+export type FindGeneralGameStatsForUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FindGeneralGameStatsForUserQuery = { __typename?: 'Query', findGeneralGameStatsForUser: { __typename?: 'GeneralUserGameStats', gamesCount: number, allTimeRatio: number, MeanPoints: number } };
+
+export type FindAllGameStatsForUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FindAllGameStatsForUserQuery = { __typename?: 'Query', findAllGameStatsForUser: Array<{ __typename?: 'GameStat', id: string, opponentId: string, isWinner: boolean, userScore: string, opponentScore: string, createdAt: string }> };
+
+export type FindUserQueryVariables = Exact<{
+  args: FindUserInput;
+}>;
+
+
+export type FindUserQuery = { __typename?: 'Query', findUser: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } };
+
+export type InjectFalseGameStatDataMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type InjectFalseGameStatDataMutation = { __typename?: 'Mutation', injectFalseGameStatData: boolean };
+
+export type RemoveFalseGameStatDataMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RemoveFalseGameStatDataMutation = { __typename?: 'Mutation', removeFalseGameStatData: boolean };
+
+export type FindPublicUsersListQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FindPublicUsersListQuery = { __typename?: 'Query', findPublicUsersList: Array<{ __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null }> };
+
+export type FindAllRelationsForMyUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FindAllRelationsForMyUserQuery = { __typename?: 'Query', findAllRelationsForMyUser: Array<{ __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any }> };
+
+export type CreateRequestFriendMutationVariables = Exact<{
+  args: CreateRequestFriendInput;
+}>;
+
+
+export type CreateRequestFriendMutation = { __typename?: 'Mutation', createRequestFriend: { __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any } };
+
+export type AcceptFriendRequestMutationVariables = Exact<{
+  args: UpdateUserRelationInput;
+}>;
+
+
+export type AcceptFriendRequestMutation = { __typename?: 'Mutation', acceptFriendRequest: { __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any } };
+
+export type RefuseFriendRequestMutationVariables = Exact<{
+  args: UpdateUserRelationInput;
+}>;
+
+
+export type RefuseFriendRequestMutation = { __typename?: 'Mutation', refuseFriendRequest: { __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any } };
+
+export type RemoveFriendMutationVariables = Exact<{
+  args: UpdateUserRelationInput;
+}>;
+
+
+export type RemoveFriendMutation = { __typename?: 'Mutation', removeFriend: { __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any } };
+
+export type OnUserRelationsChangedSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type OnUserRelationsChangedSubscription = { __typename?: 'Subscription', userRelationsChanged: Array<{ __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any }> };
 
 export const ChannelMessageFragmentDoc = gql`
     fragment channelMessage on ChannelMessage {
@@ -763,36 +971,6 @@ export function useSignUpLocalMutation(options: VueApolloComposable.UseMutationO
   return VueApolloComposable.useMutation<SignUpLocalMutation, SignUpLocalMutationVariables>(SignUpLocalDocument, options);
 }
 export type SignUpLocalMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<SignUpLocalMutation, SignUpLocalMutationVariables>;
-export const FindMyUserDocument = gql`
-    query FindMyUser {
-  findMyUser {
-    doubleAuth
-    avatarUrl
-    id
-    username
-  }
-}
-    `
-
-/**
- * __useFindMyUserQuery__
- *
- * To run a query within a Vue component, call `useFindMyUserQuery` and pass it any options that fit your needs.
- * When your component renders, `useFindMyUserQuery` returns an object from Apollo Client that contains result, loading and error properties
- * you can use to render your UI.
- *
- * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
- *
- * @example
- * const { result, loading, error } = useFindMyUserQuery();
- */
-export function useFindMyUserQuery(options: VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options)
-}
-export function useFindMyUserLazyQuery(options: VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options)
-}
-export type FindMyUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindMyUserQuery, FindMyUserQueryVariables>;
 export const LogoutDocument = gql`
     mutation Logout {
   logout
@@ -1308,19 +1486,18 @@ export function useFindAllChannelMembersForChannelLazyQuery(variables: FindAllCh
   return VueApolloComposable.useLazyQuery<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>(FindAllChannelMembersForChannelDocument, variables, options);
 }
 export type FindAllChannelMembersForChannelQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllChannelMembersForChannelQuery, FindAllChannelMembersForChannelQueryVariables>;
-export const FindAllChannelMembersForUserDocument = gql`
-    query FindAllChannelMembersForUser($args: FindAllChannelMembersForUserInput!) {
-  findAllChannelMembersForUser(args: $args) {
-    channel {
-      id
-      name
-      avatarUrl
-      channelType
-      createdAt
-    }
+export const FindMyChannelMemberForChannelDocument = gql`
+    query FindMyChannelMemberForChannel($args: FindMyChannelMemberForChannelInput!) {
+  findMyChannelMemberForChannel(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
   }
 }
-    `
+    `;
 
 /**
  * __useFindMyChannelMemberForChannelQuery__
@@ -1337,11 +1514,11 @@ export const FindAllChannelMembersForUserDocument = gql`
  *   args: // value for 'args'
  * });
  */
-export function useFindAllChannelMembersForUserQuery(variables: FindAllChannelMembersForUserQueryVariables | VueCompositionApi.Ref<FindAllChannelMembersForUserQueryVariables> | ReactiveFunction<FindAllChannelMembersForUserQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables>(FindAllChannelMembersForUserDocument, variables, options)
+export function useFindMyChannelMemberForChannelQuery(variables: FindMyChannelMemberForChannelQueryVariables | VueCompositionApi.Ref<FindMyChannelMemberForChannelQueryVariables> | ReactiveFunction<FindMyChannelMemberForChannelQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>(FindMyChannelMemberForChannelDocument, variables, options);
 }
-export function useFindAllChannelMembersForUserLazyQuery(variables: FindAllChannelMembersForUserQueryVariables | VueCompositionApi.Ref<FindAllChannelMembersForUserQueryVariables> | ReactiveFunction<FindAllChannelMembersForUserQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<FindAllChannelMembersForUserQuery, FindAllChannelMembersForUserQueryVariables>(FindAllChannelMembersForUserDocument, variables, options)
+export function useFindMyChannelMemberForChannelLazyQuery(variables: FindMyChannelMemberForChannelQueryVariables | VueCompositionApi.Ref<FindMyChannelMemberForChannelQueryVariables> | ReactiveFunction<FindMyChannelMemberForChannelQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>(FindMyChannelMemberForChannelDocument, variables, options);
 }
 export type FindMyChannelMemberForChannelQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindMyChannelMemberForChannelQuery, FindMyChannelMemberForChannelQueryVariables>;
 export const OnNewChannelMemberForChannelIdDocument = gql`
@@ -1353,9 +1530,14 @@ export const OnNewChannelMemberForChannelIdDocument = gql`
     muted
     createdAt
     updatedAt
+    user {
+      id
+      username
+      avatarUrl
+    }
   }
 }
-    `
+    `;
 
 /**
  * __useOnNewChannelMemberForChannelIdSubscription__
@@ -1372,8 +1554,8 @@ export const OnNewChannelMemberForChannelIdDocument = gql`
  *   args: // value for 'args'
  * });
  */
-export function useCreateMemberForChannelMutation(options: VueApolloComposable.UseMutationOptions<CreateMemberForChannelMutation, CreateMemberForChannelMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateMemberForChannelMutation, CreateMemberForChannelMutationVariables>> = {}) {
-  return VueApolloComposable.useMutation<CreateMemberForChannelMutation, CreateMemberForChannelMutationVariables>(CreateMemberForChannelDocument, options)
+export function useOnNewChannelMemberForChannelIdSubscription(variables: OnNewChannelMemberForChannelIdSubscriptionVariables | VueCompositionApi.Ref<OnNewChannelMemberForChannelIdSubscriptionVariables> | ReactiveFunction<OnNewChannelMemberForChannelIdSubscriptionVariables>, options: VueApolloComposable.UseSubscriptionOptions<OnNewChannelMemberForChannelIdSubscription, OnNewChannelMemberForChannelIdSubscriptionVariables> | VueCompositionApi.Ref<VueApolloComposable.UseSubscriptionOptions<OnNewChannelMemberForChannelIdSubscription, OnNewChannelMemberForChannelIdSubscriptionVariables>> | ReactiveFunction<VueApolloComposable.UseSubscriptionOptions<OnNewChannelMemberForChannelIdSubscription, OnNewChannelMemberForChannelIdSubscriptionVariables>> = {}) {
+  return VueApolloComposable.useSubscription<OnNewChannelMemberForChannelIdSubscription, OnNewChannelMemberForChannelIdSubscriptionVariables>(OnNewChannelMemberForChannelIdDocument, variables, options);
 }
 export type OnNewChannelMemberForChannelIdSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<OnNewChannelMemberForChannelIdSubscription, OnNewChannelMemberForChannelIdSubscriptionVariables>;
 export const OnUpdateChannelMemberForChannelIdDocument = gql`
@@ -1509,7 +1691,7 @@ export const FindAllChannelMessagesForChannelDocument = gql`
     ...channelMessage
   }
 }
-    `
+    ${ChannelMessageFragmentDoc}`;
 
 /**
  * __useFindAllChannelMessagesForChannelQuery__
@@ -1648,3 +1830,537 @@ export function useFindLeaderboardUserListLazyQuery(options: VueApolloComposable
   return VueApolloComposable.useLazyQuery<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables>(FindLeaderboardUserListDocument, {}, options);
 }
 export type FindLeaderboardUserListQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindLeaderboardUserListQuery, FindLeaderboardUserListQueryVariables>;
+export const FindMyUserDocument = gql`
+    query FindMyUser {
+  findMyUser {
+    id
+    doubleAuth
+    avatarUrl
+    username
+    isOauth
+  }
+}
+    `;
+
+/**
+ * __useFindMyUserQuery__
+ *
+ * To run a query within a Vue component, call `useFindMyUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindMyUserQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindMyUserQuery();
+ */
+export function useFindMyUserQuery(options: VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options);
+}
+export function useFindMyUserLazyQuery(options: VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindMyUserQuery, FindMyUserQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindMyUserQuery, FindMyUserQueryVariables>(FindMyUserDocument, {}, options);
+}
+export type FindMyUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindMyUserQuery, FindMyUserQueryVariables>;
+export const FindUserTwoFaSettingsDocument = gql`
+    query findUserTwoFaSettings {
+  findUserTwoFaSettings {
+    googleAuthenticatorQrCode
+  }
+}
+    `;
+
+/**
+ * __useFindUserTwoFaSettingsQuery__
+ *
+ * To run a query within a Vue component, call `useFindUserTwoFaSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindUserTwoFaSettingsQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindUserTwoFaSettingsQuery();
+ */
+export function useFindUserTwoFaSettingsQuery(options: VueApolloComposable.UseQueryOptions<FindUserTwoFaSettingsQuery, FindUserTwoFaSettingsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindUserTwoFaSettingsQuery, FindUserTwoFaSettingsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindUserTwoFaSettingsQuery, FindUserTwoFaSettingsQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindUserTwoFaSettingsQuery, FindUserTwoFaSettingsQueryVariables>(FindUserTwoFaSettingsDocument, {}, options);
+}
+export function useFindUserTwoFaSettingsLazyQuery(options: VueApolloComposable.UseQueryOptions<FindUserTwoFaSettingsQuery, FindUserTwoFaSettingsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindUserTwoFaSettingsQuery, FindUserTwoFaSettingsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindUserTwoFaSettingsQuery, FindUserTwoFaSettingsQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindUserTwoFaSettingsQuery, FindUserTwoFaSettingsQueryVariables>(FindUserTwoFaSettingsDocument, {}, options);
+}
+export type FindUserTwoFaSettingsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindUserTwoFaSettingsQuery, FindUserTwoFaSettingsQueryVariables>;
+export const UpdateMyUserDocument = gql`
+    mutation updateMyUser($args: UpdateMyUserInput!) {
+  updateMyUser(args: $args) {
+    id
+    doubleAuth
+    avatarUrl
+    username
+    isOauth
+  }
+}
+    `;
+
+/**
+ * __useUpdateMyUserMutation__
+ *
+ * To run a mutation, you first call `useUpdateMyUserMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMyUserMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useUpdateMyUserMutation({
+ *   variables: {
+ *     args: // value for 'args'
+ *   },
+ * });
+ */
+export function useUpdateMyUserMutation(options: VueApolloComposable.UseMutationOptions<UpdateMyUserMutation, UpdateMyUserMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<UpdateMyUserMutation, UpdateMyUserMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<UpdateMyUserMutation, UpdateMyUserMutationVariables>(UpdateMyUserDocument, options);
+}
+export type UpdateMyUserMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<UpdateMyUserMutation, UpdateMyUserMutationVariables>;
+export const UpdateMyPasswordDocument = gql`
+    mutation updateMyPassword($args: UpdateMyPasswordInput!) {
+  updateMyPassword(args: $args)
+}
+    `;
+
+/**
+ * __useUpdateMyPasswordMutation__
+ *
+ * To run a mutation, you first call `useUpdateMyPasswordMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMyPasswordMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useUpdateMyPasswordMutation({
+ *   variables: {
+ *     args: // value for 'args'
+ *   },
+ * });
+ */
+export function useUpdateMyPasswordMutation(options: VueApolloComposable.UseMutationOptions<UpdateMyPasswordMutation, UpdateMyPasswordMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<UpdateMyPasswordMutation, UpdateMyPasswordMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<UpdateMyPasswordMutation, UpdateMyPasswordMutationVariables>(UpdateMyPasswordDocument, options);
+}
+export type UpdateMyPasswordMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<UpdateMyPasswordMutation, UpdateMyPasswordMutationVariables>;
+export const IsGoogleAuthCodeValidDocument = gql`
+    mutation isGoogleAuthCodeValid($args: GoogleAuthCodeValidatorInput!) {
+  isGoogleAuthCodeValid(args: $args)
+}
+    `;
+
+/**
+ * __useIsGoogleAuthCodeValidMutation__
+ *
+ * To run a mutation, you first call `useIsGoogleAuthCodeValidMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useIsGoogleAuthCodeValidMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useIsGoogleAuthCodeValidMutation({
+ *   variables: {
+ *     args: // value for 'args'
+ *   },
+ * });
+ */
+export function useIsGoogleAuthCodeValidMutation(options: VueApolloComposable.UseMutationOptions<IsGoogleAuthCodeValidMutation, IsGoogleAuthCodeValidMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<IsGoogleAuthCodeValidMutation, IsGoogleAuthCodeValidMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<IsGoogleAuthCodeValidMutation, IsGoogleAuthCodeValidMutationVariables>(IsGoogleAuthCodeValidDocument, options);
+}
+export type IsGoogleAuthCodeValidMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<IsGoogleAuthCodeValidMutation, IsGoogleAuthCodeValidMutationVariables>;
+export const FindDailyGameRatiosDocument = gql`
+    query findDailyGameRatios {
+  findDailyGameRatios {
+    date
+    wins
+    losses
+    ratio
+  }
+}
+    `;
+
+/**
+ * __useFindDailyGameRatiosQuery__
+ *
+ * To run a query within a Vue component, call `useFindDailyGameRatiosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindDailyGameRatiosQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindDailyGameRatiosQuery();
+ */
+export function useFindDailyGameRatiosQuery(options: VueApolloComposable.UseQueryOptions<FindDailyGameRatiosQuery, FindDailyGameRatiosQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindDailyGameRatiosQuery, FindDailyGameRatiosQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindDailyGameRatiosQuery, FindDailyGameRatiosQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindDailyGameRatiosQuery, FindDailyGameRatiosQueryVariables>(FindDailyGameRatiosDocument, {}, options);
+}
+export function useFindDailyGameRatiosLazyQuery(options: VueApolloComposable.UseQueryOptions<FindDailyGameRatiosQuery, FindDailyGameRatiosQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindDailyGameRatiosQuery, FindDailyGameRatiosQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindDailyGameRatiosQuery, FindDailyGameRatiosQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindDailyGameRatiosQuery, FindDailyGameRatiosQueryVariables>(FindDailyGameRatiosDocument, {}, options);
+}
+export type FindDailyGameRatiosQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindDailyGameRatiosQuery, FindDailyGameRatiosQueryVariables>;
+export const FindGeneralGameStatsForUserDocument = gql`
+    query findGeneralGameStatsForUser {
+  findGeneralGameStatsForUser {
+    gamesCount
+    allTimeRatio
+    MeanPoints
+  }
+}
+    `;
+
+/**
+ * __useFindGeneralGameStatsForUserQuery__
+ *
+ * To run a query within a Vue component, call `useFindGeneralGameStatsForUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindGeneralGameStatsForUserQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindGeneralGameStatsForUserQuery();
+ */
+export function useFindGeneralGameStatsForUserQuery(options: VueApolloComposable.UseQueryOptions<FindGeneralGameStatsForUserQuery, FindGeneralGameStatsForUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindGeneralGameStatsForUserQuery, FindGeneralGameStatsForUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindGeneralGameStatsForUserQuery, FindGeneralGameStatsForUserQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindGeneralGameStatsForUserQuery, FindGeneralGameStatsForUserQueryVariables>(FindGeneralGameStatsForUserDocument, {}, options);
+}
+export function useFindGeneralGameStatsForUserLazyQuery(options: VueApolloComposable.UseQueryOptions<FindGeneralGameStatsForUserQuery, FindGeneralGameStatsForUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindGeneralGameStatsForUserQuery, FindGeneralGameStatsForUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindGeneralGameStatsForUserQuery, FindGeneralGameStatsForUserQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindGeneralGameStatsForUserQuery, FindGeneralGameStatsForUserQueryVariables>(FindGeneralGameStatsForUserDocument, {}, options);
+}
+export type FindGeneralGameStatsForUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindGeneralGameStatsForUserQuery, FindGeneralGameStatsForUserQueryVariables>;
+export const FindAllGameStatsForUserDocument = gql`
+    query FindAllGameStatsForUser {
+  findAllGameStatsForUser {
+    id
+    opponentId
+    isWinner
+    userScore
+    opponentScore
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useFindAllGameStatsForUserQuery__
+ *
+ * To run a query within a Vue component, call `useFindAllGameStatsForUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindAllGameStatsForUserQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindAllGameStatsForUserQuery();
+ */
+export function useFindAllGameStatsForUserQuery(options: VueApolloComposable.UseQueryOptions<FindAllGameStatsForUserQuery, FindAllGameStatsForUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllGameStatsForUserQuery, FindAllGameStatsForUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllGameStatsForUserQuery, FindAllGameStatsForUserQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindAllGameStatsForUserQuery, FindAllGameStatsForUserQueryVariables>(FindAllGameStatsForUserDocument, {}, options);
+}
+export function useFindAllGameStatsForUserLazyQuery(options: VueApolloComposable.UseQueryOptions<FindAllGameStatsForUserQuery, FindAllGameStatsForUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllGameStatsForUserQuery, FindAllGameStatsForUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllGameStatsForUserQuery, FindAllGameStatsForUserQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindAllGameStatsForUserQuery, FindAllGameStatsForUserQueryVariables>(FindAllGameStatsForUserDocument, {}, options);
+}
+export type FindAllGameStatsForUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllGameStatsForUserQuery, FindAllGameStatsForUserQueryVariables>;
+export const FindUserDocument = gql`
+    query FindUser($args: FindUserInput!) {
+  findUser(args: $args) {
+    id
+    username
+    avatarUrl
+  }
+}
+    `;
+
+/**
+ * __useFindUserQuery__
+ *
+ * To run a query within a Vue component, call `useFindUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindUserQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the query
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindUserQuery({
+ *   args: // value for 'args'
+ * });
+ */
+export function useFindUserQuery(variables: FindUserQueryVariables | VueCompositionApi.Ref<FindUserQueryVariables> | ReactiveFunction<FindUserQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindUserQuery, FindUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindUserQuery, FindUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindUserQuery, FindUserQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindUserQuery, FindUserQueryVariables>(FindUserDocument, variables, options);
+}
+export function useFindUserLazyQuery(variables: FindUserQueryVariables | VueCompositionApi.Ref<FindUserQueryVariables> | ReactiveFunction<FindUserQueryVariables>, options: VueApolloComposable.UseQueryOptions<FindUserQuery, FindUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindUserQuery, FindUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindUserQuery, FindUserQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindUserQuery, FindUserQueryVariables>(FindUserDocument, variables, options);
+}
+export type FindUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindUserQuery, FindUserQueryVariables>;
+export const InjectFalseGameStatDataDocument = gql`
+    mutation InjectFalseGameStatData {
+  injectFalseGameStatData
+}
+    `;
+
+/**
+ * __useInjectFalseGameStatDataMutation__
+ *
+ * To run a mutation, you first call `useInjectFalseGameStatDataMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useInjectFalseGameStatDataMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useInjectFalseGameStatDataMutation();
+ */
+export function useInjectFalseGameStatDataMutation(options: VueApolloComposable.UseMutationOptions<InjectFalseGameStatDataMutation, InjectFalseGameStatDataMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<InjectFalseGameStatDataMutation, InjectFalseGameStatDataMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<InjectFalseGameStatDataMutation, InjectFalseGameStatDataMutationVariables>(InjectFalseGameStatDataDocument, options);
+}
+export type InjectFalseGameStatDataMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<InjectFalseGameStatDataMutation, InjectFalseGameStatDataMutationVariables>;
+export const RemoveFalseGameStatDataDocument = gql`
+    mutation removeFalseGameStatData {
+  removeFalseGameStatData
+}
+    `;
+
+/**
+ * __useRemoveFalseGameStatDataMutation__
+ *
+ * To run a mutation, you first call `useRemoveFalseGameStatDataMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveFalseGameStatDataMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useRemoveFalseGameStatDataMutation();
+ */
+export function useRemoveFalseGameStatDataMutation(options: VueApolloComposable.UseMutationOptions<RemoveFalseGameStatDataMutation, RemoveFalseGameStatDataMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<RemoveFalseGameStatDataMutation, RemoveFalseGameStatDataMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<RemoveFalseGameStatDataMutation, RemoveFalseGameStatDataMutationVariables>(RemoveFalseGameStatDataDocument, options);
+}
+export type RemoveFalseGameStatDataMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<RemoveFalseGameStatDataMutation, RemoveFalseGameStatDataMutationVariables>;
+export const FindPublicUsersListDocument = gql`
+    query FindPublicUsersList {
+  findPublicUsersList {
+    id
+    username
+    avatarUrl
+  }
+}
+    `;
+
+/**
+ * __useFindPublicUsersListQuery__
+ *
+ * To run a query within a Vue component, call `useFindPublicUsersListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindPublicUsersListQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindPublicUsersListQuery();
+ */
+export function useFindPublicUsersListQuery(options: VueApolloComposable.UseQueryOptions<FindPublicUsersListQuery, FindPublicUsersListQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>(FindPublicUsersListDocument, {}, options);
+}
+export function useFindPublicUsersListLazyQuery(options: VueApolloComposable.UseQueryOptions<FindPublicUsersListQuery, FindPublicUsersListQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>(FindPublicUsersListDocument, {}, options);
+}
+export type FindPublicUsersListQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>;
+export const FindAllRelationsForMyUserDocument = gql`
+    query FindAllRelationsForMyUser {
+  findAllRelationsForMyUser {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useFindAllRelationsForMyUserQuery__
+ *
+ * To run a query within a Vue component, call `useFindAllRelationsForMyUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindAllRelationsForMyUserQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindAllRelationsForMyUserQuery();
+ */
+export function useFindAllRelationsForMyUserQuery(options: VueApolloComposable.UseQueryOptions<FindAllRelationsForMyUserQuery, FindAllRelationsForMyUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllRelationsForMyUserQuery, FindAllRelationsForMyUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllRelationsForMyUserQuery, FindAllRelationsForMyUserQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindAllRelationsForMyUserQuery, FindAllRelationsForMyUserQueryVariables>(FindAllRelationsForMyUserDocument, {}, options);
+}
+export function useFindAllRelationsForMyUserLazyQuery(options: VueApolloComposable.UseQueryOptions<FindAllRelationsForMyUserQuery, FindAllRelationsForMyUserQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllRelationsForMyUserQuery, FindAllRelationsForMyUserQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllRelationsForMyUserQuery, FindAllRelationsForMyUserQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindAllRelationsForMyUserQuery, FindAllRelationsForMyUserQueryVariables>(FindAllRelationsForMyUserDocument, {}, options);
+}
+export type FindAllRelationsForMyUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllRelationsForMyUserQuery, FindAllRelationsForMyUserQueryVariables>;
+export const CreateRequestFriendDocument = gql`
+    mutation CreateRequestFriend($args: CreateRequestFriendInput!) {
+  createRequestFriend(args: $args) {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useCreateRequestFriendMutation__
+ *
+ * To run a mutation, you first call `useCreateRequestFriendMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRequestFriendMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useCreateRequestFriendMutation({
+ *   variables: {
+ *     args: // value for 'args'
+ *   },
+ * });
+ */
+export function useCreateRequestFriendMutation(options: VueApolloComposable.UseMutationOptions<CreateRequestFriendMutation, CreateRequestFriendMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateRequestFriendMutation, CreateRequestFriendMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<CreateRequestFriendMutation, CreateRequestFriendMutationVariables>(CreateRequestFriendDocument, options);
+}
+export type CreateRequestFriendMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<CreateRequestFriendMutation, CreateRequestFriendMutationVariables>;
+export const AcceptFriendRequestDocument = gql`
+    mutation AcceptFriendRequest($args: UpdateUserRelationInput!) {
+  acceptFriendRequest(args: $args) {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useAcceptFriendRequestMutation__
+ *
+ * To run a mutation, you first call `useAcceptFriendRequestMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useAcceptFriendRequestMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useAcceptFriendRequestMutation({
+ *   variables: {
+ *     args: // value for 'args'
+ *   },
+ * });
+ */
+export function useAcceptFriendRequestMutation(options: VueApolloComposable.UseMutationOptions<AcceptFriendRequestMutation, AcceptFriendRequestMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<AcceptFriendRequestMutation, AcceptFriendRequestMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<AcceptFriendRequestMutation, AcceptFriendRequestMutationVariables>(AcceptFriendRequestDocument, options);
+}
+export type AcceptFriendRequestMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<AcceptFriendRequestMutation, AcceptFriendRequestMutationVariables>;
+export const RefuseFriendRequestDocument = gql`
+    mutation RefuseFriendRequest($args: UpdateUserRelationInput!) {
+  refuseFriendRequest(args: $args) {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useRefuseFriendRequestMutation__
+ *
+ * To run a mutation, you first call `useRefuseFriendRequestMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useRefuseFriendRequestMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useRefuseFriendRequestMutation({
+ *   variables: {
+ *     args: // value for 'args'
+ *   },
+ * });
+ */
+export function useRefuseFriendRequestMutation(options: VueApolloComposable.UseMutationOptions<RefuseFriendRequestMutation, RefuseFriendRequestMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<RefuseFriendRequestMutation, RefuseFriendRequestMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<RefuseFriendRequestMutation, RefuseFriendRequestMutationVariables>(RefuseFriendRequestDocument, options);
+}
+export type RefuseFriendRequestMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<RefuseFriendRequestMutation, RefuseFriendRequestMutationVariables>;
+export const RemoveFriendDocument = gql`
+    mutation RemoveFriend($args: UpdateUserRelationInput!) {
+  removeFriend(args: $args) {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useRemoveFriendMutation__
+ *
+ * To run a mutation, you first call `useRemoveFriendMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveFriendMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useRemoveFriendMutation({
+ *   variables: {
+ *     args: // value for 'args'
+ *   },
+ * });
+ */
+export function useRemoveFriendMutation(options: VueApolloComposable.UseMutationOptions<RemoveFriendMutation, RemoveFriendMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<RemoveFriendMutation, RemoveFriendMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<RemoveFriendMutation, RemoveFriendMutationVariables>(RemoveFriendDocument, options);
+}
+export type RemoveFriendMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<RemoveFriendMutation, RemoveFriendMutationVariables>;
+export const OnUserRelationsChangedDocument = gql`
+    subscription onUserRelationsChanged {
+  userRelationsChanged {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useOnUserRelationsChangedSubscription__
+ *
+ * To run a query within a Vue component, call `useOnUserRelationsChangedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnUserRelationsChangedSubscription` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the subscription, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/subscription.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useOnUserRelationsChangedSubscription();
+ */
+export function useOnUserRelationsChangedSubscription(options: VueApolloComposable.UseSubscriptionOptions<OnUserRelationsChangedSubscription, OnUserRelationsChangedSubscriptionVariables> | VueCompositionApi.Ref<VueApolloComposable.UseSubscriptionOptions<OnUserRelationsChangedSubscription, OnUserRelationsChangedSubscriptionVariables>> | ReactiveFunction<VueApolloComposable.UseSubscriptionOptions<OnUserRelationsChangedSubscription, OnUserRelationsChangedSubscriptionVariables>> = {}) {
+  return VueApolloComposable.useSubscription<OnUserRelationsChangedSubscription, OnUserRelationsChangedSubscriptionVariables>(OnUserRelationsChangedDocument, {}, options);
+}
+export type OnUserRelationsChangedSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<OnUserRelationsChangedSubscription, OnUserRelationsChangedSubscriptionVariables>;
