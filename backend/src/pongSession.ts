@@ -70,6 +70,21 @@ export class PongSession {
     return true
   }
 
+  // ALEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+  public incrementPlayerScore(socket: Socket): boolean {
+    const playerId = socket.id
+    if (this.socketIdIsPlayerA(playerId)) {
+      this._pongData.playerA.score += 1
+      return true
+    } else if (this.socketIdIsPlayerB(playerId)) {
+      this._pongData.playerB.score += 1
+      return true
+    }
+    // console.log(this.findMyPlayerWitSocketId(socketId).score)
+    // this.findMyPlayerWitSocketId(socket.id).score += 1
+    // console.log(this.findMyPlayerWitSocketId(socket.id).score)
+  }
+
   public setPlayerPosition(socket: Socket, newY: number) {
     this.findMyPlayerWitSocketId(socket.id).position = newY
   }
@@ -87,16 +102,11 @@ export class PongSession {
     this._pongData.ball.position.x = 800 / 2
     this._pongData.ball.position.y = 600 / 2
     const { velocity } = this._pongData.ball
-    console.log(`backend`, velocity)
+    //console.log(`backend`, velocity)
     const minAngle = Math.PI / 6
     const maxAngle = (5 * Math.PI) / 6
     let randomAngle = Math.random() * (maxAngle - minAngle) + minAngle
-    // Avoid certain angles
-    const avoidAngles = [
-      Math.PI / 2, // 90 degrees (straight up)
-      (3 * Math.PI) / 2, // 270 degrees (straight down)
-      // Add more angles to avoid as needed
-    ]
+    const avoidAngles = [Math.PI / 2, (3 * Math.PI) / 2]
     while (avoidAngles.some((angle) => Math.abs(randomAngle - angle) < 0.1)) {
       randomAngle = Math.random() * (maxAngle - minAngle) + minAngle
     }
@@ -104,8 +114,8 @@ export class PongSession {
       velocity.x = Math.sin(randomAngle)
       velocity.y = Math.cos(randomAngle)
     } else {
-      velocity.x = -Math.sin(randomAngle) // Flip the x component for opposite direction
-      velocity.y = -Math.cos(randomAngle) // Flip the y component for opposite direction
+      velocity.x = -Math.sin(randomAngle)
+      velocity.y = -Math.cos(randomAngle)
     }
   }
 

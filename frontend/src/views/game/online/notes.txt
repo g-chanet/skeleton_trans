@@ -1,51 +1,74 @@
-// scaling du stage - responsive
-// !!!!!!!!!!!!!!! countdownGameReady Pour que les deux game start en meme temps = pas de décalage
 
-Check la ballSpeed en fonction de l'angle de la ballXDirection
--> Maintenant la balle update sa dir en plein movement (a fix)
-Synchronisation des scores entre les deux joueurs (move la logique Score dans le back)
-Check la cohérence des infos entre clients --> Décalage de + en + évident au fur et a mesure de l'échange
+Backlog: Game Development Project
 
----------------------------------------
------------------18-08-----------------
----------------CHANGELOG---------------
----------------------------------------
+Current Issues and Tasks:
 
-1. Implémentation d'une logique isReady pour lancer la partie uniquement avec 2 joueurs prêts
-    => Déplacement de certaines logiques 'gameLoop' dans le back par cohérence
-    => Réhabilitation des checks playerA et playerB dans le pongSession.ts
+Investigate the relationship between ballSpeed and ballXDirection angle.
+Address ball's direction update while in motion (requires fixing).
+Synchronize scores between players (move Score logic to backend).
+Ensure information consistency between clients; noticeable delay during exchange.
+Code Snippets of Interest:
 
-2. Fix du countdownGameReady
-    => Display accurate chez les deux clients.
-    => Le countdown est lancé quand les deux joueurs ont press 'START GAME'.
-    => On se sert d'un 'server time' synchronisé pour bien caler les clients sur le CD, sans diff.
+index.ts: Emit goalScored event with playerId.
+app.gateway: Listen for goalScored event and update score using pongData.updateScore(playerId).
+app.gateway: Emit updatePongData event.
 
-3. Fix du setRandomVelocity -->
-    => Le setter de direction de la balle est maintenant bien randomisé
-    => Implémentation de thresholds d'angles qu'on ne veut pas (Exemple: On ne veut pas que la balle aille
-        entre π et π /3 ni entre π  et 2π / 3)
-    => La vectorisation de la balle est bien effectuée de façon random entre joueur1 et joueur2
-    => Le setRandomVelocity reset désormais aussi la pongData.ball.position directement chez les clients
+-----------------------------------------------------------------------------------------------
 
-4. Rework de la logique de la balle dans le back
-    => Le back dispatch désormais les ballData aux deux clients qui se contentent de display leur ball
-    => Les déplacements et draw de balles sont maintenant accurate et synchronisées
+Changelog - 18th August:
 
-5. Implémentation de socket handlers pour faire la liaison du score entre front et back
-    => Lorsqu'un goal est marqué, le backend signale et reset les ball des deux joueurs
+Implement isReady logic to start the game only when two players are ready.
+Relocate certain 'gameLoop' logic to backend for coherence.
+Revive checks for playerA and playerB in pongSession.ts.
+Fix countdownGameReady issue.
+Ensure accurate display for both clients.
+Start countdown when both players press 'START GAME'.
+Utilize synchronized 'server time' for consistent countdown.
+Resolve setRandomVelocity issues.
+Randomize ball direction setter.
+Add angle thresholds to avoid specific directions.
+Ensure randomized vectorization between player1 and player2.
+Reset pongData.ball.position on clients via setRandomVelocity.
+Rearrange ball logic in backend.
+Dispatch ballData to clients for display.
+Synchronize ball movement and drawing accurately.
+Implement socket handlers for linking score between frontend and backend.
+Notify backend and reset both players' balls on goal scored.
+Fix updatePongData inconsistencies.
+Eliminate unwanted redraws from updatePlayerPosition().
+Ensure accurate and synchronized vector updates.
+Miscellaneous changes.
+Refine gameData for improved online gameplay (e.g., ballSpeed, paddleSpeed).
+Clean up 'proto' functions in frontend and backend.
+Remove unclear and unnecessary comments.
 
-6. Fix des updatePongData
-    => Les updatePlayerPosition() ne provoquent plus de redraw intempestifs
-    => Les updates de vecteurs sont maintenant accurate et synchronisées
+-----------------------------------------------------------------------------------------------
 
-6. Divers
-    => Réadaptation des gameData pour un jeu online plus fonctionnel (ballSpeed, paddleSpeed...)
-    => Nettoyage des fonctions 'proto' dans le front et le back
-    => Nettoyage des commentaires 'inutiles' et peu clairs
+Changelog - 19th August:
 
----------------------------------------
------------------19-08-----------------
----------------CHANGELOG---------------
----------------------------------------
+Enhance security for pongData access.
+Fix 'undefined reading' issues during isReady checks.
+Initialize pongData properly.
+Clean up data on leaveRoom.
+Address rendering and display bugs.
+Prevent automatic ball generation on welcomeScreen.
+Set initial ball position correctly.
+Draw ball only upon game start.
+Resolve stuttering during repeated movePaddle() and setPlayerPosition().
+Revamp score system.
+Move score handling logic to backend.
+Update score and send updates to clients on goal scored.
+Secure score checks, potentially with a safe score setter in pongSession.
+Dynamic countdown display.
+Display backend-generated countdown simultaneously on clients.
+Utilize Konva.gameLayer for seamless integration.
+Introduce debug functions for better game logic tracking (Quality of Life).
 
-1.
+---------------------------------------------------------------------------------------------
+
+Outstanding Issues to Address:
+
+Fix score limit functionality (index.ts).
+Investigate possible score duplication (scores incrementing too quickly).
+Address ball direction changes due to user inputs (potential socket signal conflicts).
+Implement isPaused to pause the game when a user quits and resume on their return.

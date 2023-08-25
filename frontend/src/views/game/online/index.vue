@@ -31,6 +31,13 @@ socket.on(`joinRoomSuccess`, (data: PongData) => {
   pongData.value = data
 })
 
+socket.on(`playerReady`, (player: string) => {
+  ElMessage({
+    message: `${player} is Ready to play!`,
+    type: `success`,
+  })
+})
+
 socket.on(`joinRoomError`, (error) => {
   ElMessage({
     message: `Join Room Error: ${error.message}`,

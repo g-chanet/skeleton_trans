@@ -62,6 +62,8 @@ export class Pong {
   private gameStarted: boolean = false
   private ballXDirection!: number
   private ballYDirection!: number
+  private showBall: boolean = false
+  
 
   constructor(private socket: Socket, pongData: PongData) {
 
@@ -87,6 +89,8 @@ export class Pong {
       // this.ball.y(pongData.ball.position.y)
       this.ballXDirection = pongData.ball.velocity.x
       this.ballYDirection = pongData.ball.velocity.y
+
+      //score?
 
       this.pongData = pongData
     })
@@ -177,6 +181,15 @@ export class Pong {
 
   }
 
+  get IsMyPaddle() {
+    const socketId = this.socket.id
+    if (socketId === this.pongData.playerA?.socketId)
+      return true
+    else if (socketId === this.pongData.playerB?.socketId)
+      return true
+    return false
+  }
+
   get myPaddle() {
     const socketId = this.socket.id
     if (socketId === this.pongData.playerA?.socketId)
@@ -190,9 +203,8 @@ export class Pong {
   // Boucle du jeu, à opti pour plus de fps
   gameLoop() {
     if (!this.gameRunning || this.victoryScreenDisplayed || !this.gameStarted) return
-  
-    
-    if (this.keysPressed[`ArrowUp`] && this.myPaddle) 
+
+    if (this.keysPressed[`ArrowUp`] && this.myPaddle)
       this.movePaddle(this.myPaddle, 1)
     if (this.keysPressed[`ArrowDown`] && this.myPaddle) {
       this.movePaddle(this.myPaddle, -1)
@@ -371,8 +383,8 @@ export class Pong {
         name: `ball-shape`,
       })
       group.add(newBall)
-      group.x(this.pongData.ball.position.x)
-      group.x(this.pongData.ball.position.y)
+      group.x(-10)
+      group.y(-10)
       return group
     }
 
@@ -416,12 +428,12 @@ export class Pong {
 
     startGame() {
       if (!this.gameStarted) {
-          // Hide the start game screen and start the game loop
-          this.startGameLayer.hide()
-          this.gameStarted = true
-          this.gameRunning = true
-          this.scoreLayer.show()
-          this.gameLoop()
+        this.showBall = true
+        this.startGameLayer.hide()
+        this.gameStarted = true
+        this.gameRunning = true
+        this.scoreLayer.show()
+        this.gameLoop()
       }
     }
 
@@ -499,21 +511,17 @@ export class Pong {
   }
 
   // Incrémente les scores en fonction du joueur qui marque le but / lance le victory screen à scoreMax
-  updateScore(player: `player1` | `player2`) {
+  updateScore() {
     this.ballSpeed = 5
-    if (player === `player1`) {
-      this.pongData.playerA!.score += 1
-      if (this.pongData.playerA?.score === 11) {
-        this.displayVictoryScreen(`player1`)
-        return
-      }
-    } else if (player === `player2`) {
-      this.pongData.playerB!.score += 1
-      if (this.pongData.playerB?.score === 11) {
-        this.displayVictoryScreen(`player2`)
-        return
-      }
-    }
+
+  this.socket.emit('goalScored')
+  
+  if (this.pongData.playerA && this.pongData.playerA.score >= 11) {
+    //this.socket.emit(`gameDone`)
+    this.displayVictoryScreen('player1')
+  } else if (this.pongData.playerB && this.pongData.playerB.score >= 11) {
+    this.displayVictoryScreen('player2')
+  }
   
     this.updateScoreText()
   }
@@ -814,7 +822,7 @@ export class Pong {
     if (this.ballX - ballRadius <= 0) {
       // Reset la balle + update le score
       this.goalScored()
-      this.updateScore(`player2`)
+      this.myPaddle == this.paddleB && this.updateScore()
 
       this.ballX = this.pongData.ball.position.x
       this.ballY = this.pongData.ball.position.y
@@ -824,7 +832,8 @@ export class Pong {
     } 
     else if (this.ballX + ballRadius >= this.width) {
       this.goalScored()
-      this.updateScore(`player1`)
+      this.myPaddle == this.paddleA && this.updateScore()
+      console.log(this.myPaddle)
 
       this.ballX = this.pongData.ball.position.x
       this.ballY = this.pongData.ball.position.y
@@ -833,11 +842,16 @@ export class Pong {
       this.ballYDirection = this.pongData.ball.velocity.y
       console.log(`client2`, this.ballXDirection, this.ballYDirection)
     }
+    // if (this.ballX - ballRadius <= 0 && this.myPaddle == this.paddleB) {
+    //   this.updateScore()
+    // } 
+    // else if (this.ballX + ballRadius >= this.width && this.myPaddle == this.paddleA) {
+    //   this.updateScore()
+    // }
   }
 
   goalScored() {
     this.gameRunning = false
-    this.socket.emit(`goalScored`)
     this.gameRunning = true
   }
 

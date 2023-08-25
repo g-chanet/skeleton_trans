@@ -54,12 +54,28 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   setPlayerReady(socket: Socket) {
     const { roomId } = socket.data
     const pongSession = this.pongSessions.get(roomId)
+    if (!pongSession.pongData.playerA || !pongSession.pongData.playerB) {
+      console.log(`Waiting for your opponent!`)
+      return
+    }
     pongSession.setPlayerReady(socket)
     this.server.to(roomId).emit(`updatePongData`, pongSession.pongData)
     console.log(
       pongSession.pongData.playerA.isReady,
       pongSession.pongData.playerB.isReady,
     )
+    if (pongSession) {
+      if (
+        pongSession.pongData.playerA.isReady &&
+        !pongSession.pongData.playerB.isReady
+      )
+        this.server.to(roomId).emit(`playerReady`, `Player A`)
+      else if (
+        pongSession.pongData.playerB.isReady &&
+        !pongSession.pongData.playerB.isReady
+      )
+        this.server.to(roomId).emit(`playerReady`, `Player B`)
+    }
     if (pongSession.allPlayersReady) {
       pongSession.resetBall()
       this.countdownGameReady(pongSession)
@@ -74,14 +90,26 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(roomId).emit(`updatePongData`, pongSession.pongData)
   }
 
+  //ALEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
   @SubscribeMessage(`goalScored`)
   goalScored(socket: Socket) {
     const { roomId } = socket.data
     const pongSession = this.pongSessions.get(roomId)
-    pongSession.resetBall()
-    this.server
-      .to(pongSession.roomId)
-      .emit(`updatePongData`, pongSession.pongData)
+    if (socket) {
+      if (pongSession) {
+        pongSession.incrementPlayerScore(socket)
+        pongSession.resetBall()
+      }
+    }
+    if (roomId) {
+      this.server
+        .to(pongSession.roomId)
+        .emit(`updatePongData`, pongSession.pongData)
+    }
+    console.log(
+      pongSession.pongData.playerA.score,
+      pongSession.pongData.playerB.score,
+    )
   }
 
   /*------------  GAME ACTIONS UTILS ------------*/
@@ -113,11 +141,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.data.roomId = pongSession.roomId
       socket.emit(`joinRoomSuccess`, pongSession.pongData)
       socket.to(roomId).emit(`updatePongData`, pongSession.pongData)
-      // If there are two players now, start the game
-      // if (pongSession.isGameReady()) {
-      //   const initialGameData = pongSession.gameData
-      //   this.server.to(pongSession.roomId).emit(`startGame`, initialGameData)
-      // }
     }
 
     const joinSessionError = (message: string, pongSession?: PongSession) => {
@@ -131,7 +154,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       else joinSessionSuccess(session)
     } else {
       const pongSession = new PongSession(roomId, socket)
-      console.log(`-------------`, socket.id)
+      console.log(`Socket Id:`, socket.id)
       this.pongSessions.set(roomId, pongSession)
       joinSessionSuccess(pongSession)
     }
