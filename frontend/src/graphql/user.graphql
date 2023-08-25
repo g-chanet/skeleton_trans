@@ -52,6 +52,16 @@ query findDailyGameRatios {
   
 }
 
+query findPublicDailyGameRatios($userid: String!) {
+  findPublicDailyGameRatios(userid: $userid){
+    date
+    wins
+    losses
+    ratio
+  }
+  
+}
+
 query findGeneralGameStatsForUser{
   findGeneralGameStatsForUser {
     gamesCount
@@ -62,6 +72,25 @@ query findGeneralGameStatsForUser{
 
 query FindAllGameStatsForUser {
     findAllGameStatsForUser {
+        id
+        opponentId
+        isWinner
+        userScore
+        opponentScore
+        createdAt
+    }
+}
+
+query findPublicGeneralGameStatsForUser($userid: String!){
+  findPublicGeneralGameStatsForUser(userid: $userid) {
+    gamesCount
+    allTimeRatio
+    MeanPoints
+  }
+}
+
+query FindAllPublicGameStatsForUser($userid: String!) {
+    findAllPublicGameStatsForUser(userid: $userid) {
         id
         opponentId
         isWinner

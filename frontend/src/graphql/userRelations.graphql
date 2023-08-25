@@ -48,8 +48,8 @@ mutation RemoveFriend($args: UpdateUserRelationInput!) {
     }
 }
 
-subscription onUserRelationsChanged {
-  userRelationsChanged {
+subscription onUserRelationsChanged($userId: String!) {
+  userRelationsChanged(userId: $userId) {
    		userOwnerId
         userTargetId
         type

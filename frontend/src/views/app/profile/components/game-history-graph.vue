@@ -1,11 +1,16 @@
 <template>
 	<div style="display: flex; width:100%">
-		<Line :data="chartDataComputed" :options="options"/>
+    <el-empty v-if="!loading && !error &&!gameRatios.length" style="display: flex; width:100%" description="il n'y a rien à voir ici">
+      <el-button v-if="loggedInUser && userIdProp === loggedInUser.id" @click="generateFakeGameStats()" type="primary">Simuler des données</el-button>
+    </el-empty>
+		<div v-if="loading">Loading...</div>
+    <Line v-if="!loading && !error && gameRatios.length" :data="chartDataComputed" :options="options"/>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watchEffect, computed, watch, toRef } from 'vue'
+import { ElMessage } from 'element-plus'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -18,8 +23,47 @@ import {
   TimeScale
 } from 'chart.js'
 import 'chartjs-adapter-moment'
-import { useFindDailyGameRatiosQuery } from '@/graphql/graphql-operations'
+import { useFindPublicDailyGameRatiosQuery,type DailyGameRatios, useFindMyUserQuery, useInjectFalseGameStatDataMutation } from '@/graphql/graphql-operations'
 import { Line } from "vue-chartjs"
+
+const props = defineProps({
+  userId: {
+    type: String,
+    required: true,
+  }
+})
+const userIdProp = toRef(props, 'userId')
+const gameRatios = ref<DailyGameRatios[]>([])
+
+const { result, loading, error, refetch } = useFindPublicDailyGameRatiosQuery({ userid: userIdProp.value })
+const { result:resultformyuser } = useFindMyUserQuery()
+const loggedInUser = computed(() => resultformyuser.value?.findMyUser)
+const { mutate:generateFakeGameStatsmutate } = useInjectFalseGameStatDataMutation()
+
+const generateFakeGameStats = async () => {
+	await generateFakeGameStatsmutate().then(() => {
+		ElMessage.success(`De fausses données de jeu ont bien été générées`)
+		return true
+	})
+}
+
+watch(result, newResult => {
+  console.log("Result Value:", newResult)
+  if (newResult && newResult.findPublicDailyGameRatios && Array.isArray(newResult.findPublicDailyGameRatios)) {
+    gameRatios.value = newResult.findPublicDailyGameRatios
+  }
+}, { immediate: true })
+
+watch(userIdProp, async (newValue) => {
+  if (newValue) {
+    try {
+      await refetch({ userid: newValue })
+    } catch (refetchError) {
+      console.log("Error :", refetchError)
+    }
+  }
+}, { immediate: true })
+
 
 ChartJS.register(
   CategoryScale,
@@ -32,18 +76,14 @@ ChartJS.register(
   TimeScale
 )
 
-const { result:resultForFindDailyGameRatiosQuery } = useFindDailyGameRatiosQuery()
-
-const GameRatios = computed(() => resultForFindDailyGameRatiosQuery.value?.findDailyGameRatios)
-
 const chartDataComputed = computed(() => {
-  if (GameRatios.value) {
+  if (gameRatios.value && Array.isArray(gameRatios.value) && gameRatios.value.length > 0) {
     return {
-      labels: GameRatios.value.map(item => item.date),
+      labels: gameRatios.value.map(item => item.date),
       datasets: [
         {
           label: `Game Ratio`,
-          data: GameRatios.value.map(item => item.ratio),
+          data: gameRatios.value.map(item => item.ratio),
           borderColor: `rgba(75,192,192,1)`,
           fill: true,
         },
@@ -62,8 +102,9 @@ const chartDataComputed = computed(() => {
   }
 })
 
+
 const options = {
-  responsive:true,
+  responsive: true,
   maintainAspectRatio: false,
   scales: {
     x: {

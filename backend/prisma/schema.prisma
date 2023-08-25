@@ -175,6 +175,7 @@ enum EUserRelationType {
   PendingAccept
   Friend
   Blocked
+  Terminated
 }
 
 enum EChannelType {

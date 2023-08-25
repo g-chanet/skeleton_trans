@@ -6,7 +6,7 @@
                    @mouseenter="handleMouseEnter()" 
                    @mouseleave="handleMouseLeave()">
             <el-icon v-if="relationType != 'PendingAccept'">
-                <CirclePlus v-if="relationType == null"/>
+                <CirclePlus/>
             </el-icon>
 			<el-icon v-if="relationType === 'PendingAccept' && isHovered">
                 <Close/>
@@ -20,7 +20,7 @@
 <script lang="ts">
 import { CirclePlus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useCreateRequestFriendMutation, useRemoveFriendMutation ,EUserRealtionType } from '@/graphql/graphql-operations'
 
 
@@ -39,6 +39,9 @@ export default {
 
 	const relationType = ref(props.relationStatus)
 	const isHovered = ref(false)
+	watch(() => props.relationStatus, (newRel) => {
+        relationType.value = newRel
+    })
     
     const handleMouseEnter = () => {
       isHovered.value = true

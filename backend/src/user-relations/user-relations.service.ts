@@ -137,7 +137,6 @@ export class UserRelationsService {
   }
 
   async removeFriend(userOwnerId: string, userTargetId: string) {
-
     await this.prisma.userRelation.delete({
       where: {
         userOwnerId_userTargetId: {

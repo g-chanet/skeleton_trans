@@ -47,7 +47,7 @@
         <el-main class="debug-main-component">
 			<el-container style="height: 100%; width:100%; align-items: center;" direction="vertical">
 				<div class="graph-container">
-					<gameHistoryGraph style="height: 100%; width: 100%; display: flex;" :graph-data="graphData"/>
+					<gameHistoryGraph style="height: 100%; width: 100%; display: flex;" :userId="loggedInUser?.id"/>
 				</div>
 				<el-scrollbar height="400px;" style="margin-top: 35px;">
     				<div v-for="item in userGameStats" :key="item.id">
@@ -77,14 +77,16 @@
 
 <script setup lang="ts">
 
-import { computed, onMounted, onUnmounted } from "vue"
+import { computed, onMounted, onUnmounted, watch, ref } from "vue"
 import { useFindMyUserQuery,
 	useFindDailyGameRatiosQuery,
 	useFindGeneralGameStatsForUserQuery,
 	useFindAllGameStatsForUserQuery,
 	useFindAllRelationsForMyUserQuery,
 	EUserRealtionType,
-	useOnUserRelationsChangedSubscription ,
+	useOnUserRelationsChangedSubscription,
+	useFindUserPresencesQuery,
+	useUsersPresenceUpdatedSubscription,
 	type GameStat,
 	type GeneralUserGameStats
 } from '@/graphql/graphql-operations'
@@ -98,22 +100,35 @@ import addFriendDialog from "./components/addFriendDialog.vue"
 const { result:resultForMyUser } = useFindMyUserQuery()
 const { result:resultForGeneralGameStat } = useFindGeneralGameStatsForUserQuery()
 const { result:resultForUserGameStatsQuery } = useFindAllGameStatsForUserQuery()
-const { result:resultForDailyGameRatioQuery } = useFindDailyGameRatiosQuery()
 const { result:resultForMyRelations } = useFindAllRelationsForMyUserQuery()
-const { result: userRelationsSubRes, stop: userRelationsSubStop} = useOnUserRelationsChangedSubscription()
-
 const loggedInUser = computed(() => resultForMyUser.value?.findMyUser)
+
+const { result: userRelationsSubRes, stop: userRelationsSubStop} = useOnUserRelationsChangedSubscription({userId: loggedInUser.value?.id})
 const userGeneralStats = computed(() => resultForGeneralGameStat.value?.findGeneralGameStatsForUser)
 const userGameStats = computed(() => resultForUserGameStatsQuery.value?.findAllGameStatsForUser)
-const graphData = computed(()=> resultForDailyGameRatioQuery.value?.findDailyGameRatios)
-const userRelationsSub = computed(() => userRelationsSubRes.value?.userRelationsChanged)
+
 const userRelations = computed(() => {
   if (userRelationsSubRes.value?.userRelationsChanged) {
-	console.log(userRelationsSubRes.value.userRelationsChanged)
-    return userRelationsSubRes.value.userRelationsChanged
+    let newRelationsList = [...(resultForMyRelations.value?.findAllRelationsForMyUser || [])]
+    const changedRelation = userRelationsSubRes.value.userRelationsChanged
+    const existingIndex = newRelationsList.findIndex(rel => rel.createdAt === changedRelation.createdAt)
+    
+    if (existingIndex !== -1) {
+      newRelationsList[existingIndex] = changedRelation
+    } else {
+      newRelationsList.push(changedRelation)
+    }
+    return newRelationsList
   }
   return resultForMyRelations.value?.findAllRelationsForMyUser
 })
+
+const friendsList = computed(() => {
+	return userRelations.value?.filter(relation => 
+		relation.type === EUserRealtionType.Friend
+	)
+})
+
 
 const testRefParams = null
 const testRefFriend = null
@@ -122,20 +137,11 @@ onUnmounted(() => {
     userRelationsSubStop()
 })
 
-console.log(userRelationsSub)
 const friendRequests = computed(() => {
 	return userRelations.value?.filter(relation => 
 		relation.type === EUserRealtionType.WaitingAccept
 	)
 })
-
-console.log(friendRequests)
-const friendsList = computed(() => {
-	return userRelations.value?.filter(relation => 
-		relation.type === EUserRealtionType.Friend
-	)
-})
-
 </script>
 
 <style scoped lang="sass">

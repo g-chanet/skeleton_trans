@@ -26,16 +26,37 @@ import searchFriendCard from "./searchFriendCard.vue"
 import { useFindPublicUsersListQuery, 
 	useFindAllRelationsForMyUserQuery, 
 	useFindMyUserQuery,
-	EUserRealtionType } from '@/graphql/graphql-operations'
+	EUserRealtionType,
+	useOnUserRelationsChangedSubscription
+ } from '@/graphql/graphql-operations'
 import { Search } from '@element-plus/icons-vue'
 
 const { result:resultForUsers } = useFindPublicUsersListQuery()
+const usersPublic = computed(() => resultForUsers.value?.findPublicUsersList)
+
 const { result:resultForMyRelations } = useFindAllRelationsForMyUserQuery()
 const { result:resultforMyUser } = useFindMyUserQuery()
-
-const usersPublic = computed(() => resultForUsers.value?.findPublicUsersList)
 const loggedInUser = computed(() => resultforMyUser.value?.findMyUser)
-const userRelations = computed(() => resultForMyRelations.value?.findAllRelationsForMyUser)
+
+const { result: userRelationsSubRes, stop: userRelationsSubStop} = useOnUserRelationsChangedSubscription({userId: loggedInUser.value?.id})
+const userRelationsSub = computed(() => userRelationsSubRes.value?.userRelationsChanged)
+
+const userRelations = computed(() => {
+  if (userRelationsSubRes.value?.userRelationsChanged) {
+	console.log(`updated rel: `, userRelationsSubRes.value.userRelationsChanged)
+    let newRelationsList = [...(resultForMyRelations.value?.findAllRelationsForMyUser || [])]
+    const changedRelation = userRelationsSubRes.value.userRelationsChanged
+    const existingIndex = newRelationsList.findIndex(rel => rel.createdAt === changedRelation.createdAt)
+    
+    if (existingIndex !== -1) {
+      newRelationsList[existingIndex] = changedRelation
+    } else {
+      newRelationsList.push(changedRelation)
+    }
+    return newRelationsList
+  }
+  return resultForMyRelations.value?.findAllRelationsForMyUser
+})
 
 const searchValue = ref(``)
 

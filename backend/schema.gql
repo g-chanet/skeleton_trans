@@ -48,6 +48,13 @@ type GeneralUserGameStats {
   MeanPoints: Float!
 }
 
+type UserPresence {
+  id: String!
+  userId: String!
+  connectedAt: DateTime!
+  disconnectedAt: DateTime!
+}
+
 type GameMatchmakingMember {
   userId: String!
 }
@@ -120,6 +127,7 @@ enum EUserRealtionType {
   PendingAccept
   Friend
   Blocked
+  Terminated
 }
 
 type Query {
@@ -129,9 +137,12 @@ type Query {
   findPublicUsersList: [UserPublic!]!
   findUserTwoFaSettings: UserTwoFaSettings!
   findDailyGameRatios: [DailyGameRatios!]!
+  findPublicDailyGameRatios(userid: String!): [DailyGameRatios!]!
   findGeneralGameStatsForUser: GeneralUserGameStats!
+  findPublicGeneralGameStatsForUser(userid: String!): GeneralUserGameStats!
   findAllGameStatsForUser: [GameStat!]!
-  findAllRelations: [UserRelation!]!
+  findAllPublicGameStatsForUser(userid: String!): [GameStat!]!
+  findUserPresences(args: FindUserPresencesInput!): [UserPresence!]!
   findAllRelationsForMyUser: [UserRelation!]!
   findChannel(args: FindChannelInput!): Channel!
   findAllChannels: [Channel!]!
@@ -148,6 +159,10 @@ type Query {
 
 input FindUserInput {
   id: String!
+}
+
+input FindUserPresencesInput {
+  userIds: [String!]!
 }
 
 input FindChannelInput {
@@ -333,7 +348,8 @@ input GoogleAuthCodeValidatorInput {
 }
 
 type Subscription {
-  userRelationsChanged: [UserRelation!]!
+  usersPresenceUpdated(args: FindUserPresencesInput!): UserPresence!
+  userRelationsChanged(userId: String!): UserRelation!
   onCreateChannel: Channel!
   onUpdateChannel(args: OnChannelInput!): Channel!
   onDeleteChannel(args: OnChannelInput!): Channel!

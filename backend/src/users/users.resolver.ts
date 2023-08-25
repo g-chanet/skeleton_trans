@@ -16,7 +16,7 @@ import { AuthHelper } from 'src/auth/auth.helper'
 
 @Resolver()
 export class UsersResolver {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   //**************************************************//
   //  MUTATION
@@ -130,6 +130,41 @@ export class UsersResolver {
     return results
   }
 
+  @Query(() => [DailyGameRatios])
+  @UseGuards(GqlAuthGuard)
+  async findPublicDailyGameRatios(@Args(`userid`) userid: string) {
+    console.log(`called`)
+    console.log(userid)
+    const gameStats = (await this.usersService.findOne(userid)).gameStats
+    const groupedStats: { [key: string]: any[] } = {}
+
+    gameStats.forEach((stat) => {
+      const createdAtDate = new Date(stat.createdAt)
+      const key = `${createdAtDate.getFullYear()}-${createdAtDate.getMonth() + 1
+        }-${createdAtDate.getDate()}`
+      if (!groupedStats[key]) {
+        groupedStats[key] = []
+      }
+      groupedStats[key].push(stat)
+    })
+
+    const results: DailyGameRatios[] = []
+
+    for (const [date, stats] of Object.entries(groupedStats)) {
+      const wins = stats.filter((game) => game.isWinner).length
+      const losses = stats.length - wins
+      const ratio = wins / (wins + losses)
+      results.push({
+        date: new Date(date),
+        wins: wins,
+        losses: losses,
+        ratio: ratio,
+      })
+    }
+    results.sort((a, b) => b.date.getTime() - a.date.getTime())
+    return results
+  }
+
   @Query(() => GeneralUserGameStats)
   @UseGuards(GqlAuthGuard)
   async findGeneralGameStatsForUser(@CtxUser() user: User) {
@@ -151,10 +186,38 @@ export class UsersResolver {
     return result
   }
 
+  @Query(() => GeneralUserGameStats)
+  @UseGuards(GqlAuthGuard)
+  async findPublicGeneralGameStatsForUser(@Args(`userid`) userid: string) {
+    const gameStats = (await this.usersService.findOne(userid)).gameStats
+    let totalpoints = 0
+    let totalwins = 0
+
+    gameStats.forEach((stats) => {
+      totalpoints += parseInt(stats.userScore)
+      if (stats.isWinner) {
+        totalwins++
+      }
+    })
+    const result: GeneralUserGameStats = {
+      gamesCount: gameStats.length,
+      allTimeRatio: totalwins / gameStats.length,
+      MeanPoints: totalpoints / gameStats.length,
+    }
+    return result
+  }
+
   @Query(() => [GameStat])
   @UseGuards(GqlAuthGuard)
   async findAllGameStatsForUser(@CtxUser() user: User) {
     const gameStats = (await this.usersService.findOne(user.id)).gameStats
+    return gameStats
+  }
+
+  @Query(() => [GameStat])
+  @UseGuards(GqlAuthGuard)
+  async findAllPublicGameStatsForUser(@Args(`userid`) userid: string) {
+    const gameStats = (await this.usersService.findOne(userid)).gameStats
     return gameStats
   }
 }
