@@ -11,6 +11,7 @@ import ViewLeaderboard from "../views/app/leaderboard/index.vue"
 import ViewProfile from "../views/app/profile/index.vue"
 import ViewGameLocal from "../views/game/local/index.vue"
 import ViewGameOnline from "../views/game/online/index.vue"
+import ViewPublicProfile from "../views/app/publicProfile/index.vue"
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -40,6 +41,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: `game/online/:roomId`,
         component: ViewGameOnline
+      },
+      {
+        path: `publicprofile`,
+        component: ViewPublicProfile
       }
     ]
   },

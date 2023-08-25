@@ -2,17 +2,57 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type GameStat {
+  id: String!
+  user: User!
+  opponentId: String!
+  isWinner: Boolean!
+  userScore: String!
+  opponentScore: String!
+  createdAt: String!
+}
+
 type UserPublic {
-  id: ID!
+  id: String!
   username: String!
   avatarUrl: String
 }
 
 type User {
-  id: ID!
+  id: String!
   username: String!
   avatarUrl: String
   doubleAuth: Boolean!
+  isOauth: Boolean!
+}
+
+type UserTwoFaSettings {
+  googleAuthenticatorQrCode: String!
+}
+
+type DailyGameRatios {
+  date: DateTime!
+  wins: Float!
+  losses: Float!
+  ratio: Float!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type GeneralUserGameStats {
+  gamesCount: Float!
+  allTimeRatio: Float!
+  MeanPoints: Float!
+}
+
+type UserPresence {
+  id: String!
+  userId: String!
+  connectedAt: DateTime!
+  disconnectedAt: DateTime!
 }
 
 type GameMatchmakingMember {
@@ -37,11 +77,6 @@ type ChannelMessage {
   createdAt: DateTime!
   updatedAt: DateTime!
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type Channel {
   id: ID!
@@ -92,12 +127,23 @@ enum EUserRealtionType {
   PendingAccept
   Friend
   Blocked
+  Terminated
 }
 
 type Query {
   findMyUser: User!
   findUser(args: FindUserInput!): UserPublic!
   findLeaderboardUserList: [UserPublic!]!
+  findPublicUsersList: [UserPublic!]!
+  findUserTwoFaSettings: UserTwoFaSettings!
+  findDailyGameRatios: [DailyGameRatios!]!
+  findPublicDailyGameRatios(userid: String!): [DailyGameRatios!]!
+  findGeneralGameStatsForUser: GeneralUserGameStats!
+  findPublicGeneralGameStatsForUser(userid: String!): GeneralUserGameStats!
+  findAllGameStatsForUser: [GameStat!]!
+  findAllPublicGameStatsForUser(userid: String!): [GameStat!]!
+  findUserPresences(args: FindUserPresencesInput!): [UserPresence!]!
+  findAllRelationsForMyUser: [UserRelation!]!
   findChannel(args: FindChannelInput!): Channel!
   findAllChannels: [Channel!]!
   findAllPublicChannels: [Channel!]!
@@ -113,6 +159,10 @@ type Query {
 
 input FindUserInput {
   id: String!
+}
+
+input FindUserPresencesInput {
+  userIds: [String!]!
 }
 
 input FindChannelInput {
@@ -140,8 +190,9 @@ input FindUserForChannelMessageInput {
 }
 
 type Mutation {
-  updateMyUser(args: UpdateMyUserInput!): Boolean!
+  updateMyUser(args: UpdateMyUserInput!): User!
   deleteMyUser: Boolean!
+  updateMyPassword(args: UpdateMyPasswordInput!): Boolean!
   commentAdded(newComment: String!): Boolean!
   createRequestFriend(args: CreateRequestFriendInput!): UserRelation!
   acceptFriendRequest(args: UpdateUserRelationInput!): UserRelation!
@@ -162,6 +213,9 @@ type Mutation {
   updateGame(args: UpdateGameInput!): GameData!
   joinGame(args: JoinGameInput!): GameData!
   leaveGame(args: LeaveGameInput!): Boolean!
+  injectFalseGameStatData: Boolean!
+  removeFalseGameStatData: Boolean!
+  createGameStat(args: createGameStatInput!): GameStat!
   updateGameMemberForGame(args: UpdateGameMemberInput!): GameMember!
   joinGameMatchmakingMember: GameMatchmakingMember!
   leaveGameMatchmakingMember: GameMatchmakingMember!
@@ -176,7 +230,14 @@ type Mutation {
 }
 
 input UpdateMyUserInput {
-  id: String!
+  doubleAuth: Boolean
+  username: String
+  avatarUrl: String
+}
+
+input UpdateMyPasswordInput {
+  oldPassword: String!
+  newPassword: String!
 }
 
 input CreateRequestFriendInput {
@@ -259,6 +320,13 @@ input LeaveGameInput {
   id: String!
 }
 
+input createGameStatInput {
+  opponentId: String!
+  userScore: String!
+  opponentScore: String!
+  isFakeData: Boolean!
+}
+
 input UpdateGameMemberInput {
   gameId: String!
 }
@@ -280,6 +348,8 @@ input GoogleAuthCodeValidatorInput {
 }
 
 type Subscription {
+  usersPresenceUpdated(args: FindUserPresencesInput!): UserPresence!
+  userRelationsChanged(userId: String!): UserRelation!
   onCreateChannel: Channel!
   onUpdateChannel(args: OnChannelInput!): Channel!
   onDeleteChannel(args: OnChannelInput!): Channel!

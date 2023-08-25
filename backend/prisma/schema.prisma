@@ -135,10 +135,15 @@ model GameMember {
 }
 
 model GameStat {
-  id        String   @default(nanoid())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  createdAt DateTime @default(now())
+  id            String   @default(nanoid())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  opponentId    String
+  createdAt     DateTime @default(now())
+  isWinner      Boolean
+  userScore     String
+  opponentScore String
+  isFakeData    Boolean @default(false)
 
   @@id([id, userId])
 }
@@ -170,6 +175,7 @@ enum EUserRelationType {
   PendingAccept
   Friend
   Blocked
+  Terminated
 }
 
 enum EChannelType {

@@ -1,4 +1,5 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql'
+import { Resolver, Mutation, Args, Query, Subscription } from '@nestjs/graphql'
+import { PubSub } from 'graphql-subscriptions'
 import { UserRelationsService } from './user-relations.service'
 import { UserRelation } from './entities/user-relation.entity'
 import { UseGuards } from '@nestjs/common'
@@ -6,11 +7,12 @@ import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from 'src/users/entities/user.entity'
 import * as DTO from './dto/user-relation.input'
+import { EUserRelationType } from '@prisma/client'
 
+const pubSub = new PubSub()
 @Resolver(() => UserRelation)
 export class UserRelationsResolver {
-  constructor(private readonly userRelationsService: UserRelationsService) {}
-
+  constructor(private readonly userRelationsService: UserRelationsService) { }
   //**************************************************//
   //  MUTATION
   //**************************************************//
@@ -21,10 +23,21 @@ export class UserRelationsResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.CreateRequestFriendInput,
   ) {
-    return await this.userRelationsService.createRequestFriend(
+    const result = await this.userRelationsService.createRequestFriend(
       user.id,
       args.userTargetId,
     )
+    const targetResult = await this.userRelationsService.findOne(
+      args.userTargetId,
+      user.id,
+    )
+    pubSub.publish(`userRelationsChanged:${user.id}`, {
+      userRelationsChanged: { ...result, userId: user.id },
+    })
+    pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
+      userRelationsChanged: { ...targetResult, userId: result.userTargetId },
+    })
+    return result
   }
 
   @Mutation(() => UserRelation)
@@ -33,10 +46,21 @@ export class UserRelationsResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.UpdateUserRelationInput,
   ) {
-    return await this.userRelationsService.acceptPendingRelation(
+    const result = await this.userRelationsService.acceptPendingRelation(
       user.id,
       args.userTargetid,
     )
+    const targetResult = await this.userRelationsService.findOne(
+      args.userTargetid,
+      user.id,
+    )
+    pubSub.publish(`userRelationsChanged:${user.id}`, {
+      userRelationsChanged: { ...result, userId: user.id },
+    })
+    pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
+      userRelationsChanged: { ...targetResult, userId: result.userTargetId },
+    })
+    return result
   }
 
   @Mutation(() => UserRelation)
@@ -45,10 +69,21 @@ export class UserRelationsResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.UpdateUserRelationInput,
   ) {
-    return await this.userRelationsService.refusePendingRelation(
+    const result = await this.userRelationsService.refusePendingRelation(
       user.id,
       args.userTargetid,
     )
+    const targetResult = await this.userRelationsService.findOne(
+      args.userTargetid,
+      user.id,
+    )
+    pubSub.publish(`userRelationsChanged:${user.id}`, {
+      userRelationsChanged: { ...result, userId: user.id },
+    })
+    pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
+      userRelationsChanged: { ...targetResult, userId: result.userTargetId },
+    })
+    return result
   }
 
   @Mutation(() => UserRelation)
@@ -69,19 +104,45 @@ export class UserRelationsResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.UpdateUserRelationInput,
   ) {
-    return await this.userRelationsService.removeFriend(
+    const targetResult = await this.userRelationsService.findOne(
+      args.userTargetid,
+      user.id,
+    )
+    const result = await this.userRelationsService.removeFriend(
       user.id,
       args.userTargetid,
     )
+    targetResult.type = EUserRelationType.Terminated
+    result.type = EUserRelationType.Terminated
+    pubSub.publish(`userRelationsChanged:${user.id}`, {
+      userRelationsChanged: { ...result, userId: user.id },
+    })
+    pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
+      userRelationsChanged: { ...targetResult, userId: result.userTargetId },
+    })
+    return result
   }
 
   //**************************************************//
   //  QUERY
   //**************************************************//
 
-  // undefined but calls are presents in service
+  @Query(() => [UserRelation])
+  @UseGuards(GqlAuthGuard)
+  async findAllRelationsForMyUser(@CtxUser() user: User) {
+    return await this.userRelationsService.findAllForUser(user.id)
+  }
 
   //**************************************************//
   //  SUBSCRIPTION
   //**************************************************//
+
+  @Subscription(() => UserRelation, {
+    filter: (payload, variables) => {
+      return payload.userRelationsChanged.userId === variables.userId
+    },
+  })
+  userRelationsChanged(@Args(`userId`) userId: string) {
+    return pubSub.asyncIterator(`userRelationsChanged:${userId}`)
+  }
 }

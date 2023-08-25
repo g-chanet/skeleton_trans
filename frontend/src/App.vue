@@ -1,6 +1,6 @@
 <template>
   <div class="full-app" v-loading.fullscreen.lock="onConnectQuery">
-    <Background />
+    <!-- <Background /> -->
     <router-view class='app-body' v-if="!onConnectQuery" />
   </div>
 </template>

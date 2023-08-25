@@ -14,7 +14,7 @@ import { toDataURL } from 'qrcode'
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   //**************************************************//
   //  MUTATION
@@ -64,6 +64,7 @@ export class AuthService {
       email: email,
       twoFactorAuthSecret: qrObject.secret,
       googleAuthenticatorQrCode: qrCodeBase64,
+      isOauth: false,
     })
     console.log(user.googleAuthenticatorQrCode)
     delete user.password

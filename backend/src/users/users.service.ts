@@ -4,7 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   //**************************************************//
   //  MUTATION
@@ -31,7 +31,13 @@ export class UsersService {
   //**************************************************//
 
   async findOne(id: string) {
-    return await this.prisma.user.findUnique({ where: { id } })
+    return await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        gameStats: true,
+        relationFollowings: true,
+      },
+    })
   }
 
   async findAll(args: Prisma.UserFindManyArgs) {

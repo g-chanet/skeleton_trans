@@ -7,7 +7,7 @@ import { Prisma } from '@prisma/client'
 
 @Injectable()
 export class GamesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   //**************************************************//
   //  GAME DATA
@@ -74,6 +74,26 @@ export class GamesService {
     return game
   }
 
+  async createGameStat(data: Prisma.GameStatUncheckedCreateInput) {
+    return await this.prisma.gameStat.create({ data })
+  }
+
+  async deleteGameStat(userId: string, id: string) {
+    return await this.prisma.gameStat.delete({
+      where: { id_userId: { id, userId } },
+    })
+  }
+
+  async updateGameStat(
+    id: string,
+    userId: string,
+    data: Prisma.GameStatUncheckedUpdateInput,
+  ) {
+    return await this.prisma.gameStat.update({
+      where: { id_userId: { id, userId } },
+      data,
+    })
+  }
   //**************************************************//
   //  QUERY
   //**************************************************//

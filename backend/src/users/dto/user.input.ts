@@ -6,10 +6,24 @@ import { InputType, Field } from '@nestjs/graphql'
 
 @InputType()
 export class UpdateMyUserInput {
-  @Field(() => String)
-  id: string
+  @Field(() => Boolean, { nullable: true })
+  doubleAuth?: boolean
+
+  @Field(() => String, { nullable: true })
+  username?: string
+
+  @Field(() => String, { nullable: true })
+  avatarUrl: string
 }
 
+@InputType()
+export class UpdateMyPasswordInput {
+  @Field(() => String)
+  oldPassword: string
+
+  @Field(() => String)
+  newPassword: string
+}
 //**************************************************//
 //  QUERY
 //**************************************************//
