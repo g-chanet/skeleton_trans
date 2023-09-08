@@ -117,10 +117,13 @@ model ChannelMessage {
 //**************************************************//
 
 model Game {
-  id          String       @id @default(nanoid())
-  gameMembers GameMember[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id            String        @id @default(nanoid())
+  gameMembers   GameMember[]
+  message       String?       @default("Join this game to play against me !")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  isDeleted     Boolean       @default(false)
+  targetUserId  String?
 }
 
 model GameMember {

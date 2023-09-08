@@ -1,0 +1,69 @@
+subscription AllGamesUpdated {
+    allGamesUpdated {
+		id
+        message
+        isDeleted
+        createdAt
+        targetUserId
+        gameMembers {
+            gameId
+            userId
+            userGameInfos {
+                username
+                avatarUrl
+                ratio
+            }
+        }
+    }
+}
+
+query FindAllGames {
+    findAllGames {
+		id
+        message
+        isDeleted
+        createdAt
+        targetUserId
+        gameMembers {
+            gameId
+            userId
+            userGameInfos {
+                username
+                avatarUrl
+                ratio
+            }
+        }
+    }
+}
+
+mutation CreateGame($message: String) {
+    createGame(args: {message: $message}) {
+        id
+        message
+        isDeleted
+        createdAt
+        targetUserId
+        gameMembers {
+            gameId
+            userId
+            userGameInfos {
+                username
+                avatarUrl
+                ratio
+            }
+        }
+    }
+}
+
+mutation LeaveGame {
+    leaveGame
+}
+
+query FindPublicGameInfosForUser($userId: String!) {
+    findPublicGameInfosForUser(userid: $userId) {
+        username
+        avatarUrl
+        ratio
+    }
+}
+

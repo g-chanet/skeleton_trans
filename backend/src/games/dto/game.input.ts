@@ -6,8 +6,8 @@ import { Field, InputType } from '@nestjs/graphql'
 
 @InputType()
 export class CreateGameInput {
-  @Field(() => [String])
-  userIds: string[]
+  @Field(() => String, { nullable: true })
+  message: string
 }
 
 @InputType()

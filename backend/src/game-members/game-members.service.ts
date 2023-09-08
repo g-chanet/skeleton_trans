@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client'
 
 @Injectable()
 export class GameMembersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   //**************************************************//
   //  MUTATION
   //**************************************************//
@@ -48,6 +48,15 @@ export class GameMembersService {
   ) {
     return await this.prisma.gameMember.findUnique({
       where: { gameId_userId },
+      include: {
+        user: {
+          select: {
+            username: true,
+            avatarUrl: true,
+            gameStats: true,
+          },
+        },
+      },
     })
   }
 }
