@@ -7,7 +7,6 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets'
 import { Socket, Server } from 'socket.io'
-// import { Pong } from '../../frontend/src/views/game/online/index'
 import { PongSession } from './pongSession'
 
 export type primitive = string | number | boolean | undefined | null
@@ -36,8 +35,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (pongSession.gameIsEmpty) this.pongSessions.delete(roomId)
       socket.leave(roomId)
       socket.data.roomId = undefined
+      pongSession.gameOverDisconnect()
       this.server.to(roomId).emit(`updatePongData`, pongSession.pongData)
     }
+    console.log(`disconnection socket App`, socket.id, args)
   }
 
   /*------------  GAME ACTIONS ------------*/
@@ -48,6 +49,56 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const pongSession = this.pongSessions.get(roomId)
     pongSession.setPlayerPosition(socket, position)
     this.server.to(roomId).emit(`updatePongData`, pongSession.pongData)
+  }
+
+  @SubscribeMessage(`pauseGameRequest`)
+  pauseGame(socket: Socket) {
+    const { roomId } = socket.data
+    const pongSession = this.pongSessions.get(roomId)
+    console.log(`a client requested a pause`)
+    if (!pongSession.pongData.playerA || !pongSession.pongData.playerB) return
+    if (this.isInCountdown) return
+    pongSession.setGamePause()
+    pongSession.stopGameLoop()
+    if (pongSession)
+      this.server.to(roomId).emit(`gameIsPaused`, pongSession.pongData)
+  }
+
+  @SubscribeMessage(`unpauseGameRequest`)
+  unpauseGame(socket: Socket) {
+    const { roomId } = socket.data
+    const pongSession = this.pongSessions.get(roomId)
+    console.log(`a client wants to unpause`)
+    if (!pongSession.pongData.playerA || !pongSession.pongData.playerB) return
+    // if (!this.isInCountdown) {
+    // this.isInCountdown = true
+    this.countdownUnpause(pongSession, 3, socket)
+    pongSession.setGameUnpause()
+    if (pongSession)
+      this.server.to(roomId).emit(`gameIsUnpaused`, pongSession.pongData)
+  }
+
+  @SubscribeMessage(`setHardMode`)
+  setHardMode(socket: Socket) {
+    const { roomId } = socket.data
+    const pongSession = this.pongSessions.get(roomId)
+    console.log(`requested hard mode`)
+    if (!pongSession.pongData.playerA || !pongSession.pongData.playerB) return
+    pongSession.setHardMode(socket)
+    this.server.to(roomId).emit(`updatePongData`, pongSession.pongData)
+    if (pongSession) {
+      if (
+        pongSession.pongData.playerA.askHardMode &&
+        !pongSession.pongData.playerB.askHardMode
+      )
+        this.server.to(roomId).emit(`playerAskHardMode`, `Player A`)
+      else if (
+        pongSession.pongData.playerB.askHardMode &&
+        !pongSession.pongData.playerB.askHardMode
+      )
+        this.server.to(roomId).emit(`playerAskHardMode`, `Player B`)
+    }
+    if (pongSession.allPlayersAskHardMode) pongSession.startHardMode()
   }
 
   @SubscribeMessage(`setPlayerReady`)
@@ -77,8 +128,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.server.to(roomId).emit(`playerReady`, `Player B`)
     }
     if (pongSession.allPlayersReady) {
-      pongSession.resetBall()
-      this.countdownGameReady(pongSession)
+      this.countdownGameReady(pongSession, 3, socket)
     }
   }
 
@@ -90,46 +140,64 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(roomId).emit(`updatePongData`, pongSession.pongData)
   }
 
-  //ALEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
-  @SubscribeMessage(`goalScored`)
-  goalScored(socket: Socket) {
-    const { roomId } = socket.data
-    const pongSession = this.pongSessions.get(roomId)
-    if (socket) {
-      if (pongSession) {
-        pongSession.incrementPlayerScore(socket)
-        pongSession.resetBall()
-      }
-    }
-    if (roomId) {
-      this.server
-        .to(pongSession.roomId)
-        .emit(`updatePongData`, pongSession.pongData)
-    }
-    console.log(
-      pongSession.pongData.playerA.score,
-      pongSession.pongData.playerB.score,
-    )
-  }
-
   /*------------  GAME ACTIONS UTILS ------------*/
 
-  countdownGameReady(pongSession: PongSession, amount = 3) {
+  countdownGameReady(pongSession: PongSession, amount = 3, socket: Socket) {
     const serverTime = Date.now()
     if (amount === 0) {
       this.server
         .to(pongSession.roomId)
         .emit(`setCountdown`, { amount: 0, serverTime })
-      pongSession.resetBall
       this.server
         .to(pongSession.roomId)
         .emit(`updatePongData`, pongSession.pongData)
+      pongSession.enableShowBall()
+      pongSession.resetBall()
+      this.startGameLoop(this.server, socket)
     } else {
       this.server
         .to(pongSession.roomId)
         .emit(`setCountdown`, { amount, serverTime })
-      setTimeout(() => this.countdownGameReady(pongSession, --amount), 1000)
+      setTimeout(
+        () => this.countdownGameReady(pongSession, --amount, socket),
+        1000,
+      )
     }
+  }
+
+  private isInCountdown: boolean
+  countdownUnpause(pongSession: PongSession, amount = 3, socket: Socket) {
+    this.isInCountdown = true
+    const serverTime = Date.now()
+    if (amount === 0) {
+      this.server
+        .to(pongSession.roomId)
+        .emit(`setCountdown`, { amount: 0, serverTime })
+      this.resumeGameLoop(this.server, socket)
+    } else {
+      this.server
+        .to(pongSession.roomId)
+        .emit(`setCountdown`, { amount, serverTime })
+      setTimeout(
+        () => this.countdownUnpause(pongSession, --amount, socket),
+        1000,
+      )
+    }
+  }
+
+  startGameLoop(server: Server, socket: Socket) {
+    const { roomId } = socket.data
+    const pongSession = this.pongSessions.get(roomId)
+    if (pongSession.gameLoopRunning) return
+    pongSession.startGameLoop()
+  }
+
+  resumeGameLoop(server: Server, socket: Socket) {
+    this.isInCountdown = false
+    const { roomId } = socket.data
+    const pongSession = this.pongSessions.get(roomId)
+    if (pongSession.gameLoopRunning) return
+    pongSession.resumeGameLoop()
   }
 
   /*------------  JOIN AND LEAVE ------------*/
@@ -137,6 +205,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(`joinRoom`)
   joinRoom(socket: Socket, roomId: string) {
     const joinSessionSuccess = (pongSession: PongSession) => {
+      if (pongSession.pongData.gameDone) {
+        joinSessionError(`THE GAME IS ALREADY FINISHED! TRY ANOTHER ONE.`)
+        return
+      }
       socket.join(pongSession.roomId)
       socket.data.roomId = pongSession.roomId
       socket.emit(`joinRoomSuccess`, pongSession.pongData)
@@ -150,10 +222,14 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     if (this.pongSessions.has(roomId)) {
       const session = this.pongSessions.get(roomId)
+      if (session.gameIsFull) {
+        joinSessionError(`ROOM IS FULL! TRY ANOTHER ONE.`, session)
+        return
+      }
       if (session.playerJoin(socket)) joinSessionSuccess(session)
       else joinSessionSuccess(session)
     } else {
-      const pongSession = new PongSession(roomId, socket)
+      const pongSession = new PongSession(roomId, socket, this.server)
       console.log(`Socket Id:`, socket.id)
       this.pongSessions.set(roomId, pongSession)
       joinSessionSuccess(pongSession)
@@ -180,11 +256,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const { roomId } = socket.data
     if (roomId === undefined) {
-      // emit player socket roomId is not define
       leaveSessionError(`emit player socket roomId is not define`)
     }
     if (!this.pongSessions.has(roomId)) {
-      // emit player pongSession not exist
       leaveSessionError(`emit player pongSession not exist`)
     }
     const pongSession = this.pongSessions.get(roomId)

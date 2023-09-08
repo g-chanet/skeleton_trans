@@ -20,6 +20,7 @@ export class Pong {
     private startGameLayer!: Konva.Layer
     private gameStarted: boolean = false
     private backgroundLayer!: Konva.Layer
+    private computerScore: number
 
     constructor () {
         this.stage = this.generateStage()
@@ -28,6 +29,7 @@ export class Pong {
         this.paddleLeft = this.generatePaddle(`Left`, `#ff9a00`)
         this.paddleRight = this.generatePaddle(`Right`, `#9a198a`)
         this.paddleSpeed = 15
+        this.computerScore = 0
 
         window.addEventListener(`keydown`, this.handleKeyDown.bind(this))
         window.addEventListener(`keyup`, this.handleKeyUp.bind(this))
@@ -63,23 +65,20 @@ export class Pong {
 
   gameLoop() {
     if (!this.gameRunning || this.victoryScreenDisplayed || !this.gameStarted) return
-  
+
     if (this.keysPressed[`ArrowUp`]) {
-      this.movePaddleUp(this.paddleRight)
-    }
-    if (this.keysPressed[`ArrowDown`]) {
-      this.movePaddleDown(this.paddleRight)
-    }
-    if (this.keysPressed[`s`]) {
       this.movePaddleUp(this.paddleLeft)
     }
-    if (this.keysPressed[`w`]) {
+    if (this.keysPressed[`ArrowDown`]) {
       this.movePaddleDown(this.paddleLeft)
     }
-    
+
+    this.scoreLayer.show()
+    this.scoreLayer.draw()
     this.collisionCheck()
     this.moveBall()
     this.drawBall()
+    this.moveComputerPaddle(this.paddleRight)
     this.drawPaddles()
   
     this.animationFrameId = requestAnimationFrame(() => this.gameLoop())
@@ -132,79 +131,6 @@ export class Pong {
 
     welcomeText.offsetX(welcomeText.width() / 2)
     this.startGameLayer.add(welcomeText)
-
-    const asciiIconTextLeft = new Konva.Text({
-      x: this.stage.width() / 2 - 100,
-      y: this.stage.height() / 2 - 350,
-      text: `
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢐⡿⠋⠀⠀⠀⠙⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠁⠀⣠⣤⣴⢦⣸⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⣠⠴⠦⢤⡀⠀⠀⠀⠀⠀⠀⠘⣷⡞⠛⠉⠁⠀⢻⣿⡒⡖⠲⡦⢤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⡾⠁⠀⠀⠀⢹⣆⠀⠀⠀⠀⠀⠀⢘⣿⣆⠀⠀⠀⢠⣿⣷⠀⡼⠁⠀⠈⢙⠦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠘⣧⠀⠀⠀⠀⣠⣿⠀⠀⠀⠀⠀⣰⠋⠀⠈⠑⢶⣶⣿⠿⡿⠀⢄⠀⠀⠀⡏⠀⠀⠙⠲⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠘⠷⣴⣾⣿⠻⣇⠀⠀⠀⠀⢀⡇⠀⠰⣄⠀⠀⠀⠀⢰⠁⠀⠈⠑⠤⠰⠷⣦⢤⣴⠊⠀⣹⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿
-      ⠀⠀⠀⠀⠀⠀⠀⢿⡉⠑⡌⠓⠶⠤⢤⣼⣁⠀⠀⠈⣣⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠹⣶⠃⠀⣰⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⣿⣿
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠛⠾⠛⢦⡀⠀⠀⢩⠀⠉⠉⣲⠋⢧⡀⠒⠓⢲⠢⠤⠤⠤⣀⣠⠴⠋⢀⡞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠦⣄⠀⠀⣠⠞⠁⠀⠀⠹⣄⢀⡞⠀⠀⠀⠀⣸⠋⠀⣀⠼⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠋⠁⠀⠀⢀⣴⠚⠉⠙⠳⠤⣀⡤⠚⠉⠉⣀⠀⠀⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠋⠀⠉⠢⡀⠓⢷⡒⠒⠒⠊⣁⠤⠒⠒⠈⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⠃⠀⠀⠀⠀⠈⢦⠀⠈⣢⡀⠊⠁⢀⡠⠒⠉⠻⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⢴⡇⠀⠀⠀⣀⡤⢶⣿⠴⠋⠀⢻⡄⣴⠁⠀⠀⠀⠀⢹⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠋⠀⠓⠂⣴⠋⠁⠀⠀⠀⠀⠀⠀⠀⠓⠛⢧⡀⠀⠀⠀⠘⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡏⠀⠀⠀⣰⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣦⡀⠀⢀⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠃⠀⠀⣰⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠁⠈⠒⢋⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡯⣀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⡗⠠⣴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡾⢄⣠⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢼⣅⠉⠈⠙⢧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠏⠀⠀⢀⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⢿⣆⡀⢀⣹⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡯⠒⠒⢠⣾⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠓⠚⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      `,
-      fontSize: 5,
-      fontFamily: `BaseRetroWave`,
-      fill: `white`,
-      shadowColor: `rgba(255, 154, 0, 0.9)`,
-      shadowBlur: 10,
-      align: `center`,
-    })
-    asciiIconTextLeft.offsetX(asciiIconTextLeft.width() / 2)
-    this.startGameLayer.add(asciiIconTextLeft)
-
-    const asciiIconText = new Konva.Text({
-      x: this.stage.width() / 2 + 90,
-      y: this.stage.height() / 2 - 350,
-      text: `
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣤⣤⣤⣀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣇⠙⠀⠀⠀⠋⡿⢐⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡆⣸⢦⣴⣤⣠⠀⠁⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⢤⡦⠲⡖⡒⣿⢻⠀⠁⠉⠛⡞⣷⠘⠀⠀⠀⠀⠀⠀⡀⢤⠦⠴⣠⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣄⠦⢙⠈⠀⠁⡼⠀⣷⣿⢠⠀⠀⠀⣆⣿⢘⠀⠀⠀⠀⠀⠀⣆⢹⠀⠀⠀⠁⡾⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⢤⠲⠙⠀⠀⡏⠀⠀⠀⢄⠀⡿⠿⣿⣶⢶⠑⠈⠀⠋⣰⠀⠀⠀⠀⠀⣿⣠⠀⠀⠀⠀⣧⠘⠀⠀⠀      
-      ⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣹⠀⠊⣴⢤⣦⠷⠰⠤⠑⠈⠀⠁⢰⠀⠀⠀⠀⣄⠰⠀⡇⢀⠀⠀⠀⠀⣇⠻⣿⣾⣴⠷⠘⠀⠀⠀⠀      
-      ⣿⣿ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⣰⠀⠃⣶⠹⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⣣⠈⠀⠀⣁⣼⢤⠤⠶⠓⡌⠑⡉⢿⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⡞⢀⠋⠴⣠⣀⠤⠤⠤⠢⢲⠓⠒⡀⢧⠋⣲⠉⠉⠀⢩⠀⠀⡀⢦⠛⠾⠛⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠼⣀⠀⠋⣸⠀⠀⠀⠀⡞⢀⣄⠹⠀⠀⠁⠞⣠⠀⠀⣄⠦⠙⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣷⠀⠀⣀⠉⠉⠚⡤⣀⠤⠳⠙⠉⠚⣴⢀⠀⠀⠁⠋⠉⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣿⠈⠒⠒⠤⣁⠊⠒⠒⡒⢷⠓⡀⠢⠉⠀⠋⣰⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠻⠉⠒⡠⢀⠁⠊⡀⣢⠈⠀⢦⠈⠀⠀⠀⠀⠃⣼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⢹⠀⠀⠀⠀⠁⣴⡄⢻⠀⠋⠴⣿⢶⡤⣀⠀⠀⠀⡇⢴⢠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠘⠀⠀⠀⡀⢧⠛⠓⠀⠀⠀⠀⠀⠀⠀⠁⠋⣴⠂⠓⠀⠋⢰⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣧⢀⠀⡀⣦⠙⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠃⣰⠀⠀⠀⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡿⢋⠒⠈⠁⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⣰⠀⠀⠃⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⣴⠠⡗⣴⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠞⣠⣀⡯⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⢧⠙⠈⠉⣅⢼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡏⣠⢄⡾⢠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣦⣹⢀⡀⣆⢿⠛⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣧⢀⠀⠀⠏⣠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠛⠚⠓⠙⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠃⣾⢠⠒⠒⡯⢰⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      `,
-      fontSize: 5,
-      fontFamily: `BaseRetroWave`,
-      fill: `white`,
-      shadowColor: `rgba(255, 154, 0, 0.9)`,
-      shadowBlur: 10,
-      align: `center`,
-    })
-    asciiIconText.offsetX(asciiIconText.width() / 2)
-    this.startGameLayer.add(asciiIconText)
 
     const buttonGradient = {
       start: { x: -150 / 2, y: 0 },
@@ -264,10 +190,69 @@ export class Pong {
 
     startButtonRect.on(`click`, this.startGame.bind(this))
 
+    const asciiIconText = new Konva.Text({
+      x: this.stage.width() / 2 - 10,
+      y: this.stage.height() / 2 - 400,
+      text: `                                                                                              
+      ████▓▓▓▓████▓▓▓▓                              
+  ▓▓▓▓░░▓▓▒▒▒▒▒▒░░░░▒▒██▓▓▓▓                        
+████    ▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒████                    
+██  ░░    ░░▒▒▒▒▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒████                
+████░░        ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒████            
+██              ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░████        
+██          ████  ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒████    
+██      ████▒▒██  ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░██  
+██  ████▒▒▒▒▓▓██  ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
+██  ██▒▒▒▒▒▒▓▓██  ▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓░░▓▓▒▒▒▒▒▒░░▒▒▒▒██
+██  ██▒▒▒▒▒▒▓▓██  ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓▒▒▓▓▒▒▓▓▒▒▒▒▒▒▒▒██
+██  ██▒▒▒▒▓▓▓▓██  ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓▒▒▓▓▒▒▓▓▒▒▓▓▒▒▒▒██
+██  ██▒▒▒▒▓▓▓▓██  ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓▒▒▓▓▒▒▓▓░░▓▓░░▒▒██
+██  ██▒▒▒▒▓▓▓▓██  ░░▒▒▒▒▒▒▒▒░░▒▒░░▒▒▒▒▒▒▒▒▒▒▓▓▒▒▓▓▒▒▓▓░░▓▓░░▒▒██
+██  ██▒▒▓▓▓▓▓▓██  ░░▒▒▒▒▒▒▒▒░░░░░░▒▒▒▒▒▒▒▒▒▒▓▓▒▒▓▓▒▒▒▒░░▒▒░░▒▒██
+██  ██▒▒▓▓▓▓▓▓██  ░░▒▒▒▒▒▒▒▒░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒░░░░▒▒▒▒██
+██  ██▒▒▓▓▓▓▓▓██  ░░▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▓▓▒▒▒▒░░▒▒▒▒▒▒░░▒▒██
+██  ██▒▒▓▓▓▓▓▓██  ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓▒▒▓▓▒▒▓▓░░▓▓▒▒▒▒██
+██  ██▓▓▓▓▓▓▓▓██  ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓▒▒▓▓▒▒▓▓▒▒▓▓▒▒▒▒██
+██  ██▓▓▓▓▓▓▓▓██  ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓░░▓▓▒▒▓▓▒▒▓▓▒▒▒▒██
+██  ██▓▓▓▓▓▓▓▓██  ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
+██  ████▓▓▓▓▓▓██  ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
+██      ████▓▓██  ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
+██          ████  ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
+██              ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██████  
+██            ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██████  ░░    
+██████          ░░▒▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒▒▒▒▒▒▒░░████              
+▒▒▒▒▒▒  ██▒▒  ░░████      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒████                  
+████████████████    ▒▒██  ▒▒  ▒▒░░████████████████▓▓████████████                      
+██░░░░▓▓▓▓▒▒▒▒▒▒░░██    ██    ▒▒░░  ▒▒██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██                      
+██░░▓▓░░░░▓▓▓▓░░▓▓██    ██  ██  ▒▒▒▒  ▒▒████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██████                  
+██  ▓▓░░▓▓░░▒▒░░▒▒▒▒  ██  ██    ██    ▒▒  ░░░░██████████████████████    ████              
+██▒▒▒▒▓▓▒▒▒▒▓▓▒▒▒▒▒▒  ██  ██  ██  ██░░  ▒▒    ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░  ██            
+██  ▒▒▓▓░░░░▓▓░░░░▓▓░░  ██    ██  ██  ██    ▒▒▒▒░░░░░░░░░░░░░░░░░░░░░░░░░░▒▒▒▒██            
+██▒▒▒▒▓▓▓▓                ██  ██    ██      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██            
+██            ██████    ▒▒  ██    ██    ██    ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒██▒▒▒▒        
+██████████████░░▒▒▒▒██████▒▒██      ██  ░░    ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██    ▒▒      
+██▓▓▓▓▓▓██      ▒▒▒▒██▓▓▒▒▓▓██      ██      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██      ▒▒    
+██▓▓▓▓██░░    ░░░░░░██▒▒▓▓▓▓██        ██    ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██      ░░▒▒░░
+██▓▓▓▓▓▓████████████████▓▓▓▓▓▓██          ██  ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒██            
+██▓▓▒▒▒▒▓▓▒▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓██            ████████████████████████████████████              
+████▓▓▓▓▓▓████████████████▓▓                          ░░                                    
+`,
+      fontSize: 5,
+      fontFamily: `BaseRetroWave`,
+      fill: `white`,
+      shadowColor: `rgba(255, 154, 0, 0.9)`,
+      shadowBlur: 10,
+      align: `center`,
+    })
+    asciiIconText.offsetX(asciiIconText.width() / 2)
+    this.startGameLayer.add(asciiIconText)
+
     const playerOneControlsText = new Konva.Text({
-      x: this.stage.width() / 2 - 400,
+      x: this.stage.width() / 2 - 10,
       y: this.stage.height() / 2 + 200,
-      text: `Player one: ↑ S ↓ X`,
+      text: `   There's always someone stronger than you.
+      Challenge the Game's champion and sharpen your skills!
+      Then, there'll be less people stronger than you...`,
       fontSize: 20,
       fontFamily: `BaseRetroWave`,
       fill: `white`,
@@ -279,9 +264,9 @@ export class Pong {
     this.startGameLayer.add(playerOneControlsText)
 
     const playerTwoControlsText = new Konva.Text({
-      x: this.stage.width() / 2 + 400,
-      y: this.stage.height() / 2 + 200,
-      text: `Player two: ↑ arrowUp ↓ arrowDown`,
+      x: this.stage.width() / 2,
+      y: this.stage.height() / 2 + 300,
+      text: `Move: ↑ arrowUp ↓ arrowDown`,
       fontSize: 20,
       fontFamily: `BaseRetroWave`,
       fill: `white`,
@@ -432,7 +417,7 @@ export class Pong {
 /* ---------------------------------------- Scores ---------------------------------------- */
 
   updateScoreText() {
-    const scoreText = `${this.player1Score} : ${this.player2Score}`
+    const scoreText = `${this.computerScore}`
     const text = new Konva.Text({
       x: this.stage.width() / 2,
       y: 10,
@@ -449,7 +434,6 @@ export class Pong {
     this.scoreLayer.add(text)
     this.scoreLayer.batchDraw()
 
-    this.scoreLayer.cache()
   }
 
   updateScore(player: `player1` | `player2`) {
@@ -462,7 +446,7 @@ export class Pong {
       }
     } else if (player === `player2`) {
       this.player2Score += 1
-      if (this.player2Score === 11) {
+      if (this.player2Score === 1) {
         this.displayVictoryScreen(`player2`)
         return
       }
@@ -519,7 +503,7 @@ export class Pong {
       const text = new Konva.Text({
         x: this.stage.width() / 2,
         y: this.stage.height() / 2 - 60,
-        text: `PLAYER ${winner === `player1` ? `1` : `2`} WINS!`,
+        text: `NICE EXCHANGE !`,
         fontSize: 40,
         fontFamily: `BaseRetroWave`,
         fillLinearGradientStartPoint: victoryTextGradient.start,
@@ -616,7 +600,7 @@ export class Pong {
       const scoreText = new Konva.Text({
         x: this.stage.width() / 2,
         y: this.stage.height() / 2,
-        text: `${this.player1Score} : ${this.player2Score}`,
+        text: `SCORE: ${this.computerScore}`,
         fontSize: 30,
         fontFamily: `BaseRetroWave`,
         fill: `black`,
@@ -670,6 +654,56 @@ export class Pong {
 
         this.victoryScreenLayer.add(buttonRect)
         this.victoryScreenLayer.add(buttonText)
+
+        const tooltipText = new Konva.Text({
+          x: buttonX + buttonWidth / 2 - 100,
+          y: buttonY + buttonHeight / 2 + 70,
+          text: `I CAN FEEL YOU'RE GETTING STRONGER!`,
+          fontSize: 16,
+          fontFamily: `BaseRetroWave`,
+          fill: `white`,
+          align: `center`,
+          verticalAlign: `middle`,
+          listening: false,
+        })
+  
+          tooltipText.offsetX(buttonText.width() / 2)
+          tooltipText.offsetY(buttonText.height() / 2)
+  
+          this.victoryScreenLayer.add(tooltipText)
+
+          const tooltipAsciiText = new Konva.Text({
+            x: buttonX + buttonWidth / 2 - 140,
+            y: buttonY + buttonHeight / 2 + 90,
+            text: `
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⢀⠔⠊⠩⢅⠀⣉⣉⣲⣴⣉⣉⠀⡠⠍⠉⠲⡄⠀⠀⠀⠀⠀
+            ⠀⠀⠀⢀⣀⣇⣀⣀⣤⡾⠟⠛⡋⠉⠉⢙⠛⠻⢷⣦⣀⣀⣼⣀⣀⠀⠀⠀
+            ⢀⠔⠊⠁⠀⠀⣰⡿⠉⠀⠀⢰⣿⡄⢠⣿⡆⠀⠀⠈⢻⣦⠀⠀⠀⠉⠒⢄
+            ⣎⠀⠀⠉⠉⢱⣿⠀⠀⠀⠀⠸⣿⠃⠘⣿⠇⠀⠀⠀⠀⣿⡖⠉⠀⠀⠀⢸
+            ⠘⠦⡀⠀⠀⠈⣿⡄⠀⠀⠓⣦⠤⠤⠤⠬⢤⠒⠀⠀⢀⣿⠁⠀⠀⣀⠤⠊
+            ⠀⠀⠈⠉⢑⡲⠛⢿⣦⣀⠀⠈⠁⠒⠒⠊⠁⠀⣀⣴⡿⠛⠫⣉⠉⠀⠀⠀
+            ⠀⠀⠀⢠⠋⠀⡔⠁⠈⠛⠿⠶⣶⣶⣶⣶⠶⠿⠛⠁⠈⠣⠀⠈⢣⠀⠀⠀
+            ⠀⠀⠀⠘⢦⣀⠀⠀⠀⢀⣀⠤⣾⣿⣿⡿⠲⢄⣀⠀⠀⠀⢀⡠⠊⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠉⠉⠉⠀⠀⡼⠛⠛⡿⠁⠀⠀⠀⠈⠉⠉⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠁⠀⠸⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢄⠀⠘⢄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠙⡆⠀⠑⡄⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣆⢀⠔⠁⠀⠀⢱⣸⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢿⣿⣶⣤⣤⣴⣾⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀`,
+            fontSize: 12,
+            fontFamily: `BaseRetroWave`,
+            fill: `white`,
+            align: `center`,
+            verticalAlign: `middle`,
+            listening: false,
+          })
+    
+            tooltipAsciiText.offsetX(buttonText.width() / 2)
+            tooltipAsciiText.offsetY(buttonText.height() / 2)
+    
+            this.victoryScreenLayer.add(tooltipAsciiText)
       
       buttonRect.on(`mouseover`, () => {
         document.body.style.cursor = `pointer`
@@ -703,6 +737,7 @@ export class Pong {
     resetScore() {
       this.player1Score = 0
       this.player2Score = 0
+      this.computerScore = 0
       this.updateScoreText()
       this.scoreLayer.draw()
     }
@@ -753,12 +788,14 @@ collisionCheck() {
       this.ballX = (paddleLeftX + paddleWidth) + ballRadius
       this.ballXDirection *= -1
       this.ballSpeed += 0.5
+      this.computerScore += 1
+      this.updateScoreText()
     }
   if((this.ballX + ballRadius >= paddleRightX && this.ballY >= paddleRightY && this.ballY <= paddleRightY + paddleHeight))
     {
-    this.ballX = paddleRightX - ballRadius
-    this.ballXDirection *= -1
-    this.ballSpeed += 0.5
+      this.ballX = paddleRightX - ballRadius
+      this.ballXDirection *= -1
+      this.ballSpeed += 0.5
     }
 
   // Check si un `BUT` est marqué
@@ -831,6 +868,15 @@ collisionCheck() {
         if (paddleY < (stageHeight - paddleHeight) - 140) {
             paddle.y(paddleY)
         }
+      }
+
+      moveComputerPaddle(paddle: Konva.Group): void {
+        const paddleHeight = 115
+        const stageHeight = this.stage.height()
+      
+        paddle.y(this.ballY - (paddleHeight / 2))
+        if (paddle.y() > stageHeight - paddleHeight)
+          paddle.y(stageHeight - paddleHeight)
       }
 
     handleKeyDown(event: KeyboardEvent): void {

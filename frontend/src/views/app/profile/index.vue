@@ -164,7 +164,7 @@ const friendRequests = computed(() => {
 .graph-container
 	height: 70%
 	width: 100%
-	display:flex
+	display: flex
 	background: radial-gradient(circle at center, rgba(0, 0, 0, 0.9), rgba(255, 255, 255, 0.1))
 	border-radius: var(--el-border-radius-base)
 	backdrop-filter: blur(5px) 

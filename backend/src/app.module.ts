@@ -9,7 +9,6 @@ import { UserPresencesModule } from './user-presences/user-presences.module'
 import { AuthModule } from './auth/auth.module'
 import { GameMatchmakingMembersModule } from './game-matchmaking-members/game-matchmaking-members.module'
 import { GameMembersModule } from './game-members/game-members.module'
-import { GamesModule } from './games/games.module'
 import { ChannelMessagesModule } from './channel-messages/channel-messages.module'
 import { ChannelMembersModule } from './channel-members/channel-members.module'
 import { ChannelsModule } from './channels/channels.module'
@@ -39,7 +38,6 @@ import { UserPresencesService } from './user-presences/user-presences.service'
     ChannelsModule,
     ChannelMembersModule,
     ChannelMessagesModule,
-    GamesModule,
     GameMembersModule,
     GameMatchmakingMembersModule,
     AuthModule,
@@ -49,4 +47,4 @@ import { UserPresencesService } from './user-presences/user-presences.service'
   providers: [AppGateway, UserPresencesService],
   //controllers: [AppController],
 })
-export class AppModule { }
+export class AppModule {}

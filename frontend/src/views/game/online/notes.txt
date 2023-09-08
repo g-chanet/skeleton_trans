@@ -72,3 +72,129 @@ Fix score limit functionality (index.ts).
 Investigate possible score duplication (scores incrementing too quickly).
 Address ball direction changes due to user inputs (potential socket signal conflicts).
 Implement isPaused to pause the game when a user quits and resume on their return.
+
+-------------------------------------------------------------------------------
+
+MOVE TOUTE LA LOGIQUE DU JEU DANS LE BACK 
+
+--> moveBall
+--> collisionCheck
+--> PaddlePosition 
+--> startGame
+--> gameLoop
+--> updateScore / resetScore
+
+Globalement: Laisser UNIQUEMENT le display au frontend
+Backend: Fait les calculs, gameLoop, game handling --> Envoie au front --> Data à display
+
+----------------- Effectué le 28/09 ------------------------
+
+    - Migration de la GameLoop dans le back, sur le serveur de sockets.
+=> Effectue en server-side les mouvements de balle, checks de collision, et envoie un
+   updatePongData à chaque frame aux deux clients.
+=> La GameLoop s'arrête automatiquement lors de la déconnexion d'un joueur.
+
+    - Refacto de la logique de collision et migration dans le back.
+=> Move dans le back, effectue tous les checks via le server et emit les events aux clients.
+=> Détecte aussi les goals et déclenche les updates score / victory.
+
+    - Refacto des mouvements de Balle sur le serveur.
+=> Tous les mouvements de balle sont migrés sur le serveur.
+=> Les clients ne s'occupent plus d'aucune data, et display simplement les infos du server.
+/!\ A fix: Décalage entre le stageHeight du Konva et la height sur laquelle travaille le serveur.
+=> Les collisions ne marchent pas encore...
+
+    - Refacto des logiques de score sur le serveur.
+=> Similairement aux mouvements de balle, la gestion de score se fait uniquement sur le server.
+=> Les updates de score et checks de victoire sont effectués par le back et broadcastés aux clients.
+/!\ A fix : Quelques unauthorized readings quand une update survient pendant une déconnexion client.
+
+<<<<<< A faire en prochain >>>>>>>
+
+- Vérifier la synchronicité des infos reçus par les deux clients.
+- Vérifier que l'envoi des infos par le back est bien fluide (Pas de stuttering, le display est raccord).
+- Vérifier que les raccords de gameLogic sont bien implémentés (gameStart>gameLoop>collisionCheck>goal...).
+- Refactoriser les calls draw() du front pour être moins gourmands (nettoyer ce qui n'est plus nécéssaire).
+- Vérifier la bonne implémentation des updateScore() et resetGame().
+- Bonne grosse session de débog j'ai les yeux qui saignent je suis pas du tout efficace j'en peux plus.
+
+--------------- Effectué le 29/09 --------------
+
+    - La gameLoop est bien synchronisée avec le countdown
+=> La balle se met à bouger uniquement lorsque le countdown est fini
+
+    /!\ Le stage back et front sont décalés de 50%...
+    -> Le balle rebondit sur stageHeight/2, s'initialize à maxX et maxY et joue en décalé...
+    Je veux mourir
+    -> Les goalCheck ne marchent pas
+    -> Les paddlePos sont sûrement faux
+
+!!!!!!!!!!!!! Problème général trouvé !!!!!!!!!!!!!!!!!!!
+Les stages backend et frontend sont décalés entre eux!
+Le back marche en (-400, +400 / -300, 300) alors que le front (0,0 / 800,600)
+=> Il faut juste trouver comment shift les données du back pour que le front display correctement
+PISTE: Décaler de -400/-300 les positions du front.
+METHODE: Faire des console.log, display test pour vérifier les axisses et ordonnés du F/B
+=> LA POSITION X DE LA BALLE EN BACKEND DOIT EQUIVALOIR A CELLE DU FRONT
+pitié je n'en peux plus sa mère.
+
+----> Shifting front/back réglé, appliqué un scaling fixe pour caler les 2 orthonormés
+=> Régler le même pb avec les paddles et vérifier leur position dans le back
+
+Manque l'actu de la paddle de l'adversaire, mais les collisions marchent bien chez tout le monde!!
+
+Probleme actuel: Le client1 ne reçoit pas le display du client2 (paddle)
+=> le back reçoit bien les deux
+=> trouver où le front récupère les player.position.y du back (faire attention à la synchro)
+
+Il faut aussi revoir la gameLoop du back, et bien update les scores sur un but + reset Data
+
+----------------------------
+
+Arreter le jeu quand victory
+
+Bouton play again -> Reset toute la game
+
+Ajouter l'affichage de l'écran de victoire.-------------
+Ajouter l'affichage de l'écran de défaite.-----------
+Implémenter la fonction de mise en pause du jeu + handle les déconnexions joueurs
+Identifier les problèmes avec les paddles ennemis.-------------------
+Corriger les erreurs ou les comportements indésirables des paddles ennemis.--------
+Examiner le code de la boucle de jeu (gameLoop).------------
+Identifier les problèmes de mise à jour des scores.-------------
+Corriger les erreurs de la boucle de jeu et de la mise à jour des scores.
+Faire un débogage approfondi du code depuis le début.
+Identifier et corriger les erreurs, les bogues et les problèmes de conception éventuels.
+Réfléchir à des améliorations possibles pour le code existant.
+Prendre une pause pour se détendre et recharger ses énergies.
+Prendre du recul par rapport au code pour avoir une perspective fraîche. 
+Implémenter bouton reset 'play again'
+
+----------------------------------------
+
+- Optimiser les calls draw()                         -- DONE
+- Ajouter background texturé (J'y arrive pô - 404: not found)
+- Intégrer système de pause (sur appui d'une key par exemple) - Relance countdown on unpaused -- DONE
+    => manque plus qu'a restart la gameLoop on(unpauseRequest) -> ne pas resetBall() mais resumeGameLoop -- DONE
+- Mettre en pause quand un client DC ?                                        -- DONE
+- Tooltip des touches ?                                                       -- DONE
+- Responsive ? => Bon pour le offline, à check pour le online
+- Intégrer quelques data user sur les misc ? => apres link db
+- Bouton 'Play Again' -> Delete Room + join matchmaking => manque logique matchmaking  -- DONE (1/2)
++ - Bien détruire la room quand 2 clients quittent (DESTROY)                  -- DONE
+- 'Options de customisation' - Hard mode / IA                                 -- DONE
+    => Implémentation du 'Hard mode': Manque la ballSpeed (pongSession l.161) -- DONE
+    => Implémentation du mode 'Training' contre un AI invincible              -- DONE
+    => Plusieurs balles (2, 3, ?)                                                 /
+    => Interpoler la dir de la balle en fonction d'où elle hit la paddle
+- Pimpage des écrans d'accueil des modes de jeu                               -- DONE
+
+Mode training => Compteur de points à chaque renvoi (+ gameDone à score = 1)  -- DONE
+Fix du cache de score sur toutes les versions                                 -- DONE
+Si déconnection sur écran de fin : redisplay erroné!                          -- DONE
+=> Fixed mais undefined reading sur le socket du joueur qui leave (l.92 index.ts) -- DONE
+=> FERMER la room sur une disconnect (empecher quelqu'un de rejoindre l'url)    -- DONE                     
+=> Des spectateurs peuvent rejoindre MAIS ils l'ont pas l'update des paddles (Intéressant à creuser!) -- DONE
+=> CANCEL --> JoinRoomError si gameisRunning / 2 players present                -- DONE
+Responsive + mobile (rotate à 90° le jeu sur mobile et changer les touches directionnelles <- ->)
+=> Les modes training & local sont responsive -> manque les eventHandlers touchscreen / réduire la taille des paddles

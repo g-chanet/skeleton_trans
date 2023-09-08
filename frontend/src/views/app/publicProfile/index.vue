@@ -32,7 +32,7 @@
         <el-main class="debug-main-component">
 			<el-container style="height: 100%; width:100%; align-items: center;" direction="vertical">
 				<div class="graph-container">
-					<gameHistoryGraph style="height: 100%; width: 100%; display: flex;" :userId="user?.id"/>
+					<gameHistoryGraph style="height: 100%; width: 100%; display: flex;" userId="user?.id"/>
 				</div>
 				<el-scrollbar height="400px;" style="margin-top: 35px;">
     				<div v-for="item in userGameStats" :key="item.id">
@@ -159,7 +159,7 @@ console.log(userRelation)
 .graph-container
 	height: 70%
 	width: 100%
-	display:flex
+	display: flex
 	background: radial-gradient(circle at center, rgba(0, 0, 0, 0.9), rgba(255, 255, 255, 0.1))
 	border-radius: var(--el-border-radius-base)
 	backdrop-filter: blur(5px) 
