@@ -510,6 +510,7 @@ export type Subscription = {
   allGamesStatsUpdated?: Maybe<GameStat>;
   allGamesStatsUpdatedForUser: GameStat;
   allGamesUpdated?: Maybe<Game>;
+  matchmakingMembersChanged: Array<GameMatchmakingMember>;
   onCreateChannel: Channel;
   onDeleteChannel: Channel;
   onDeleteChannelMemberForChannelId: ChannelMember;
@@ -892,6 +893,26 @@ export type FindPublicGameInfosForUserQueryVariables = Exact<{
 
 
 export type FindPublicGameInfosForUserQuery = { __typename?: 'Query', findPublicGameInfosForUser: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } };
+
+export type LeaveGameMatchmakingMemberMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LeaveGameMatchmakingMemberMutation = { __typename?: 'Mutation', leaveGameMatchmakingMember: { __typename?: 'GameMatchmakingMember', userId: string } };
+
+export type JoinGameMatchmakingMemberMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type JoinGameMatchmakingMemberMutation = { __typename?: 'Mutation', joinGameMatchmakingMember: { __typename?: 'GameMatchmakingMember', userId: string } };
+
+export type MatchmakingMembersChangedSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MatchmakingMembersChangedSubscription = { __typename?: 'Subscription', matchmakingMembersChanged: Array<{ __typename?: 'GameMatchmakingMember', userId: string }> };
+
+export type FindAllGameMatchmakingMemberlQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FindAllGameMatchmakingMemberlQuery = { __typename?: 'Query', findAllGameMatchmakingMemberl: Array<{ __typename?: 'GameMatchmakingMember', userId: string }> };
 
 export type AllGamesStatsUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -2136,6 +2157,107 @@ export function useFindPublicGameInfosForUserLazyQuery(variables: FindPublicGame
   return VueApolloComposable.useLazyQuery<FindPublicGameInfosForUserQuery, FindPublicGameInfosForUserQueryVariables>(FindPublicGameInfosForUserDocument, variables, options);
 }
 export type FindPublicGameInfosForUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindPublicGameInfosForUserQuery, FindPublicGameInfosForUserQueryVariables>;
+export const LeaveGameMatchmakingMemberDocument = gql`
+    mutation LeaveGameMatchmakingMember {
+  leaveGameMatchmakingMember {
+    userId
+  }
+}
+    `;
+
+/**
+ * __useLeaveGameMatchmakingMemberMutation__
+ *
+ * To run a mutation, you first call `useLeaveGameMatchmakingMemberMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useLeaveGameMatchmakingMemberMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useLeaveGameMatchmakingMemberMutation();
+ */
+export function useLeaveGameMatchmakingMemberMutation(options: VueApolloComposable.UseMutationOptions<LeaveGameMatchmakingMemberMutation, LeaveGameMatchmakingMemberMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<LeaveGameMatchmakingMemberMutation, LeaveGameMatchmakingMemberMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<LeaveGameMatchmakingMemberMutation, LeaveGameMatchmakingMemberMutationVariables>(LeaveGameMatchmakingMemberDocument, options);
+}
+export type LeaveGameMatchmakingMemberMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<LeaveGameMatchmakingMemberMutation, LeaveGameMatchmakingMemberMutationVariables>;
+export const JoinGameMatchmakingMemberDocument = gql`
+    mutation JoinGameMatchmakingMember {
+  joinGameMatchmakingMember {
+    userId
+  }
+}
+    `;
+
+/**
+ * __useJoinGameMatchmakingMemberMutation__
+ *
+ * To run a mutation, you first call `useJoinGameMatchmakingMemberMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useJoinGameMatchmakingMemberMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useJoinGameMatchmakingMemberMutation();
+ */
+export function useJoinGameMatchmakingMemberMutation(options: VueApolloComposable.UseMutationOptions<JoinGameMatchmakingMemberMutation, JoinGameMatchmakingMemberMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<JoinGameMatchmakingMemberMutation, JoinGameMatchmakingMemberMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<JoinGameMatchmakingMemberMutation, JoinGameMatchmakingMemberMutationVariables>(JoinGameMatchmakingMemberDocument, options);
+}
+export type JoinGameMatchmakingMemberMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<JoinGameMatchmakingMemberMutation, JoinGameMatchmakingMemberMutationVariables>;
+export const MatchmakingMembersChangedDocument = gql`
+    subscription MatchmakingMembersChanged {
+  matchmakingMembersChanged {
+    userId
+  }
+}
+    `;
+
+/**
+ * __useMatchmakingMembersChangedSubscription__
+ *
+ * To run a query within a Vue component, call `useMatchmakingMembersChangedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useMatchmakingMembersChangedSubscription` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the subscription, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/subscription.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useMatchmakingMembersChangedSubscription();
+ */
+export function useMatchmakingMembersChangedSubscription(options: VueApolloComposable.UseSubscriptionOptions<MatchmakingMembersChangedSubscription, MatchmakingMembersChangedSubscriptionVariables> | VueCompositionApi.Ref<VueApolloComposable.UseSubscriptionOptions<MatchmakingMembersChangedSubscription, MatchmakingMembersChangedSubscriptionVariables>> | ReactiveFunction<VueApolloComposable.UseSubscriptionOptions<MatchmakingMembersChangedSubscription, MatchmakingMembersChangedSubscriptionVariables>> = {}) {
+  return VueApolloComposable.useSubscription<MatchmakingMembersChangedSubscription, MatchmakingMembersChangedSubscriptionVariables>(MatchmakingMembersChangedDocument, {}, options);
+}
+export type MatchmakingMembersChangedSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<MatchmakingMembersChangedSubscription, MatchmakingMembersChangedSubscriptionVariables>;
+export const FindAllGameMatchmakingMemberlDocument = gql`
+    query FindAllGameMatchmakingMemberl {
+  findAllGameMatchmakingMemberl {
+    userId
+  }
+}
+    `;
+
+/**
+ * __useFindAllGameMatchmakingMemberlQuery__
+ *
+ * To run a query within a Vue component, call `useFindAllGameMatchmakingMemberlQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindAllGameMatchmakingMemberlQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useFindAllGameMatchmakingMemberlQuery();
+ */
+export function useFindAllGameMatchmakingMemberlQuery(options: VueApolloComposable.UseQueryOptions<FindAllGameMatchmakingMemberlQuery, FindAllGameMatchmakingMemberlQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllGameMatchmakingMemberlQuery, FindAllGameMatchmakingMemberlQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllGameMatchmakingMemberlQuery, FindAllGameMatchmakingMemberlQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindAllGameMatchmakingMemberlQuery, FindAllGameMatchmakingMemberlQueryVariables>(FindAllGameMatchmakingMemberlDocument, {}, options);
+}
+export function useFindAllGameMatchmakingMemberlLazyQuery(options: VueApolloComposable.UseQueryOptions<FindAllGameMatchmakingMemberlQuery, FindAllGameMatchmakingMemberlQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllGameMatchmakingMemberlQuery, FindAllGameMatchmakingMemberlQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllGameMatchmakingMemberlQuery, FindAllGameMatchmakingMemberlQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindAllGameMatchmakingMemberlQuery, FindAllGameMatchmakingMemberlQueryVariables>(FindAllGameMatchmakingMemberlDocument, {}, options);
+}
+export type FindAllGameMatchmakingMemberlQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllGameMatchmakingMemberlQuery, FindAllGameMatchmakingMemberlQueryVariables>;
 export const AllGamesStatsUpdatedDocument = gql`
     subscription allGamesStatsUpdated {
   allGamesStatsUpdated {

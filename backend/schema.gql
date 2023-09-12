@@ -62,10 +62,6 @@ type UserPresence {
   disconnectedAt: DateTime!
 }
 
-type GameMatchmakingMember {
-  userId: String!
-}
-
 type GameMember {
   gameId: String!
   userId: String!
@@ -88,6 +84,10 @@ type GameData {
   isDeleted: Boolean!
   targetUserId: String
   createdAt: DateTime!
+}
+
+type GameMatchmakingMember {
+  userId: String!
 }
 
 type ChannelMessage {
@@ -176,10 +176,10 @@ type Query {
   findAllChannelMembersForChannel(args: FindAllChannelMembersForChannelInput!): [ChannelMember!]!
   findAllChannelMessagesForChannel(args: FindAllMessagesForChannelInput!): [ChannelMessage!]!
   findUserForChannelMessage(args: FindUserForChannelMessageInput!): UserPublic!
+  findAllGameMatchmakingMemberl: [GameMatchmakingMember!]!
   findAllGameStatsSoftLimit: [GameStat!]!
   findAllGames: [Game!]!
   findGame: Game!
-  findAllGameMatchmakingMemberl: [GameMatchmakingMember!]!
 }
 
 input FindUserInput {
@@ -234,13 +234,6 @@ type Mutation {
   createMessageForChannel(args: CreateMessageForChannelInput!): ChannelMessage!
   updateMyMessageForChannel(args: UpdateMyMessageForChannelInput!): ChannelMessage!
   deleteMyMessageForChannel(args: DeleteMyMessageForChannelInput!): ChannelMessage!
-  createGame(args: CreateGameInput!): GameData!
-  updateGame(args: UpdateGameInput!): GameData!
-  joinGame(args: JoinGameInput!): GameData!
-  leaveGame: Boolean!
-  injectFalseGameStatData: Boolean!
-  removeFalseGameStatData: Boolean!
-  createGameStat(args: createGameStatInput!): GameStat!
   updateGameMemberForGame(args: UpdateGameMemberInput!): GameMember!
   joinGameMatchmakingMember: GameMatchmakingMember!
   leaveGameMatchmakingMember: GameMatchmakingMember!
@@ -252,6 +245,13 @@ type Mutation {
   signIn42: Boolean!
   signInDiscord: Boolean!
   logout: Boolean!
+  createGame(args: CreateGameInput!): GameData!
+  updateGame(args: UpdateGameInput!): GameData!
+  joinGame(args: JoinGameInput!): Game!
+  leaveGame: Boolean!
+  injectFalseGameStatData: Boolean!
+  removeFalseGameStatData: Boolean!
+  createGameStat(args: createGameStatInput!): GameStat!
 }
 
 input UpdateMyUserInput {
@@ -329,25 +329,6 @@ input DeleteMyMessageForChannelInput {
   id: String!
 }
 
-input CreateGameInput {
-  message: String
-}
-
-input UpdateGameInput {
-  id: String!
-}
-
-input JoinGameInput {
-  id: String!
-}
-
-input createGameStatInput {
-  opponentId: String!
-  userScore: String!
-  opponentScore: String!
-  isFakeData: Boolean!
-}
-
 input UpdateGameMemberInput {
   gameId: String!
 }
@@ -368,6 +349,25 @@ input GoogleAuthCodeValidatorInput {
   code: String!
 }
 
+input CreateGameInput {
+  message: String
+}
+
+input UpdateGameInput {
+  id: String!
+}
+
+input JoinGameInput {
+  id: String!
+}
+
+input createGameStatInput {
+  opponentId: String!
+  userScore: String!
+  opponentScore: String!
+  isFakeData: Boolean!
+}
+
 type Subscription {
   usersPresenceUpdated(args: FindUserPresencesInput!): UserPresence!
   userRelationsChanged(userId: String!): UserRelation!
@@ -379,6 +379,7 @@ type Subscription {
   onDeleteChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!
   onNewChannelMessageForChannelId(args: OnNewChannelMessageForChannelIdInput!): ChannelMessage!
   onDeleteChannelMessageForChannel(args: OnDeleteChannelMessageForChannel!): ChannelMessage!
+  matchmakingMembersChanged: [GameMatchmakingMember!]!
   allGamesStatsUpdated: GameStat
   allGamesUpdated: Game
   allGamesStatsUpdatedForUser(userId: String!): GameStat!

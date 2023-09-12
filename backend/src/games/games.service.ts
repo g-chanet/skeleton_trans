@@ -52,16 +52,49 @@ export class GamesService {
   //**************************************************//
 
   async create(data: Prisma.GameCreateInput) {
-    const game = await this.prisma.game.create({
-      data,
+    const game = await this.prisma.game.create({ data })
+
+    const matchmakingPlayer =
+      await this.prisma.gameMatchmakingMember.findFirst()
+
+    if (matchmakingPlayer) {
+      await this.prisma.gameMember.create({
+        data: {
+          gameId: game.id,
+          userId: matchmakingPlayer.userId,
+        },
+      })
+    }
+
+    const updatedGame = await this.prisma.game.findFirst({
+      where: {
+        id: game.id,
+      },
       include: {
         gameMembers: true,
       },
     })
+    if (
+      updatedGame &&
+      updatedGame.gameMembers &&
+      updatedGame.gameMembers.length > 1 &&
+      updatedGame.gameMembers[1].userId == matchmakingPlayer.userId
+    ) {
+      await this.prisma.gameMatchmakingMember.deleteMany({
+        where: { userId: matchmakingPlayer.userId },
+      })
+      updatedGame.isDeleted = true
+      this.pubSub.publish(`matchmakingMembersChanged`, {
+        matchmakingMembersChanged:
+          await this.prisma.gameMatchmakingMember.findMany({}),
+      })
+    }
+
     this.pubSub.publish(`allGamesUpdated`, {
-      allGamesUpdated: game,
+      allGamesUpdated: updatedGame,
     })
-    return game
+
+    return updatedGame
   }
 
   async update(id: string, data: Prisma.GameUpdateInput) {
@@ -142,12 +175,22 @@ export class GamesService {
     if (existingUser) {
       throw new BadRequestException(`This user has already joined the game.`)
     }
-    return this.prisma.gameMember.create({
+    await this.prisma.gameMember.create({
       data: {
         gameId: gameId,
         userId: user.id,
       },
     })
+    const game = await this.prisma.game.findFirst({
+      where: { id: gameId },
+      include: {
+        gameMembers: true,
+      },
+    })
+    this.pubSub.publish(`allGamesUpdated`, {
+      allGamesUpdated: game,
+    })
+    return game
   }
 
   async playerLeave(gameId: string, user: User) {
@@ -178,6 +221,16 @@ export class GamesService {
 
     if (remainingMembers === 0) {
       await this.delete(gameId)
+    } else {
+      const updatedGame = this.prisma.game.findFirst({
+        where: { id: gameId },
+        include: {
+          gameMembers: true,
+        },
+      })
+      this.pubSub.publish(`allGamesUpdated`, {
+        allGamesUpdated: updatedGame,
+      })
     }
 
     return memberToDelete

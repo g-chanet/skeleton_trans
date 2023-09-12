@@ -4,7 +4,7 @@
       <el-container>
         <el-header>
 			<div style="justify-content: space-around; display: flex;">
-				<el-button @click="RefMatchmakingDialog.changeDialogVisibility()" class="btn-5"><span>Join Matchmaking</span></el-button>
+				<el-button @click="RefMatchmakingDialog.changeDialogVisibility() , onMatchMackingJoined()" class="btn-5"><span>Join Matchmaking</span></el-button>
 				<el-button @click="RefNewGameDialog.changeDialogVisibility()" class="btn-5"><span>Create Game</span></el-button>
 			</div>
 		</el-header>
@@ -39,6 +39,11 @@
 		<div class="current-games-layout">
 			<h1>Parties en attente</h1>
 			<el-scrollbar>
+				<div v-for="item in matchMakers" :key="item" class="current-games-item">
+					<MatchmakerWaitingComponent/>
+				</div>
+			</el-scrollbar>
+			<el-scrollbar>
 				<div v-for="item in waitingGames" :key="item" class="current-games-item">
 					<HostedGames :targetUserId="item.targetUserId" :createdAt="item.createdAt"/>
 				</div>
@@ -63,22 +68,33 @@ import newLastGameItem  from "../profile/components/newLastGameItem.vue"
 import matchMakingGameItem from "./matchMakingGameItem.vue"
 import CurrentsGames from "./CurrentsGames.vue"
 import HostedGames from "./HostedGames.vue"
-import { computed, ref } from "vue"
+import MatchmakerWaitingComponent from "./MatchmakerWaitingComponent.vue"
+import { computed, ref, } from "vue"
 import { useFindAllGameStatsSoftLimitQuery,
 	useFindAllGamesQuery, 
 	useAllGamesStatsUpdatedSubscription,
 	useAllGamesUpdatedSubscription,
 	useFindMyUserQuery,
+	useJoinGameMatchmakingMemberMutation,
+	useFindAllGameMatchmakingMemberlQuery,
+	useMatchmakingMembersChangedSubscription,
 	type GameStat,
 	type Game } from '@/graphql/graphql-operations'
 import  matchmakingDialog  from "./matchmakingDialog.vue"
 import newGameDialog from "./newGameDialog.vue"
+import { ElMessage } from "element-plus"
+import { elements } from "chart.js"
 
+const RefMatchmakingDialog = null
+const RefNewGameDialog = null
 const { result: queryData } = useFindAllGameStatsSoftLimitQuery()
 const { result: queryUser } = useFindMyUserQuery()
 const { result: subscriptionData } = useAllGamesStatsUpdatedSubscription()
 const { result: queryDataGames } = useFindAllGamesQuery()
-const { result: subscriptionDataGames } = useAllGamesUpdatedSubscription()
+const { result: queryMatchmakers } = useFindAllGameMatchmakingMemberlQuery()
+const { result: subscriptionDataGames, stop:stopSubscriptionDataGames } = useAllGamesUpdatedSubscription()
+const { result: subscriptionMatchMakers } = useMatchmakingMembersChangedSubscription()
+const { mutate: mutateJoinMatchmaking, onError: onErrorJoinMatchmaking } = useJoinGameMatchmakingMemberMutation()
 let localGameStats:GameStat[] = []
 let localGames:Game[] = []
 const loggedInUser = computed(() => queryUser.value?.findMyUser)
@@ -88,9 +104,7 @@ console.log(localGames)
 console.log(loggedInUser.value)
 
 const gameStats = computed(() => {
-
 console.log(localGameStats.length)
-
 if (localGameStats.length == 0 && queryData.value?.findAllGameStatsSoftLimit) {
 	console.log(`refetch`)
 	localGameStats = queryData.value?.findAllGameStatsSoftLimit || []
@@ -111,9 +125,14 @@ if (subscriptionData.value?.allGamesStatsUpdated) {
 return ret
 })
 
+const matchMakers = computed(() => {
+	if (subscriptionMatchMakers.value?.matchmakingMembersChanged) {
+		return (subscriptionMatchMakers.value.matchmakingMembersChanged)
+	}
+	return (queryMatchmakers.value?.findAllGameMatchmakingMemberl)
+})
 
 const games = computed(() => {
-
 console.log(localGames.length)
 if (localGames.length == 0 && queryDataGames.value?.findAllGames) {
 	console.log(`refetch`)
@@ -127,7 +146,7 @@ if (subscriptionDataGames.value?.allGamesUpdated) {
 		ret = ret.filter(game => game.id !== newGame.id)
 		localGames = ret
 	} else {
-		console.log(newGame)
+		console.log("newGame", newGame)
 		ret = [newGame, ...ret]
 		localGames = ret
 	}
@@ -148,8 +167,13 @@ const publicGames = computed(() => {
     return games.value.filter(game => !game.targetUserId && game.gameMembers?.at(0)?.userId != loggedInUser.value.id)
 })
 
-const RefMatchmakingDialog = null
-const RefNewGameDialog = null
+const onMatchMackingJoined = () => {
+	mutateJoinMatchmaking()
+	.catch((error) => {
+		ElMessage.error(error.message)
+		RefMatchmakingDialog.changeDialogVisibility(false)
+	})
+}
 
 </script>
 

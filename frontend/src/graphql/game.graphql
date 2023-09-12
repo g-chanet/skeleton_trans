@@ -67,3 +67,26 @@ query FindPublicGameInfosForUser($userId: String!) {
     }
 }
 
+mutation LeaveGameMatchmakingMember {
+    leaveGameMatchmakingMember {
+        userId
+    }
+}
+
+mutation JoinGameMatchmakingMember {
+    joinGameMatchmakingMember {
+        userId
+    }
+}
+
+subscription MatchmakingMembersChanged {
+    matchmakingMembersChanged {
+        userId
+    }
+}
+
+query FindAllGameMatchmakingMemberl {
+    findAllGameMatchmakingMemberl {
+        userId
+    }
+}

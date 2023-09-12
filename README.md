@@ -21,7 +21,7 @@ BACKEND
   //https://docs.nestjs.com/recipes/prisma
   RUN (npm install prisma --save-dev)
   RUN (npx prisma)
-  RUN (npx prisma init)
+  RUN (npx prisma)
   set .env (DATABASE_URL="postgres://postgres:password@localhost:5432/postgres")
   RUN (npx prisma migrate dev --name init)
   RUN (npm install @prisma/client)

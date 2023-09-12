@@ -1,6 +1,6 @@
 <template>
 	<div>
-	  <el-dialog v-model="newGameDIalogVisible" class="dialog" width="37%">
+	  <el-dialog v-model="newGameDIalogVisible" @close="onDIalogClose()" class="dialog" width="37%">
 		<div class="container">
 		<div class="title">
       		Matchmaking
@@ -15,8 +15,8 @@
     </div>
 
     <div class="button-container">
-      <el-button type="danger">Annuler</el-button>
-      <el-button type="primary">Mettre en arrière plan</el-button>
+      <el-button @click="onDIalogClose()" type="danger">Annuler</el-button>
+      <el-button @click="onBackGorunfButtonPressed()" type="primary">Mettre en arrière plan</el-button>
 	  <el-button type="primary">Jouer contre Brendon le robot</el-button>
     </div>
   </div>
@@ -26,15 +26,32 @@
   
   <script setup lang="ts">
   import { ref } from 'vue'
+  import { useLeaveGameMatchmakingMemberMutation } from '@/graphql/graphql-operations'
+	import { ElMessage } from 'element-plus'
   const newGameDIalogVisible = ref(false)
-  
-  
-  
+  const { mutate: mutateLeaveMatchmaking, onError: onErrorLeaveMatchmaking } = useLeaveGameMatchmakingMemberMutation()
+
+  const backGroundMode = ref(false)
   const changeDialogVisibility = () => {
-	console.log(`bite`)
+	backGroundMode.value = false
 	newGameDIalogVisible.value = true
   }
 
+  const onDIalogClose = () => {
+	newGameDIalogVisible.value = false
+	if (!backGroundMode.value) {
+		mutateLeaveMatchmaking()
+		.catch((error) => {
+			ElMessage.error(error.message)
+		})
+	}
+  }
+
+  const onBackGorunfButtonPressed = () => {
+	backGroundMode.value = true
+	newGameDIalogVisible.value = false
+	ElMessage.success("Votre recherche de partie est toujours active en arrière plan")
+  }
 defineExpose({ changeDialogVisibility })
 
   </script>

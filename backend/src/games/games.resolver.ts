@@ -43,7 +43,7 @@ export class GamesResolver {
     return this.gamesService.update(args.id, args)
   }
 
-  @Mutation(() => GameData)
+  @Mutation(() => Game)
   @UseGuards(GqlAuthGuard)
   joinGame(@CtxUser() user: User, @Args(`args`) args: DTO.JoinGameInput) {
     return this.gamesService.playerJoin(args.id, user)
@@ -180,15 +180,6 @@ export class GamesResolver {
   allGamesStatsUpdatedForUser(@Args(`userId`) userId: string) {
     console.log(`userGamesStats:${userId}`)
     const res = this.pubSub.asyncIterator(`userGamesStats:${userId}`)
-    const debugConsumeIterator = async () => {
-      const result = await res.next()
-      console.log(`Iterator next result:`, result)
-      if (!result.done) {
-        debugConsumeIterator()
-      }
-    }
-
-    debugConsumeIterator()
     return res
   }
 }
