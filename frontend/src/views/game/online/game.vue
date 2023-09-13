@@ -29,6 +29,10 @@ onMounted(() => {
   display: flex
   justify-content: center
   align-items: center
+  top: 0
+  left: 5px
+  padding-left: 5px
+  padding-right: 5px
   .konva
     margin-top: 25px
     height: 600px

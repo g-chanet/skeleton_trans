@@ -114,6 +114,7 @@ export class PongSession {
 
   public setGameFinished(): void {
     this._pongData.gameDone = true
+    //envoyer GameSuccess - roomId
   }
 
   public setGamePause(): void {
@@ -359,11 +360,13 @@ export class PongSession {
       this.stopGameLoop()
       this.setPlayersNotReady()
       this.setGameFinished()
+      //send gameStats
     } else if (this.pongData.playerB && this.pongData.playerB.score >= 11) {
       this.stopGameLoop()
       this.setPlayersNotReady()
       this.setGameFinished()
       this.server.to(this.roomId).emit(`victory`, `playerB`)
+      //send gameStats
     }
   }
 

@@ -60,11 +60,11 @@ socket.on(`joinRoomError`, (error) => {
 
 .konva-container
   display: flex
-  justify-content: center
-  align-items: center
-  margin-top: 25px
-  height: 90%
-  width: 95%
+  justify-content: flex-start
+  align-items: stretch
+  margin-top: auto
+  height: 100%
+  width: 100%
 
 .button
     margin: 0

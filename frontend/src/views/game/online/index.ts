@@ -73,6 +73,7 @@ export class Pong {
   private paddleSpeed!: number
   private pauseScreenLayer!: Konva.Layer
   private gameIsPaused: boolean
+  private touchStartPosition: number | null = null
   
   constructor(private socket: Socket, pongData: PongData) {
 
@@ -87,6 +88,7 @@ export class Pong {
     this.paddleB = this.generatePaddle(`Right`, `#9a198a`)
     this.showBall = false
     this.gameIsPaused = false
+    this.touchStartPosition = null
 
     socket.on(`updatePongData`, (pongData: PongData) => {
       if (pongData.playerB && pongData.playerA) {
@@ -231,8 +233,6 @@ export class Pong {
     this.scoreLayer = new Konva.Layer()
     this.stage.add(this.scoreLayer)
     this.scoreLayer.hide()
-    this.pongData.playerA.score = 0
-    this.pongData.playerB.score = 0
     this.updateScoreText()
 
     this.generatePauseScreenLayer()
@@ -260,6 +260,10 @@ export class Pong {
 
   /* ---------------------------------------- Loop ---------------------------------------- */    
 
+  touchMoveHandler = (event: TouchEvent) => {
+    this.handleTouchMove(event, this.myPaddle!)
+  }
+
   gameLoop() {
     if (!this.gameRunning || this.victoryScreenDisplayed || !this.gameStarted) return
 
@@ -268,6 +272,11 @@ export class Pong {
     if (this.keysPressed[`ArrowDown`] && this.myPaddle) {
       this.movePaddle(this.myPaddle, -1)
     }
+
+    window.addEventListener('touchstart', this.handleTouchStart.bind(this))
+    window.addEventListener('touchmove', this.touchMoveHandler)
+    window.addEventListener('touchend', this.handleTouchEnd.bind(this))
+
     if (this.keysPressed[`p`] && this.myPaddle) {
       console.log('PAUSE')
       if (!this.gameIsPaused) this.socket.emit(`pauseGameRequest`)
@@ -331,78 +340,25 @@ export class Pong {
     welcomeText.offsetX(welcomeText.width() / 2)
     this.startGameLayer.add(welcomeText)
 
+    const victoryTextGradient = {
+      start: { x: -this.width / 2, y: 0 },
+      end: { x: this.width / 2, y: 0 },
+      colorStops: [0, `#ff9a00`, 1, `#9a198a`],
+    }
+
     const asciiIconTextLeft = new Konva.Text({
-      x: this.stage.width() / 2 - 100,
-      y: this.stage.height() / 2 - 280,
-      text: `
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢐⡿⠋⠀⠀⠀⠙⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠁⠀⣠⣤⣴⢦⣸⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⣠⠴⠦⢤⡀⠀⠀⠀⠀⠀⠀⠘⣷⡞⠛⠉⠁⠀⢻⣿⡒⡖⠲⡦⢤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⡾⠁⠀⠀⠀⢹⣆⠀⠀⠀⠀⠀⠀⢘⣿⣆⠀⠀⠀⢠⣿⣷⠀⡼⠁⠀⠈⢙⠦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠘⣧⠀⠀⠀⠀⣠⣿⠀⠀⠀⠀⠀⣰⠋⠀⠈⠑⢶⣶⣿⠿⡿⠀⢄⠀⠀⠀⡏⠀⠀⠙⠲⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠘⠷⣴⣾⣿⠻⣇⠀⠀⠀⠀⢀⡇⠀⠰⣄⠀⠀⠀⠀⢰⠁⠀⠈⠑⠤⠰⠷⣦⢤⣴⠊⠀⣹⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿
-      ⠀⠀⠀⠀⠀⠀⠀⢿⡉⠑⡌⠓⠶⠤⢤⣼⣁⠀⠀⠈⣣⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠹⣶⠃⠀⣰⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⣿⣿
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠛⠾⠛⢦⡀⠀⠀⢩⠀⠉⠉⣲⠋⢧⡀⠒⠓⢲⠢⠤⠤⠤⣀⣠⠴⠋⢀⡞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠦⣄⠀⠀⣠⠞⠁⠀⠀⠹⣄⢀⡞⠀⠀⠀⠀⣸⠋⠀⣀⠼⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠋⠁⠀⠀⢀⣴⠚⠉⠙⠳⠤⣀⡤⠚⠉⠉⣀⠀⠀⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠋⠀⠉⠢⡀⠓⢷⡒⠒⠒⠊⣁⠤⠒⠒⠈⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⠃⠀⠀⠀⠀⠈⢦⠀⠈⣢⡀⠊⠁⢀⡠⠒⠉⠻⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⢴⡇⠀⠀⠀⣀⡤⢶⣿⠴⠋⠀⢻⡄⣴⠁⠀⠀⠀⠀⢹⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠋⠀⠓⠂⣴⠋⠁⠀⠀⠀⠀⠀⠀⠀⠓⠛⢧⡀⠀⠀⠀⠘⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡏⠀⠀⠀⣰⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣦⡀⠀⢀⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠃⠀⠀⣰⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠁⠈⠒⢋⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡯⣀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⡗⠠⣴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡾⢄⣠⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢼⣅⠉⠈⠙⢧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠏⠀⠀⢀⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⢿⣆⡀⢀⣹⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡯⠒⠒⢠⣾⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠓⠚⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      `,
-      fontSize: 5,
+      x: this.width / 2,
+      y: this.height / 2 - 250,
+      text: `🏆 COMPETITIVE 🏆`,
+      fontSize: 60,
       fontFamily: `BaseRetroWave`,
-      fill: `white`,
-      shadowColor: `rgba(255, 154, 0, 0.9)`,
+      fillLinearGradientStartPoint: victoryTextGradient.start,
+      fillLinearGradientEndPoint: victoryTextGradient.end,
+      fillLinearGradientColorStops: victoryTextGradient.colorStops,
       shadowBlur: 10,
-      align: `center`,
     })
     asciiIconTextLeft.offsetX(asciiIconTextLeft.width() / 2)
     this.startGameLayer.add(asciiIconTextLeft)
-
-    const asciiIconText = new Konva.Text({
-      x: this.stage.width() / 2 + 90,
-      y: this.stage.height() / 2 - 280,
-      text: ` 
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣤⣤⣤⣀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣇⠙⠀⠀⠀⠋⡿⢐⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡆⣸⢦⣴⣤⣠⠀⠁⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⢤⡦⠲⡖⡒⣿⢻⠀⠁⠉⠛⡞⣷⠘⠀⠀⠀⠀⠀⠀⡀⢤⠦⠴⣠⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣄⠦⢙⠈⠀⠁⡼⠀⣷⣿⢠⠀⠀⠀⣆⣿⢘⠀⠀⠀⠀⠀⠀⣆⢹⠀⠀⠀⠁⡾⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⢤⠲⠙⠀⠀⡏⠀⠀⠀⢄⠀⡿⠿⣿⣶⢶⠑⠈⠀⠋⣰⠀⠀⠀⠀⠀⣿⣠⠀⠀⠀⠀⣧⠘⠀⠀⠀      
-      ⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣹⠀⠊⣴⢤⣦⠷⠰⠤⠑⠈⠀⠁⢰⠀⠀⠀⠀⣄⠰⠀⡇⢀⠀⠀⠀⠀⣇⠻⣿⣾⣴⠷⠘⠀⠀⠀⠀      
-      ⣿⣿ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⣰⠀⠃⣶⠹⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⣣⠈⠀⠀⣁⣼⢤⠤⠶⠓⡌⠑⡉⢿⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⡞⢀⠋⠴⣠⣀⠤⠤⠤⠢⢲⠓⠒⡀⢧⠋⣲⠉⠉⠀⢩⠀⠀⡀⢦⠛⠾⠛⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠼⣀⠀⠋⣸⠀⠀⠀⠀⡞⢀⣄⠹⠀⠀⠁⠞⣠⠀⠀⣄⠦⠙⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣷⠀⠀⣀⠉⠉⠚⡤⣀⠤⠳⠙⠉⠚⣴⢀⠀⠀⠁⠋⠉⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣿⠈⠒⠒⠤⣁⠊⠒⠒⡒⢷⠓⡀⠢⠉⠀⠋⣰⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠻⠉⠒⡠⢀⠁⠊⡀⣢⠈⠀⢦⠈⠀⠀⠀⠀⠃⣼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⢹⠀⠀⠀⠀⠁⣴⡄⢻⠀⠋⠴⣿⢶⡤⣀⠀⠀⠀⡇⢴⢠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠘⠀⠀⠀⡀⢧⠛⠓⠀⠀⠀⠀⠀⠀⠀⠁⠋⣴⠂⠓⠀⠋⢰⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣧⢀⠀⡀⣦⠙⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠃⣰⠀⠀⠀⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡿⢋⠒⠈⠁⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⣰⠀⠀⠃⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⣴⠠⡗⣴⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠞⣠⣀⡯⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⢧⠙⠈⠉⣅⢼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡏⣠⢄⡾⢠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣦⣹⢀⡀⣆⢿⠛⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣧⢀⠀⠀⠏⣠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠛⠚⠓⠙⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠃⣾⢠⠒⠒⡯⢰⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
-      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      `,
-      fontSize: 5,
-      fontFamily: `BaseRetroWave`,
-      fill: `white`,
-      shadowColor: `rgba(255, 154, 0, 0.9)`,
-      shadowBlur: 10,
-      align: `center`,
-    })
-    asciiIconText.offsetX(asciiIconText.width() / 2)
-    this.startGameLayer.add(asciiIconText)
 
     const buttonGradient = {
       start: { x: -150 / 2, y: 0 },
@@ -448,6 +404,8 @@ export class Pong {
 
     this.startGameLayer.add(startButtonRect)
     this.startGameLayer.add(startButtonText)
+
+    window.addEventListener('touchstart', (event) => this.handleStartButtonTouch(event, startButtonRect))
 
     startButtonRect.on(`mouseover`, () => {
       document.body.style.cursor = `pointer`
@@ -555,7 +513,7 @@ export class Pong {
 
     const ball = new Konva.Circle({
       x: this.width / 2,
-      y: this.height / 2 + 100,
+      y: this.height / 2 + 130,
       radius: 20,
       fill: `rgba(0, 101, 255, 0.9)`,
       shadowColor: `rgba(0, 101, 255, 0.9)`,
@@ -600,7 +558,6 @@ export class Pong {
     
       group.add(newBall)
     
-      // Ref à la ball pour la find() via Konva
       this.ballShapeNode = newBall
     
       return group
@@ -664,18 +621,22 @@ export class Pong {
             throw new Error(`Container 'konvaRef' not found.`)
         }
 
-        const stageWidth = container.clientWidth
-        const stageHeight = container.clientHeight
+        const screenWidth = window.innerWidth
+        const screenHeight = window.innerHeight
+        const scale = Math.min((screenWidth - 20) / 800, (screenHeight - 50) / 600)
 
         const stage = new Konva.Stage({
             container: `konvaRef`,
-            width: stageWidth,
-            height: stageHeight,
+            width: 800,
+            height: 600,
         })
 
+        stage.scale({ x: scale, y: scale })
+        stage.container().style.transformOrigin = 'top left'
+
         // /!\ Stage set en dur, voir plus tard les @media queries
-        stage.width(stageWidth)
-        stage.height(stageHeight)
+        stage.width(800 * scale)
+        stage.height(600 * scale)
 
         const backgroundLayer = new Konva.Layer()
         const backgroundRect = new Konva.Rect({
@@ -1371,4 +1332,61 @@ export class Pong {
       else if (socketId === this._playerBSocketId)
         this.movePaddle(this.paddleB, position)
     }
+
+    handleTouchStart(event: TouchEvent): void {
+      // event.preventDefault()
+      const touchY = event.touches[0].clientY
+      this.touchStartPosition = touchY
+    }
+
+    handleTouchMove(event: TouchEvent, paddle: Konva.Group): void {
+      if (this.touchStartPosition !== null && event.touches && event.touches.length > 0) {
+        const touchY = event.touches[0].clientY
+        const deltaY = touchY - this.touchStartPosition
+        if (deltaY > 0) {
+          this.movePaddle(paddle, -1)
+        } else if (deltaY < 0) {
+          this.movePaddle(paddle, 1)
+        }
+        this.touchStartPosition = touchY
+      }
+    }
+
+    handleTouchEnd(event: TouchEvent): void {
+      this.touchStartPosition = null
+    }
+
+    handleStartButtonTouch(event: TouchEvent, buttonRect: Konva.Rect): void {
+      const touchX = event.touches[0].clientX
+      const touchY = event.touches[0].clientY
+      const startButtonWidth = 150
+      const startButtonHeight = 40
+      const buttonX = (this.stage.width() - startButtonWidth) / 2
+      const buttonY = this.stage.height() / 2 + 20
+      if (
+        touchX >= buttonX &&
+        touchX <= buttonX + startButtonWidth &&
+        touchY >= buttonY &&
+        touchY <= buttonY + startButtonHeight
+      ) {
+        buttonRect.fire('click')
+    }
+  }
+
+  handleAgainButtonTouch(event: TouchEvent, buttonRect: Konva.Rect): void {
+    const touchX = event.touches[0].clientX
+    const touchY = event.touches[0].clientY
+    const againButtonWidth = 150
+    const againButtonHeight = 40
+    const againButtonX = (this.stage.width() - againButtonWidth) / 2
+    const againButtonY = this.stage.height() / 2 + 100
+    if (
+      touchX >= againButtonX &&
+      touchX <= againButtonX + againButtonWidth &&
+      touchY >= againButtonY &&
+      touchY <= againButtonY + againButtonHeight
+    ) {
+      buttonRect.fire('click')
+    }
+  }
 }

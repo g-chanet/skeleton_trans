@@ -21,6 +21,7 @@ export class Pong {
     private gameStarted: boolean = false
     private backgroundLayer!: Konva.Layer
     private computerScore: number
+    private touchStartPosition: number | null = null
 
     constructor () {
         this.stage = this.generateStage()
@@ -30,6 +31,7 @@ export class Pong {
         this.paddleRight = this.generatePaddle(`Right`, `#9a198a`)
         this.paddleSpeed = 15
         this.computerScore = 0
+        this.touchStartPosition = null
 
         window.addEventListener(`keydown`, this.handleKeyDown.bind(this))
         window.addEventListener(`keyup`, this.handleKeyUp.bind(this))
@@ -73,6 +75,10 @@ export class Pong {
       this.movePaddleDown(this.paddleLeft)
     }
 
+    window.addEventListener('touchstart', this.handleTouchStart.bind(this))
+    window.addEventListener('touchmove', this.handleTouchMove.bind(this))
+    window.addEventListener('touchend', this.handleTouchEnd.bind(this))
+
     this.scoreLayer.show()
     this.scoreLayer.draw()
     this.collisionCheck()
@@ -91,6 +97,7 @@ export class Pong {
   drawPaddles() {
     this.paddleLayer.batchDraw()
   }
+  
 /* ---------------------------------------- Initialization ---------------------------------------- */
 
     generateStartGameLayer(): void {
@@ -176,6 +183,8 @@ export class Pong {
 
     this.startGameLayer.add(startButtonRect)
     this.startGameLayer.add(startButtonText)
+
+    window.addEventListener('touchstart', (event) => this.handleStartButtonTouch(event, startButtonRect))
 
     startButtonRect.on(`mouseover`, () => {
       document.body.style.cursor = `pointer`
@@ -655,6 +664,8 @@ export class Pong {
         this.victoryScreenLayer.add(buttonRect)
         this.victoryScreenLayer.add(buttonText)
 
+        window.addEventListener('touchstart', (event) => this.handleAgainButtonTouch(event, buttonRect))
+
         const tooltipText = new Konva.Text({
           x: buttonX + buttonWidth / 2 - 100,
           y: buttonY + buttonHeight / 2 + 70,
@@ -886,4 +897,61 @@ collisionCheck() {
     handleKeyUp(event: KeyboardEvent): void {
       this.keysPressed[event.key] = false
     }
+
+    handleTouchStart(event: TouchEvent): void {
+      // event.preventDefault()
+      const touchY = event.touches[0].clientY
+      this.touchStartPosition = touchY
+    }
+
+    handleTouchMove(event: TouchEvent): void {
+      // event.preventDefault()
+      if (this.touchStartPosition !== null) {
+        const touchY = event.touches[0].clientY
+        const deltaY = touchY - this.touchStartPosition
+        if (deltaY > 0) {
+          this.movePaddleDown(this.paddleLeft)
+        } else if (deltaY < 0) {
+          this.movePaddleUp(this.paddleLeft)
+        }
+        this.touchStartPosition = touchY
+      }
+    }
+
+    handleTouchEnd(event: TouchEvent): void {
+      this.touchStartPosition = null
+    }
+
+    handleStartButtonTouch(event: TouchEvent, buttonRect: Konva.Rect): void {
+      const touchX = event.touches[0].clientX
+      const touchY = event.touches[0].clientY
+      const startButtonWidth = 150
+      const startButtonHeight = 40
+      const buttonX = (this.stage.width() - startButtonWidth) / 2
+      const buttonY = this.stage.height() / 2 + 20
+      if (
+        touchX >= buttonX &&
+        touchX <= buttonX + startButtonWidth &&
+        touchY >= buttonY &&
+        touchY <= buttonY + startButtonHeight
+      ) {
+        buttonRect.fire('click')
+    }
+  }
+  handleAgainButtonTouch(event: TouchEvent, buttonRect: Konva.Rect): void {
+    const touchX = event.touches[0].clientX
+    const touchY = event.touches[0].clientY
+    const againButtonWidth = 150
+    const againButtonHeight = 40
+    const againButtonX = (this.stage.width() - againButtonWidth) / 2
+    const againButtonY = this.stage.height() / 2 + 100
+    if (
+      touchX >= againButtonX &&
+      touchX <= againButtonX + againButtonWidth &&
+      touchY >= againButtonY &&
+      touchY <= againButtonY + againButtonHeight
+    ) {
+      buttonRect.fire('click')
+    }
+  }
 }

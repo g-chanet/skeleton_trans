@@ -36,6 +36,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.leave(roomId)
       socket.data.roomId = undefined
       pongSession.gameOverDisconnect()
+      //envoyer GameDone Error + roomId
       this.server.to(roomId).emit(`updatePongData`, pongSession.pongData)
     }
     console.log(`disconnection socket App`, socket.id, args)
@@ -242,6 +243,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.leave(pongSession.roomId)
       socket.data.roomId = undefined
       socket.emit(`leaveRoomSuccess`)
+      //envoyer gameData
 
       if (pongSession.gameIsEmpty) {
         this.pongSessions.delete(pongSession.roomId)
