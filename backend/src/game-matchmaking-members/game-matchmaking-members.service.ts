@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, BadRequestException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { GamesService } from 'src/games/games.service'
+import { PubSub } from 'graphql-subscriptions'
 
 @Injectable()
 export class GameMatchmakingMembersService {
   constructor(
     private prisma: PrismaService,
     private readonly gameService: GamesService,
+    private readonly pubSub: PubSub,
   ) { }
   //**************************************************//
   //  MUTATION
@@ -15,25 +17,46 @@ export class GameMatchmakingMembersService {
 
   async create(data: Prisma.GameMatchmakingMemberUncheckedCreateInput) {
     console.log(`entered create MMmeber function`)
-    const ret = await this.prisma.gameMatchmakingMember.create({ data })
-    const games = await this.prisma.game.findMany({
-      include: {
-        gameMembers: true,
-      },
+    const alreadyPresent = await this.prisma.gameMatchmakingMember.findFirst({
+      where: { userId: data.userId },
     })
-    const availableGame = games.find((game) => game.gameMembers.length === 1)
-    console.log(`available games: `, availableGame)
-    if (availableGame) {
-      console.log(`game: `, availableGame)
-      await this.prisma.gameMatchmakingMember.delete({
-        where: { userId: ret.userId },
-      })
-      const updatedGame = this.gameService.playerJoin(
-        availableGame.id,
-        await this.prisma.user.findFirst({ where: { id: data.userId } }),
-      )
-      console.log(updatedGame)
+    console.log(alreadyPresent)
+    if (alreadyPresent) {
+      throw new BadRequestException(`Vous êtes déjà en recherche de partie !`)
     }
+    const opponent = await this.prisma.gameMatchmakingMember.findFirst()
+    const ret = await this.prisma.gameMatchmakingMember.create({ data })
+    if (opponent) {
+      const newGame = await this.prisma.game.create({
+        data: {
+          gameMembers: {
+            create: [{ userId: data.userId }, { userId: opponent.userId }],
+          },
+        },
+        include: {
+          gameMembers: true,
+        },
+      })
+      if (newGame.gameMembers.length == 2) {
+        opponent.isDeleted = true
+        ret.isDeleted = true
+        await this.prisma.gameMatchmakingMember.deleteMany({
+          where: { userId: opponent.userId },
+        })
+        await this.prisma.gameMatchmakingMember.deleteMany({
+          where: { userId: ret.userId },
+        })
+        this.pubSub.publish(`matchmakingMembersChanged`, {
+          matchmakingMembersChanged: opponent,
+        })
+        this.pubSub.publish(`allGamesUpdated`, {
+          allGamesUpdated: newGame,
+        })
+      }
+    }
+    this.pubSub.publish(`matchmakingMembersChanged`, {
+      matchmakingMembersChanged: ret,
+    })
     return ret
   }
 
@@ -54,5 +77,20 @@ export class GameMatchmakingMembersService {
 
   async findAll() {
     return await this.prisma.gameMatchmakingMember.findMany({})
+  }
+
+  async findOne(userId: string) {
+    return await this.prisma.gameMatchmakingMember.findUnique({
+      where: { userId },
+      include: {
+        user: {
+          select: {
+            username: true,
+            avatarUrl: true,
+            gameStats: true,
+          },
+        },
+      },
+    })
   }
 }

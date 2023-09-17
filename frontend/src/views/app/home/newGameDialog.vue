@@ -3,20 +3,16 @@
     <el-dialog v-model="matchMakingDialogVisible" class="dialog" width="37%">
       <!-- Titre -->
       <div class="title">
-        New Game
+        New Offline Game
       </div>
       
       <div class="photo-container">
         <img src="../../../assets/gif-pong-nobg.gif" />
       </div>
       
-      <div class="special-message-field">
-        <div class="field-title">Message spécial :</div>
-        <el-input v-model="specialMessage"></el-input>
-      </div>
-      
       <div class="button-container">
-        <el-button type="primary" @click="createGame(), changeDialogVisibility()">Créer la partie !</el-button>
+        <el-button type="primary" @click="changeDialogVisibility(), onLocalChallengeClicked()">Jouer à deux</el-button>
+        <el-button type="primary" @click="changeDialogVisibility(), onLocalChallengeClicked()">Jouer constre Brendon le robot</el-button>
       </div>
     </el-dialog>
   </div>
@@ -25,10 +21,12 @@
 <script setup lang="ts">
   import { ref } from 'vue'
   import { useCreateGameMutation } from '@/graphql/graphql-operations'
+  import { useRouter } from 'vue-router'
   const specialMessage = ref('')
 
   const { mutate, onDone, onError  } = useCreateGameMutation( { message: specialMessage.value.length ? specialMessage.value : undefined} )
   const matchMakingDialogVisible = ref(false)
+  const router = useRouter()
 
   const changeDialogVisibility = () => {
     matchMakingDialogVisible.value  ? matchMakingDialogVisible.value = false : matchMakingDialogVisible.value = true
@@ -36,6 +34,14 @@
 
   const createGame = () => {
     mutate()
+  }
+
+  const onLocalChallengeClicked = () => {
+    router.replace(`/app/game/training/`)
+  }
+
+  const onLocalMultiClicked = () => {
+    router.replace(`/app/game/local/`)
   }
 
   defineExpose({ changeDialogVisibility })

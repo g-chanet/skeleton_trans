@@ -19,6 +19,16 @@ export class UserRelationsService {
 
     if (relationTO === EUserRelationType.PendingAccept)
       return await this.acceptPendingRelation(userOwnerId, userTargetId)
+    if (relationTO && relationTO === EUserRelationType.Blocked) {
+      throw new BadRequestException(
+        `cet utilisateur n'est malheureusement pas en état de créer, tenir ou entretenir une relation avec vous. `,
+      )
+    }
+    if (relationOT && relationOT === EUserRelationType.Blocked) {
+      throw new BadRequestException(
+        `tu as bloqué cet utilisateur, débloque le dans les paramètres pour l'ajouter en ami`,
+      )
+    }
     if (relationOT !== undefined || relationTO !== undefined)
       throw new UnauthorizedException()
 
@@ -94,27 +104,34 @@ export class UserRelationsService {
     const relationOT = await this.findRelation(userOwnerId, userTargetId)
     const relationTO = await this.findRelation(userTargetId, userOwnerId)
 
-    if (relationOT === EUserRelationType.Blocked)
-      throw new BadRequestException()
-
-    if (relationTO !== EUserRelationType.Blocked) {
+    console.log(relationOT)
+    console.log(relationTO)
+    console.log(userOwnerId)
+    console.log(userTargetId)
+    if (relationOT) {
       await this.prisma.userRelation.delete({
         where: {
           userOwnerId_userTargetId: {
-            userTargetId: userOwnerId,
-            userOwnerId: userTargetId,
+            userOwnerId,
+            userTargetId,
           },
         },
       })
     }
-    return await this.prisma.userRelation.update({
-      where: {
-        userOwnerId_userTargetId: {
-          userOwnerId,
-          userTargetId,
+    if (relationTO && relationTO != EUserRelationType.Blocked) {
+      await this.prisma.userRelation.delete({
+        where: {
+          userOwnerId_userTargetId: {
+            userOwnerId: userTargetId,
+            userTargetId: userOwnerId,
+          },
         },
-      },
+      })
+    }
+    return await this.prisma.userRelation.create({
       data: {
+        userOwnerId: userOwnerId,
+        userTargetId: userTargetId,
         type: EUserRelationType.Blocked,
       },
     })
@@ -122,18 +139,25 @@ export class UserRelationsService {
 
   async unblockRelation(userOwnerId: string, userTargetId: string) {
     const relationOT = await this.findRelation(userOwnerId, userTargetId)
+    const relationTO = await this.findRelation(userTargetId, userOwnerId)
+    let res
 
-    if (relationOT !== EUserRelationType.Blocked)
-      throw new BadRequestException()
-
-    return await this.prisma.userRelation.delete({
-      where: {
-        userOwnerId_userTargetId: {
-          userTargetId,
-          userOwnerId,
+    console.log(userOwnerId)
+    console.log(userTargetId)
+    if (relationOT && relationOT === EUserRelationType.Blocked) {
+      res = await this.prisma.userRelation.delete({
+        where: {
+          userOwnerId_userTargetId: {
+            userOwnerId,
+            userTargetId,
+          },
         },
-      },
-    })
+      })
+    }
+    if (res) {
+      return res
+    }
+    throw new BadRequestException(`cet utilisateur n'était pas bloqué`)
   }
 
   async removeFriend(userOwnerId: string, userTargetId: string) {

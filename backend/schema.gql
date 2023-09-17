@@ -88,6 +88,9 @@ type GameData {
 
 type GameMatchmakingMember {
   userId: String!
+  message: String!
+  isDeleted: Boolean!
+  userGameInfos: UserPublicGameInfos!
 }
 
 type ChannelMessage {
@@ -223,6 +226,7 @@ type Mutation {
   acceptFriendRequest(args: UpdateUserRelationInput!): UserRelation!
   refuseFriendRequest(args: UpdateUserRelationInput!): UserRelation!
   blockRelation(args: UpdateUserRelationInput!): UserRelation!
+  unblockRelation(args: UpdateUserRelationInput!): UserRelation!
   removeFriend(args: UpdateUserRelationInput!): UserRelation!
   createChannel(args: CreateChannelInput!): Channel!
   updateChannel(args: UpdateChannelInput!): Channel!
@@ -379,7 +383,7 @@ type Subscription {
   onDeleteChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!
   onNewChannelMessageForChannelId(args: OnNewChannelMessageForChannelIdInput!): ChannelMessage!
   onDeleteChannelMessageForChannel(args: OnDeleteChannelMessageForChannel!): ChannelMessage!
-  matchmakingMembersChanged: [GameMatchmakingMember!]!
+  matchmakingMembersChanged: GameMatchmakingMember!
   allGamesStatsUpdated: GameStat
   allGamesUpdated: Game
   allGamesStatsUpdatedForUser(userId: String!): GameStat!

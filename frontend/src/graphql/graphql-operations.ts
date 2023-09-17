@@ -177,6 +177,9 @@ export type GameData = {
 
 export type GameMatchmakingMember = {
   __typename?: 'GameMatchmakingMember';
+  isDeleted: Scalars['Boolean'];
+  message: Scalars['String'];
+  userGameInfos: UserPublicGameInfos;
   userId: Scalars['String'];
 };
 
@@ -232,7 +235,7 @@ export type Mutation = {
   deleteMyUser: Scalars['Boolean'];
   injectFalseGameStatData: Scalars['Boolean'];
   isGoogleAuthCodeValid: Scalars['Boolean'];
-  joinGame: GameData;
+  joinGame: Game;
   joinGameMatchmakingMember: GameMatchmakingMember;
   leaveGame: Scalars['Boolean'];
   leaveGameMatchmakingMember: GameMatchmakingMember;
@@ -246,6 +249,7 @@ export type Mutation = {
   signInGoogle: Scalars['Boolean'];
   signInLocal: User;
   signUpLocal: User;
+  unblockRelation: UserRelation;
   updateChannel: Channel;
   updateGame: GameData;
   updateGameMemberForGame: GameMember;
@@ -348,6 +352,11 @@ export type MutationSignInLocalArgs = {
 
 export type MutationSignUpLocalArgs = {
   args: SignUpLocalInput;
+};
+
+
+export type MutationUnblockRelationArgs = {
+  args: UpdateUserRelationInput;
 };
 
 
@@ -510,7 +519,7 @@ export type Subscription = {
   allGamesStatsUpdated?: Maybe<GameStat>;
   allGamesStatsUpdatedForUser: GameStat;
   allGamesUpdated?: Maybe<Game>;
-  matchmakingMembersChanged: Array<GameMatchmakingMember>;
+  matchmakingMembersChanged: GameMatchmakingMember;
   onCreateChannel: Channel;
   onDeleteChannel: Channel;
   onDeleteChannelMemberForChannelId: ChannelMember;
@@ -897,22 +906,22 @@ export type FindPublicGameInfosForUserQuery = { __typename?: 'Query', findPublic
 export type LeaveGameMatchmakingMemberMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type LeaveGameMatchmakingMemberMutation = { __typename?: 'Mutation', leaveGameMatchmakingMember: { __typename?: 'GameMatchmakingMember', userId: string } };
+export type LeaveGameMatchmakingMemberMutation = { __typename?: 'Mutation', leaveGameMatchmakingMember: { __typename?: 'GameMatchmakingMember', userId: string, message: string } };
 
 export type JoinGameMatchmakingMemberMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type JoinGameMatchmakingMemberMutation = { __typename?: 'Mutation', joinGameMatchmakingMember: { __typename?: 'GameMatchmakingMember', userId: string } };
+export type JoinGameMatchmakingMemberMutation = { __typename?: 'Mutation', joinGameMatchmakingMember: { __typename?: 'GameMatchmakingMember', userId: string, isDeleted: boolean, message: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } } };
 
 export type MatchmakingMembersChangedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MatchmakingMembersChangedSubscription = { __typename?: 'Subscription', matchmakingMembersChanged: Array<{ __typename?: 'GameMatchmakingMember', userId: string }> };
+export type MatchmakingMembersChangedSubscription = { __typename?: 'Subscription', matchmakingMembersChanged: { __typename?: 'GameMatchmakingMember', userId: string, isDeleted: boolean, message: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } } };
 
 export type FindAllGameMatchmakingMemberlQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllGameMatchmakingMemberlQuery = { __typename?: 'Query', findAllGameMatchmakingMemberl: Array<{ __typename?: 'GameMatchmakingMember', userId: string }> };
+export type FindAllGameMatchmakingMemberlQuery = { __typename?: 'Query', findAllGameMatchmakingMemberl: Array<{ __typename?: 'GameMatchmakingMember', userId: string, isDeleted: boolean, message: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> };
 
 export type AllGamesStatsUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -1071,6 +1080,20 @@ export type RemoveFriendMutationVariables = Exact<{
 
 
 export type RemoveFriendMutation = { __typename?: 'Mutation', removeFriend: { __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any } };
+
+export type BlockRelationMutationVariables = Exact<{
+  userTargetId: Scalars['String'];
+}>;
+
+
+export type BlockRelationMutation = { __typename?: 'Mutation', blockRelation: { __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any } };
+
+export type UnblockRelationMutationVariables = Exact<{
+  userTargetId: Scalars['String'];
+}>;
+
+
+export type UnblockRelationMutation = { __typename?: 'Mutation', unblockRelation: { __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any } };
 
 export type OnUserRelationsChangedSubscriptionVariables = Exact<{
   userId: Scalars['String'];
@@ -2161,6 +2184,7 @@ export const LeaveGameMatchmakingMemberDocument = gql`
     mutation LeaveGameMatchmakingMember {
   leaveGameMatchmakingMember {
     userId
+    message
   }
 }
     `;
@@ -2186,6 +2210,13 @@ export const JoinGameMatchmakingMemberDocument = gql`
     mutation JoinGameMatchmakingMember {
   joinGameMatchmakingMember {
     userId
+    isDeleted
+    userGameInfos {
+      username
+      avatarUrl
+      ratio
+    }
+    message
   }
 }
     `;
@@ -2211,6 +2242,13 @@ export const MatchmakingMembersChangedDocument = gql`
     subscription MatchmakingMembersChanged {
   matchmakingMembersChanged {
     userId
+    isDeleted
+    userGameInfos {
+      username
+      avatarUrl
+      ratio
+    }
+    message
   }
 }
     `;
@@ -2235,6 +2273,13 @@ export const FindAllGameMatchmakingMemberlDocument = gql`
     query FindAllGameMatchmakingMemberl {
   findAllGameMatchmakingMemberl {
     userId
+    isDeleted
+    userGameInfos {
+      username
+      avatarUrl
+      ratio
+    }
+    message
   }
 }
     `;
@@ -3050,6 +3095,72 @@ export function useRemoveFriendMutation(options: VueApolloComposable.UseMutation
   return VueApolloComposable.useMutation<RemoveFriendMutation, RemoveFriendMutationVariables>(RemoveFriendDocument, options);
 }
 export type RemoveFriendMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<RemoveFriendMutation, RemoveFriendMutationVariables>;
+export const BlockRelationDocument = gql`
+    mutation BlockRelation($userTargetId: String!) {
+  blockRelation(args: {userTargetid: $userTargetId}) {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useBlockRelationMutation__
+ *
+ * To run a mutation, you first call `useBlockRelationMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useBlockRelationMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useBlockRelationMutation({
+ *   variables: {
+ *     userTargetId: // value for 'userTargetId'
+ *   },
+ * });
+ */
+export function useBlockRelationMutation(options: VueApolloComposable.UseMutationOptions<BlockRelationMutation, BlockRelationMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<BlockRelationMutation, BlockRelationMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<BlockRelationMutation, BlockRelationMutationVariables>(BlockRelationDocument, options);
+}
+export type BlockRelationMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<BlockRelationMutation, BlockRelationMutationVariables>;
+export const UnblockRelationDocument = gql`
+    mutation UnblockRelation($userTargetId: String!) {
+  unblockRelation(args: {userTargetid: $userTargetId}) {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useUnblockRelationMutation__
+ *
+ * To run a mutation, you first call `useUnblockRelationMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useUnblockRelationMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useUnblockRelationMutation({
+ *   variables: {
+ *     userTargetId: // value for 'userTargetId'
+ *   },
+ * });
+ */
+export function useUnblockRelationMutation(options: VueApolloComposable.UseMutationOptions<UnblockRelationMutation, UnblockRelationMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<UnblockRelationMutation, UnblockRelationMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<UnblockRelationMutation, UnblockRelationMutationVariables>(UnblockRelationDocument, options);
+}
+export type UnblockRelationMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<UnblockRelationMutation, UnblockRelationMutationVariables>;
 export const OnUserRelationsChangedDocument = gql`
     subscription onUserRelationsChanged($userId: String!) {
   userRelationsChanged(userId: $userId) {

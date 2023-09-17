@@ -70,23 +70,45 @@ query FindPublicGameInfosForUser($userId: String!) {
 mutation LeaveGameMatchmakingMember {
     leaveGameMatchmakingMember {
         userId
+        message
     }
 }
 
 mutation JoinGameMatchmakingMember {
     joinGameMatchmakingMember {
         userId
+        isDeleted
+        userGameInfos {
+            username
+            avatarUrl
+            ratio
+        }
+        message
     }
 }
 
 subscription MatchmakingMembersChanged {
     matchmakingMembersChanged {
         userId
+        isDeleted
+        userGameInfos {
+            username
+            avatarUrl
+            ratio
+        }
+        message
     }
 }
 
 query FindAllGameMatchmakingMemberl {
     findAllGameMatchmakingMemberl {
         userId
+        isDeleted
+        userGameInfos {
+            username
+            avatarUrl
+            ratio
+        }
+        message
     }
 }

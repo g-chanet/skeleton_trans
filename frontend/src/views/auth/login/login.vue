@@ -64,13 +64,6 @@ const form = ref({
   doubleAuthCode: ``
 })
 
-onDone((e) => {
-  ElMessage({
-    showClose: true,
-    message: `Congrats, this is a success message.`,
-    type: `success`
-  })
-})
 
 onError((e) => {
   if (e.message == `GraphQL error: 4242`) {
@@ -86,7 +79,10 @@ onError((e) => {
         form.value.doubleAuthCode = ``
       }
     })
-    return
+  }
+  else {
+    console.log("error !")
+    router.push('/login')
   }
   ElMessage({
     showClose: true,
@@ -96,9 +92,23 @@ onError((e) => {
 })
 
 const onSubmitForm = () => {
-  mutate({ args: form.value }).then(() => {
-    router.push(`/app/home`)
+  console.log('form usbmitted')
+  mutate({ args: form.value }).then((res) => {
+    if (res && res.data && res.data.signInLocal.id) {
+      console.log('response ok')
+      router.push(`/app/home`)
+    }
+    if (res)
+    {
+      console.log('response !')
+      console.log(res)
+    }
   })
+  .catch((error) => {
+    console.log('error!')
+    console.log(error)
+    router.push(`/login`)
+    })
 }
 
 const onConnectWithGoogle = () => {

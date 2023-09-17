@@ -89,16 +89,16 @@ export class AuthService {
   }
 
   async validateUserId(userId: string) {
-    return await this.usersService.findOne(userId)
+    const usr = await this.usersService.findOne(userId)
+    if (usr) {
+      return usr
+    }
+    return null
   }
 
   async transOauthLogin(payload: TransOauthDto) {
-    console.error(`entered auth Oauth`)
-    try {
-      this.sanitize(payload)
-    } catch (error) {
-      console.log(error)
-    }
+    console.log(`entered auth Oauth`)
+    this.sanitize(payload)
     console.error(`escaping auth Oauth`)
     // need to catch exceptions ?
     let dbUser = await this.usersService.findOneByEmail(payload.mail)
