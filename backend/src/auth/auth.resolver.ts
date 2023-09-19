@@ -15,7 +15,7 @@ export class AuthResolver {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UsersService,
-  ) { }
+  ) {}
 
   //**************************************************//
   //  MUTATION - AUTH LOCAL

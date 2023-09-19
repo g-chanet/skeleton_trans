@@ -16,13 +16,13 @@ query FindMyUser {
   }
 }
 
-query findUserTwoFaSettings {
+query FindUserTwoFaSettings {
   findUserTwoFaSettings {
     googleAuthenticatorQrCode
   }
 }
 
-mutation updateMyUser($args: UpdateMyUserInput!) {
+mutation UpdateMyUser($args: UpdateMyUserInput!) {
   updateMyUser(args: $args)
   {
     id
@@ -33,12 +33,12 @@ mutation updateMyUser($args: UpdateMyUserInput!) {
   }
 }
 
-mutation updateMyPassword($args: UpdateMyPasswordInput!)
+mutation UpdateMyPassword($args: UpdateMyPasswordInput!)
 {
   updateMyPassword(args: $args)
 }
 
-mutation isGoogleAuthCodeValid($args: GoogleAuthCodeValidatorInput!) {
+mutation IsGoogleAuthCodeValid($args: GoogleAuthCodeValidatorInput!) {
   isGoogleAuthCodeValid(args: $args)
 }
 
@@ -49,7 +49,6 @@ query findDailyGameRatios {
     losses
     ratio
   }
-  
 }
 
 query findPublicDailyGameRatios($userid: String!) {
@@ -59,7 +58,6 @@ query findPublicDailyGameRatios($userid: String!) {
     losses
     ratio
   }
-  
 }
 
 query findGeneralGameStatsForUser{
@@ -122,4 +120,8 @@ query FindPublicUsersList {
         username
         avatarUrl
     }
+}
+
+query CheckPseudo($args: CheckPseudoInput!) {
+  checkPseudo(args: $args)
 }

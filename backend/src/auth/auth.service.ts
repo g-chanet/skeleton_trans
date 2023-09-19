@@ -72,7 +72,7 @@ export class AuthService {
   }
 
   async validateUser(emailOrUsername: string, password: string) {
-    console.log(`entered validatUser`)
+    console.log(`entered validateUser`)
     const user =
       (await this.usersService.findOneByEmail(emailOrUsername)) ||
       (await this.usersService.findOneByUsername(emailOrUsername))

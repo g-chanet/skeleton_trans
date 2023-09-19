@@ -9,6 +9,7 @@ import { UserPresencesModule } from './user-presences/user-presences.module'
 import { AuthModule } from './auth/auth.module'
 import { GameMatchmakingMembersModule } from './game-matchmaking-members/game-matchmaking-members.module'
 import { GameMembersModule } from './game-members/game-members.module'
+import { GamesModule } from './games/games.module'
 import { ChannelMessagesModule } from './channel-messages/channel-messages.module'
 import { ChannelMembersModule } from './channel-members/channel-members.module'
 import { ChannelsModule } from './channels/channels.module'
@@ -42,6 +43,7 @@ import { UserPresencesService } from './user-presences/user-presences.service'
     GameMatchmakingMembersModule,
     AuthModule,
     PubSubModule,
+    GamesModule,
     PassportModule.register({ session: true }),
   ],
   providers: [AppGateway, UserPresencesService],

@@ -16,7 +16,7 @@ import { AuthHelper } from 'src/auth/auth.helper'
 
 @Resolver()
 export class UsersResolver {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   //**************************************************//
   //  MUTATION
@@ -105,8 +105,9 @@ export class UsersResolver {
 
     gameStats.forEach((stat) => {
       const createdAtDate = new Date(stat.createdAt)
-      const key = `${createdAtDate.getFullYear()}-${createdAtDate.getMonth() + 1
-        }-${createdAtDate.getDate()}`
+      const key = `${createdAtDate.getFullYear()}-${
+        createdAtDate.getMonth() + 1
+      }-${createdAtDate.getDate()}`
       if (!groupedStats[key]) {
         groupedStats[key] = []
       }
@@ -140,8 +141,9 @@ export class UsersResolver {
 
     gameStats.forEach((stat) => {
       const createdAtDate = new Date(stat.createdAt)
-      const key = `${createdAtDate.getFullYear()}-${createdAtDate.getMonth() + 1
-        }-${createdAtDate.getDate()}`
+      const key = `${createdAtDate.getFullYear()}-${
+        createdAtDate.getMonth() + 1
+      }-${createdAtDate.getDate()}`
       if (!groupedStats[key]) {
         groupedStats[key] = []
       }
@@ -219,6 +221,11 @@ export class UsersResolver {
   async findAllPublicGameStatsForUser(@Args(`userid`) userid: string) {
     const gameStats = (await this.usersService.findOne(userid)).gameStats
     return gameStats
+  }
+
+  @Query(() => Boolean)
+  async checkPseudo(@Args(`args`) args: DTO.CheckPseudoInput) {
+    return await this.usersService.checkPseudo(args.pseudo)
   }
 }
 

@@ -34,6 +34,12 @@ export class FindUserInput {
   id: string
 }
 
+@InputType()
+export class CheckPseudoInput {
+  @Field(() => String)
+  pseudo: string
+}
+
 //**************************************************//
 //  SUBSCRIPTION
 //**************************************************//

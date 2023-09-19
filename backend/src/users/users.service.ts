@@ -59,4 +59,9 @@ export class UsersService {
   async findAllUsersSorted() {
     return await this.prisma.user.findMany({})
   }
+
+  async checkPseudo(username: string) {
+    const found = await this.prisma.user.findFirst({ where: { username } })
+    return found === null
+  }
 }

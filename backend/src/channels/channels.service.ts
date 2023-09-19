@@ -82,8 +82,7 @@ export class ChannelsService {
 
   async checkChannelName(name: string) {
     const found = await this.prisma.channel.findFirst({ where: { name } })
-    if (found === null) return false
-    return true
+    return found === null
   }
 
   //**************************************************//

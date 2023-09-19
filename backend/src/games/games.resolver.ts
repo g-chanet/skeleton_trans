@@ -18,7 +18,7 @@ export class GamesResolver {
   constructor(
     private readonly gamesService: GamesService,
     private readonly userService: UsersService,
-  ) { }
+  ) {}
 
   //**************************************************//
   //  MUTATION

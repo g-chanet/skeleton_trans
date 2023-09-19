@@ -29,7 +29,7 @@
         <el-button @click="onConnectWithSchool42" class="bt" circle>42</el-button>
       </div>
       <el-divider> </el-divider>
-      <el-button class="bt-submit" native-type="submit">Create Account</el-button>
+      <el-button @click="pushSignup" class="bt-submit" native-type="submit">Create Account</el-button>
       <!-- <router-link to="/signup" class="create-account">Create Account</router-link> -->
       <router-view></router-view>
     </div>
@@ -116,6 +116,9 @@ const onConnectWithGithub = () => {
 const onConnectWithSchool42 = () => {
   window.location.href = `/auth/42`
 }
+
+const pushSignup = () => router.push(`signup`)
+
 </script>
 
 <style scoped lang="sass">

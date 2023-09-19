@@ -54,6 +54,10 @@ export type CheckChannelInput = {
   channelName: Scalars['String'];
 };
 
+export type CheckPseudoInput = {
+  pseudo: Scalars['String'];
+};
+
 export type CreateChannelInput = {
   avatarUrl?: InputMaybe<Scalars['String']>;
   channelType: EChannelType;
@@ -397,6 +401,7 @@ export type OnNewChannelMessageForChannelIdInput = {
 export type Query = {
   __typename?: 'Query';
   checkChannelName: Scalars['Boolean'];
+  checkPseudo: Scalars['Boolean'];
   findAllChannelMembersForChannel: Array<ChannelMember>;
   findAllChannelMessagesForChannel: Array<ChannelMessage>;
   findAllChannels: Array<Channel>;
@@ -425,6 +430,11 @@ export type Query = {
 
 export type QueryCheckChannelNameArgs = {
   args: CheckChannelInput;
+};
+
+
+export type QueryCheckPseudoArgs = {
+  args: CheckPseudoInput;
 };
 
 
@@ -926,6 +936,13 @@ export type FindPublicUsersListQueryVariables = Exact<{ [key: string]: never; }>
 
 
 export type FindPublicUsersListQuery = { __typename?: 'Query', findPublicUsersList: Array<{ __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null }> };
+
+export type CheckPseudoQueryVariables = Exact<{
+  args: CheckPseudoInput;
+}>;
+
+
+export type CheckPseudoQuery = { __typename?: 'Query', checkPseudo: boolean };
 
 export type UsersPresenceUpdatedSubscriptionVariables = Exact<{
   args: FindUserPresencesInput;
@@ -1946,7 +1963,7 @@ export function useFindMyUserLazyQuery(options: VueApolloComposable.UseQueryOpti
 }
 export type FindMyUserQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindMyUserQuery, FindMyUserQueryVariables>;
 export const FindUserTwoFaSettingsDocument = gql`
-    query findUserTwoFaSettings {
+    query FindUserTwoFaSettings {
   findUserTwoFaSettings {
     googleAuthenticatorQrCode
   }
@@ -1973,7 +1990,7 @@ export function useFindUserTwoFaSettingsLazyQuery(options: VueApolloComposable.U
 }
 export type FindUserTwoFaSettingsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindUserTwoFaSettingsQuery, FindUserTwoFaSettingsQueryVariables>;
 export const UpdateMyUserDocument = gql`
-    mutation updateMyUser($args: UpdateMyUserInput!) {
+    mutation UpdateMyUser($args: UpdateMyUserInput!) {
   updateMyUser(args: $args) {
     id
     doubleAuth
@@ -2006,7 +2023,7 @@ export function useUpdateMyUserMutation(options: VueApolloComposable.UseMutation
 }
 export type UpdateMyUserMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<UpdateMyUserMutation, UpdateMyUserMutationVariables>;
 export const UpdateMyPasswordDocument = gql`
-    mutation updateMyPassword($args: UpdateMyPasswordInput!) {
+    mutation UpdateMyPassword($args: UpdateMyPasswordInput!) {
   updateMyPassword(args: $args)
 }
     `;
@@ -2033,7 +2050,7 @@ export function useUpdateMyPasswordMutation(options: VueApolloComposable.UseMuta
 }
 export type UpdateMyPasswordMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<UpdateMyPasswordMutation, UpdateMyPasswordMutationVariables>;
 export const IsGoogleAuthCodeValidDocument = gql`
-    mutation isGoogleAuthCodeValid($args: GoogleAuthCodeValidatorInput!) {
+    mutation IsGoogleAuthCodeValid($args: GoogleAuthCodeValidatorInput!) {
   isGoogleAuthCodeValid(args: $args)
 }
     `;
@@ -2357,6 +2374,34 @@ export function useFindPublicUsersListLazyQuery(options: VueApolloComposable.Use
   return VueApolloComposable.useLazyQuery<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>(FindPublicUsersListDocument, {}, options);
 }
 export type FindPublicUsersListQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>;
+export const CheckPseudoDocument = gql`
+    query CheckPseudo($args: CheckPseudoInput!) {
+  checkPseudo(args: $args)
+}
+    `;
+
+/**
+ * __useCheckPseudoQuery__
+ *
+ * To run a query within a Vue component, call `useCheckPseudoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCheckPseudoQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the query
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useCheckPseudoQuery({
+ *   args: // value for 'args'
+ * });
+ */
+export function useCheckPseudoQuery(variables: CheckPseudoQueryVariables | VueCompositionApi.Ref<CheckPseudoQueryVariables> | ReactiveFunction<CheckPseudoQueryVariables>, options: VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<CheckPseudoQuery, CheckPseudoQueryVariables>(CheckPseudoDocument, variables, options);
+}
+export function useCheckPseudoLazyQuery(variables: CheckPseudoQueryVariables | VueCompositionApi.Ref<CheckPseudoQueryVariables> | ReactiveFunction<CheckPseudoQueryVariables>, options: VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<CheckPseudoQuery, CheckPseudoQueryVariables>(CheckPseudoDocument, variables, options);
+}
+export type CheckPseudoQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<CheckPseudoQuery, CheckPseudoQueryVariables>;
 export const UsersPresenceUpdatedDocument = gql`
     subscription UsersPresenceUpdated($args: FindUserPresencesInput!) {
   usersPresenceUpdated(args: $args) {
