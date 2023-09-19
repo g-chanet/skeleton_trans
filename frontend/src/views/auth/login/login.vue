@@ -66,12 +66,13 @@ const form = ref({
 
 
 onError((e) => {
-  if (e.message == `GraphQL error: 4242`) {
+  if (e.message == `4242`) {
     ElMessageBox.prompt(`veuillez remplir votre code Google Authenticator`, `2fa`, {
       confirmButtonText: `OK`,
       cancelButtonText: `Cancel`,
       inputPattern: /^\d{6}$/,
-      inputErrorMessage: `Invalid Code`
+      inputErrorMessage: `Invalid Code`,
+      closeOnClickModal: false
     }).then(({ value }) => {
       if (value !== null) {
         form.value.doubleAuthCode = value
@@ -83,12 +84,12 @@ onError((e) => {
   else {
     console.log("error !")
     router.push('/login')
-  }
-  ElMessage({
+    ElMessage({
     showClose: true,
     message: e.message,
     type: `error`
   })
+  }
 })
 
 const onSubmitForm = () => {
