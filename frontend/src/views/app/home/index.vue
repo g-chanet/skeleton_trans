@@ -113,7 +113,7 @@ if (localGameStats.length == 0 && queryData.value?.findAllGameStatsSoftLimit) {
 
 if (localMatchmakings.value.length == 0 && queryMatchmakers.value?.findAllGameMatchmakingMemberl && !isDataInitialized.value) {
 	console.log(`refetch Matchmakings`)
-	localMatchmakings.value = computed(() => queryMatchmakers.value?.findAllGameMatchmakingMemberl).value
+	localMatchmakings.value = computed(() => queryMatchmakers.value?.findAllGameMatchmakingMemberl).value?.filter(member => member.userId != loggedInUser.value.id)
 	isDataInitialized.value = true
 	console.log(`after efetch: `, localMatchmakings.value)
 }
@@ -150,7 +150,7 @@ watch(matchmakersSub, (changedMember:GameMatchmakingMember) => {
         console.log(`received new :`, changedMember)
         tmp.unshift(changedMember)
       }
-      localMatchmakings.value = tmp
+      localMatchmakings.value = tmp.filter(member => member.userId != loggedInUser.value.id)
     }
 })
 
@@ -258,11 +258,6 @@ const onMatchMackingJoined = () => {
 	0%, 30%, 36%, 42%, 46%, 100%
 		text-stroke: 1px rgba(255, 66, 255, 0.5)
 		text-shadow: 0 0 5px rgba(255, 66, 255, 0.9), 0 0 10px rgba(255, 66, 255, 0.8), 0 0 20px rgba(255, 66, 255, 0.7), 0 0 40px rgba(255, 66, 255, 0.6), 0 0 80px rgba(255, 66, 255, 0.5), 0 0 120px rgba(255, 66, 255, 0.4)
-
-
-
-
-
 
 	
 @property --rotate

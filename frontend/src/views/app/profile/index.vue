@@ -49,7 +49,7 @@
 				<div class="graph-container">
 					<gameHistoryGraph style="height: 100%; width: 100%; display: flex;" :userId="loggedInUser?.id"/>
 				</div>
-				<el-scrollbar height="400px;" style="margin-top: 35px;">
+				<el-scrollbar height="2000px;" style="margin-top: 35px;">
     				<div v-for="item in userGameStats" :key="item.id">
 						<lastGameItem :id-player1="loggedInUser?.id" :id-player2="item.opponentId" :score1="item.userScore" :score2="item.opponentScore"/>
 					</div>

@@ -1,6 +1,6 @@
 <template>
   <div class="nav-bar-container">
-    <div class="top">
+    <div class="top" style="display: flex; justify-content: center; align-items: center; width: 100%;">
       <div class="panel-blur button-container">
         <el-button class="button" text @click="pushHome" :class="{selected: homeIsSelected}">
             <font-awesome-icon icon="gauge"></font-awesome-icon>
