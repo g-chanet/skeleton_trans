@@ -142,6 +142,7 @@ type Query {
   findPublicGeneralGameStatsForUser(userid: String!): GeneralUserGameStats!
   findAllGameStatsForUser: [GameStat!]!
   findAllPublicGameStatsForUser(userid: String!): [GameStat!]!
+  checkPseudo(args: CheckPseudoInput!): Boolean!
   findUserPresences(args: FindUserPresencesInput!): [UserPresence!]!
   findAllRelationsForMyUser: [UserRelation!]!
   findChannel(args: FindChannelInput!): Channel!
@@ -159,6 +160,10 @@ type Query {
 
 input FindUserInput {
   id: String!
+}
+
+input CheckPseudoInput {
+  pseudo: String!
 }
 
 input FindUserPresencesInput {
@@ -209,13 +214,6 @@ type Mutation {
   createMessageForChannel(args: CreateMessageForChannelInput!): ChannelMessage!
   updateMyMessageForChannel(args: UpdateMyMessageForChannelInput!): ChannelMessage!
   deleteMyMessageForChannel(args: DeleteMyMessageForChannelInput!): ChannelMessage!
-  createGame(args: CreateGameInput!): GameData!
-  updateGame(args: UpdateGameInput!): GameData!
-  joinGame(args: JoinGameInput!): GameData!
-  leaveGame(args: LeaveGameInput!): Boolean!
-  injectFalseGameStatData: Boolean!
-  removeFalseGameStatData: Boolean!
-  createGameStat(args: createGameStatInput!): GameStat!
   updateGameMemberForGame(args: UpdateGameMemberInput!): GameMember!
   joinGameMatchmakingMember: GameMatchmakingMember!
   leaveGameMatchmakingMember: GameMatchmakingMember!
@@ -227,6 +225,13 @@ type Mutation {
   signIn42: Boolean!
   signInDiscord: Boolean!
   logout: Boolean!
+  createGame(args: CreateGameInput!): GameData!
+  updateGame(args: UpdateGameInput!): GameData!
+  joinGame(args: JoinGameInput!): GameData!
+  leaveGame(args: LeaveGameInput!): Boolean!
+  injectFalseGameStatData: Boolean!
+  removeFalseGameStatData: Boolean!
+  createGameStat(args: createGameStatInput!): GameStat!
 }
 
 input UpdateMyUserInput {
@@ -304,6 +309,26 @@ input DeleteMyMessageForChannelInput {
   id: String!
 }
 
+input UpdateGameMemberInput {
+  gameId: String!
+}
+
+input SignInLocalInput {
+  password: String!
+  email: String!
+  doubleAuthCode: String!
+}
+
+input SignUpLocalInput {
+  password: String!
+  email: String!
+  username: String!
+}
+
+input GoogleAuthCodeValidatorInput {
+  code: String!
+}
+
 input CreateGameInput {
   userIds: [String!]!
 }
@@ -325,26 +350,6 @@ input createGameStatInput {
   userScore: String!
   opponentScore: String!
   isFakeData: Boolean!
-}
-
-input UpdateGameMemberInput {
-  gameId: String!
-}
-
-input SignInLocalInput {
-  password: String!
-  email: String!
-  doubleAuthCode: String!
-}
-
-input SignUpLocalInput {
-  password: String!
-  email: String!
-  username: String!
-}
-
-input GoogleAuthCodeValidatorInput {
-  code: String!
 }
 
 type Subscription {
