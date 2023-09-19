@@ -1,26 +1,28 @@
 import { ObjectType, Field } from '@nestjs/graphql'
-import { User } from '../../users/entities/user.entity'
 
 @ObjectType()
 export class GameStat {
-	@Field(() => String)
+	@Field(() => String, { nullable: true })
 	id: string
 
-	@Field(() => User)
-	user: User
+	@Field(() => Boolean, { defaultValue: false })
+	isDeleted: Boolean
 
-	@Field(() => String)
+	@Field(() => String, { nullable: true })
+	userId: String
+
+	@Field(() => String, { nullable: true })
 	opponentId: String
 
-	@Field(() => Boolean)
+	@Field(() => Boolean, { nullable: true })
 	isWinner: Boolean
 
-	@Field(() => String)
+	@Field(() => String, { nullable: true })
 	userScore: String
 
-	@Field(() => String)
+	@Field(() => String, { nullable: true })
 	opponentScore: String
 
-	@Field(() => String)
+	@Field(() => String, { nullable: true })
 	createdAt: String
 }

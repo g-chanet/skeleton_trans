@@ -117,10 +117,13 @@ model ChannelMessage {
 //**************************************************//
 
 model Game {
-  id          String       @id @default(nanoid())
-  gameMembers GameMember[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id           String       @id @default(nanoid())
+  gameMembers  GameMember[]
+  message      String?      @default("Join this game to play against me !")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  isDeleted    Boolean      @default(false)
+  targetUserId String?
 }
 
 model GameMember {
@@ -143,7 +146,7 @@ model GameStat {
   isWinner      Boolean
   userScore     String
   opponentScore String
-  isFakeData    Boolean @default(false)
+  isFakeData    Boolean  @default(false)
 
   @@id([id, userId])
 }
@@ -152,6 +155,8 @@ model GameMatchmakingMember {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String   @id
   createdAt DateTime @default(now())
+  isDeleted Boolean  @default(false)
+  message   String?  @default("Join this game to play against me !")
 }
 
 //**************************************************//

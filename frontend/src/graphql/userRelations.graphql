@@ -48,6 +48,26 @@ mutation RemoveFriend($args: UpdateUserRelationInput!) {
     }
 }
 
+mutation BlockRelation($userTargetId: String!) {
+    blockRelation(args: {userTargetid: $userTargetId}) {
+        userOwnerId
+        userTargetId
+        type
+        createdAt
+        updatedAt
+    }
+}
+
+mutation UnblockRelation($userTargetId: String!) {
+    unblockRelation(args: {userTargetid: $userTargetId}) {
+        userOwnerId
+        userTargetId
+        type
+        createdAt
+        updatedAt
+    }
+}
+
 subscription onUserRelationsChanged($userId: String!) {
   userRelationsChanged(userId: $userId) {
    		userOwnerId

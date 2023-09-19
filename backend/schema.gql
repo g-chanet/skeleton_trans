@@ -3,13 +3,14 @@
 # ------------------------------------------------------
 
 type GameStat {
-  id: String!
-  user: User!
-  opponentId: String!
-  isWinner: Boolean!
-  userScore: String!
-  opponentScore: String!
-  createdAt: String!
+  id: String
+  isDeleted: Boolean!
+  userId: String
+  opponentId: String
+  isWinner: Boolean
+  userScore: String
+  opponentScore: String
+  createdAt: String
 }
 
 type UserPublic {
@@ -48,6 +49,12 @@ type GeneralUserGameStats {
   MeanPoints: Float!
 }
 
+type UserPublicGameInfos {
+  username: String!
+  avatarUrl: String!
+  ratio: Float!
+}
+
 type UserPresence {
   id: String!
   userId: String!
@@ -55,18 +62,35 @@ type UserPresence {
   disconnectedAt: DateTime!
 }
 
-type GameMatchmakingMember {
-  userId: String!
-}
-
 type GameMember {
   gameId: String!
   userId: String!
+  userGameInfos: UserPublicGameInfos!
+}
+
+type Game {
+  id: String!
+  message: String!
+  gameMembers: [GameMember!]
+  isDeleted: Boolean!
+  targetUserId: String
+  createdAt: DateTime!
 }
 
 type GameData {
   id: String!
-  gameMembers: [GameMember!]!
+  message: String!
+  gameMembers: [GameMember!]
+  isDeleted: Boolean!
+  targetUserId: String
+  createdAt: DateTime!
+}
+
+type GameMatchmakingMember {
+  userId: String!
+  message: String!
+  isDeleted: Boolean!
+  userGameInfos: UserPublicGameInfos!
 }
 
 type ChannelMessage {
@@ -143,6 +167,7 @@ type Query {
   findAllGameStatsForUser: [GameStat!]!
   findAllPublicGameStatsForUser(userid: String!): [GameStat!]!
   checkPseudo(args: CheckPseudoInput!): Boolean!
+  findPublicGameInfosForUser(userid: String!): UserPublicGameInfos!
   findUserPresences(args: FindUserPresencesInput!): [UserPresence!]!
   findAllRelationsForMyUser: [UserRelation!]!
   findChannel(args: FindChannelInput!): Channel!
@@ -156,6 +181,9 @@ type Query {
   findAllChannelMessagesForChannel(args: FindAllMessagesForChannelInput!): [ChannelMessage!]!
   findUserForChannelMessage(args: FindUserForChannelMessageInput!): UserPublic!
   findAllGameMatchmakingMemberl: [GameMatchmakingMember!]!
+  findAllGameStatsSoftLimit: [GameStat!]!
+  findAllGames: [Game!]!
+  findGame: Game!
 }
 
 input FindUserInput {
@@ -203,6 +231,7 @@ type Mutation {
   acceptFriendRequest(args: UpdateUserRelationInput!): UserRelation!
   refuseFriendRequest(args: UpdateUserRelationInput!): UserRelation!
   blockRelation(args: UpdateUserRelationInput!): UserRelation!
+  unblockRelation(args: UpdateUserRelationInput!): UserRelation!
   removeFriend(args: UpdateUserRelationInput!): UserRelation!
   createChannel(args: CreateChannelInput!): Channel!
   updateChannel(args: UpdateChannelInput!): Channel!
@@ -227,8 +256,8 @@ type Mutation {
   logout: Boolean!
   createGame(args: CreateGameInput!): GameData!
   updateGame(args: UpdateGameInput!): GameData!
-  joinGame(args: JoinGameInput!): GameData!
-  leaveGame(args: LeaveGameInput!): Boolean!
+  joinGame(args: JoinGameInput!): Game!
+  leaveGame: Boolean!
   injectFalseGameStatData: Boolean!
   removeFalseGameStatData: Boolean!
   createGameStat(args: createGameStatInput!): GameStat!
@@ -330,7 +359,7 @@ input GoogleAuthCodeValidatorInput {
 }
 
 input CreateGameInput {
-  userIds: [String!]!
+  message: String
 }
 
 input UpdateGameInput {
@@ -338,10 +367,6 @@ input UpdateGameInput {
 }
 
 input JoinGameInput {
-  id: String!
-}
-
-input LeaveGameInput {
   id: String!
 }
 
@@ -363,6 +388,10 @@ type Subscription {
   onDeleteChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!
   onNewChannelMessageForChannelId(args: OnNewChannelMessageForChannelIdInput!): ChannelMessage!
   onDeleteChannelMessageForChannel(args: OnDeleteChannelMessageForChannel!): ChannelMessage!
+  matchmakingMembersChanged: GameMatchmakingMember!
+  allGamesStatsUpdated: GameStat
+  allGamesUpdated: Game
+  allGamesStatsUpdatedForUser(userId: String!): GameStat!
 }
 
 input OnChannelInput {

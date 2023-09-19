@@ -4,6 +4,9 @@
 		<el-tabs  v-model="activeTab" class="demo-tabs">
 		<el-tab-pane label="Général" name="first">
 			<el-form label-width="30%" :label-position="`left`" status-icon>
+			<el-form-item label="gestion des utilisateurs">
+				<el-button @click="refBlockDialog.changeDialogVisibility()">utilisateurs bloqués</el-button>
+			</el-form-item>
 			<el-form-item label="Générer des fausses données de jeu">
 					<el-button @click="generateFakeGameStats()">Générer</el-button>
 			</el-form-item>
@@ -117,11 +120,13 @@
 		</el-tabs>
 	  </el-dialog>
 	</div>
+	<blockUsersDialog ref="refBlockDialog"/>
   </template>
   
   <script setup lang="ts">
   import { ref, computed } from 'vue'
   import { ElMessage } from 'element-plus'
+  import blockUsersDialog from './blockUsersDialog.vue'
   import { useFindMyUserQuery,
 			useFindUserTwoFaSettingsQuery,
 			useUpdateMyUserMutation,
@@ -142,6 +147,7 @@
   const paramDialogVisible = ref(false)
   const showPseudoInput = ref(false)
   const showPasswordInput = ref(false)
+  const refBlockDialog = false
   
   let loggedInUser = computed(() => resultForMyUser.value?.findMyUser)
   console.log(loggedInUser.value )

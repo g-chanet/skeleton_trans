@@ -13,6 +13,7 @@ import { GamesModule } from './games/games.module'
 import { ChannelMessagesModule } from './channel-messages/channel-messages.module'
 import { ChannelMembersModule } from './channel-members/channel-members.module'
 import { ChannelsModule } from './channels/channels.module'
+import { GamesModule } from './games/games.module'
 import { UserRelationsModule } from './user-relations/user-relations.module'
 import { PubSubModule } from './pub-sub/pub-sub.module'
 import { PassportModule } from '@nestjs/passport'
@@ -42,6 +43,7 @@ import { UserPresencesService } from './user-presences/user-presences.service'
     GameMembersModule,
     GameMatchmakingMembersModule,
     AuthModule,
+    GamesModule,
     PubSubModule,
     GamesModule,
     PassportModule.register({ session: true }),
@@ -49,4 +51,4 @@ import { UserPresencesService } from './user-presences/user-presences.service'
   providers: [AppGateway, UserPresencesService],
   //controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule { }

@@ -8,6 +8,7 @@ import {
   UserTwoFaSettings,
   DailyGameRatios,
   GeneralUserGameStats,
+  UserPublicGameInfos,
 } from './entities/user.entity'
 import * as DTO from './dto/user.input'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
@@ -223,9 +224,24 @@ export class UsersResolver {
     return gameStats
   }
 
-  @Query(() => Boolean)
-  async checkPseudo(@Args(`args`) args: DTO.CheckPseudoInput) {
-    return await this.usersService.checkPseudo(args.pseudo)
+  @Query(() => UserPublicGameInfos)
+  @UseGuards(GqlAuthGuard)
+  async findPublicGameInfosForUser(@Args(`userid`) userid: string) {
+    const usr = await this.usersService.findOne(userid)
+    const gameStats = usr.gameStats
+    let totalwins = 0
+
+    gameStats.forEach((stats) => {
+      if (stats.isWinner) {
+        totalwins++
+      }
+    })
+    const result: UserPublicGameInfos = {
+      ratio: totalwins / gameStats.length,
+      avatarUrl: usr.avatarUrl,
+      username: usr.username,
+    }
+    return result
   }
 }
 

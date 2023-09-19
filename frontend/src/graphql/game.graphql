@@ -1,0 +1,114 @@
+subscription AllGamesUpdated {
+    allGamesUpdated {
+		id
+        message
+        isDeleted
+        createdAt
+        targetUserId
+        gameMembers {
+            gameId
+            userId
+            userGameInfos {
+                username
+                avatarUrl
+                ratio
+            }
+        }
+    }
+}
+
+query FindAllGames {
+    findAllGames {
+		id
+        message
+        isDeleted
+        createdAt
+        targetUserId
+        gameMembers {
+            gameId
+            userId
+            userGameInfos {
+                username
+                avatarUrl
+                ratio
+            }
+        }
+    }
+}
+
+mutation CreateGame($message: String) {
+    createGame(args: {message: $message}) {
+        id
+        message
+        isDeleted
+        createdAt
+        targetUserId
+        gameMembers {
+            gameId
+            userId
+            userGameInfos {
+                username
+                avatarUrl
+                ratio
+            }
+        }
+    }
+}
+
+mutation LeaveGame {
+    leaveGame
+}
+
+query FindPublicGameInfosForUser($userId: String!) {
+    findPublicGameInfosForUser(userid: $userId) {
+        username
+        avatarUrl
+        ratio
+    }
+}
+
+mutation LeaveGameMatchmakingMember {
+    leaveGameMatchmakingMember {
+        userId
+        message
+    }
+}
+
+mutation JoinGameMatchmakingMember {
+    joinGameMatchmakingMember {
+        userId
+        isDeleted
+        userGameInfos {
+            username
+            avatarUrl
+            ratio
+        }
+        message
+    }
+}
+
+subscription MatchmakingMembersChanged {
+    matchmakingMembersChanged {
+        userId
+        isDeleted
+        userGameInfos {
+            username
+            avatarUrl
+            ratio
+        }
+        message
+    }
+}
+
+query FindAllGameMatchmakingMemberl {
+    findAllGameMatchmakingMemberl {
+        userId
+        isDeleted
+        userGameInfos {
+            username
+            avatarUrl
+            ratio
+        }
+        message
+    }
+}

@@ -31,7 +31,6 @@ export class UserTwoFaSettings {
   googleAuthenticatorQrCode: string
 }
 
-
 @ObjectType()
 export class DailyGameRatios {
   @Field(() => Date)
@@ -63,4 +62,16 @@ export class GeneralUserGameStats {
 
   @Field(() => Number)
   MeanPoints: number
+}
+
+@ObjectType()
+export class UserPublicGameInfos {
+  @Field(() => String)
+  username: string
+
+  @Field(() => String)
+  avatarUrl: string
+
+  @Field(() => Number)
+  ratio: number
 }

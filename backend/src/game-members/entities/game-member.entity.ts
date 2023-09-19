@@ -1,4 +1,5 @@
 import { ObjectType, Field } from '@nestjs/graphql'
+import { UserPublicGameInfos } from 'src/users/entities/user.entity'
 
 @ObjectType()
 export class GameMember {
@@ -7,4 +8,7 @@ export class GameMember {
 
   @Field(() => String)
   userId: string
+
+  @Field(() => UserPublicGameInfos)
+  userGameInfos: UserPublicGameInfos
 }

@@ -100,6 +100,18 @@ export class UserRelationsResolver {
 
   @Mutation(() => UserRelation)
   @UseGuards(GqlAuthGuard)
+  async unblockRelation(
+    @CtxUser() user: User,
+    @Args(`args`) args: DTO.UpdateUserRelationInput,
+  ) {
+    return await this.userRelationsService.unblockRelation(
+      user.id,
+      args.userTargetid,
+    )
+  }
+
+  @Mutation(() => UserRelation)
+  @UseGuards(GqlAuthGuard)
   async removeFriend(
     @CtxUser() user: User,
     @Args(`args`) args: DTO.UpdateUserRelationInput,

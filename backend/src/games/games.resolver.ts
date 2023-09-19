@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common'
 import { GameData } from './entities/game-data.entity'
-import { Resolver, Mutation, Args } from '@nestjs/graphql'
+import { Resolver, Mutation, Args, Query, Subscription } from '@nestjs/graphql'
 import { GamesService } from './games.service'
 import { UsersService } from '../users/users.service'
 import { Game } from './entities/game.entity'
@@ -11,13 +11,14 @@ import * as DTO from './dto/game.input'
 import * as GAMESTATDTO from './dto/gameStat.input'
 import { randomInt } from 'crypto'
 import { GameStat } from './entities/gameStat.entity'
+import { PubSub } from 'graphql-subscriptions'
 
 @Resolver(() => Game)
-@UseGuards(GqlAuthGuard)
 export class GamesResolver {
   constructor(
     private readonly gamesService: GamesService,
     private readonly userService: UsersService,
+    private readonly pubSub: PubSub,
   ) {}
 
   //**************************************************//
@@ -25,14 +26,13 @@ export class GamesResolver {
   //**************************************************//
 
   @Mutation(() => GameData)
+  @UseGuards(GqlAuthGuard)
   createGame(@CtxUser() user: User, @Args(`args`) args: DTO.CreateGameInput) {
     return this.gamesService.create({
-      ...args,
+      message: args.message,
       gameMembers: {
-        createMany: {
-          data: args.userIds.map((e) => ({
-            userId: e,
-          })),
+        create: {
+          userId: user.id,
         },
       },
     })
@@ -43,14 +43,24 @@ export class GamesResolver {
     return this.gamesService.update(args.id, args)
   }
 
-  @Mutation(() => GameData)
+  @Mutation(() => Game)
+  @UseGuards(GqlAuthGuard)
   joinGame(@CtxUser() user: User, @Args(`args`) args: DTO.JoinGameInput) {
     return this.gamesService.playerJoin(args.id, user)
   }
 
   @Mutation(() => Boolean)
-  leaveGame(@CtxUser() user: User, @Args(`args`) args: DTO.LeaveGameInput) {
-    return this.gamesService.playerLeave(args.id, user)
+  @UseGuards(GqlAuthGuard)
+  async leaveGame(@CtxUser() user: User) {
+    const userGame = await this.gamesService.findGameByUserId(user.id)
+    if (
+      userGame &&
+      (await this.gamesService.playerLeave(userGame.id, user)).userId == user.id
+    ) {
+      return true
+    } else {
+      return false
+    }
   }
 
   @Mutation(() => Boolean)
@@ -91,7 +101,6 @@ export class GamesResolver {
             isWinner: false,
           })
         }
-        console.log(gameStat)
       }
     }
     return true
@@ -110,7 +119,6 @@ export class GamesResolver {
   }
 
   @Mutation(() => GameStat)
-  @UseGuards(GqlAuthGuard)
   async createGameStat(
     @CtxUser() user: User,
     @Args(`args`) args: GAMESTATDTO.createGameStatInput,
@@ -128,15 +136,50 @@ export class GamesResolver {
       userId: user.id,
       isFakeData: args.isFakeData,
     })
-
-    console.log(gameStat)
     return gameStat
   }
   //**************************************************//
   //  QUERY
   //**************************************************//
 
+  @Query(() => [GameStat])
+  async findAllGameStatsSoftLimit() {
+    const gameStats = await this.gamesService.findManyGameStatsSoftLimit(20)
+    return gameStats
+  }
+
+  @Query(() => [Game])
+  async findAllGames() {
+    return await this.gamesService.findAll()
+  }
+
+  @Query(() => Game)
+  async findGame(gameId) {
+    return await this.gamesService.findOne(gameId)
+  }
+
   //**************************************************//
   //  SUBSCRIPTION
   //**************************************************//
+
+  @Subscription(() => GameStat, { nullable: true })
+  allGamesStatsUpdated() {
+    const res = this.pubSub.asyncIterator(`allGamestatsUpdated`)
+    return res
+  }
+
+  @Subscription(() => Game, { nullable: true })
+  allGamesUpdated() {
+    const res = this.pubSub.asyncIterator(`allGamesUpdated`)
+    return res
+  }
+
+  @Subscription(() => GameStat, {
+    filter: (payload, variables) => payload.userId === variables.userId,
+  })
+  allGamesStatsUpdatedForUser(@Args(`userId`) userId: string) {
+    console.log(`userGamesStats:${userId}`)
+    const res = this.pubSub.asyncIterator(`userGamesStats:${userId}`)
+    return res
+  }
 }
