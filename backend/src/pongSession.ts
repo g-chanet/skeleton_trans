@@ -4,6 +4,11 @@ export type DeepReadonly<T> = T extends primitive ? T : DeepReadonlyObject<T>
 export type DeepReadonlyObject<T> = {
   readonly [P in keyof T]: DeepReadonly<T[P]>
 }
+import {
+  endGameOnFailure,
+  endGameOnSuccess,
+  scoreFetch,
+} from 'src/games/games.service'
 
 export interface PongPlayer {
   socketId: string
@@ -112,9 +117,28 @@ export class PongSession {
     return true
   }
 
-  public setGameFinished(): void {
+  public setGameFinishedNormally(): void {
     this._pongData.gameDone = true
-    //envoyer GameSuccess - roomId
+    try {
+      const { playerA, playerB } = this._pongData
+      endGameOnSuccess(this.roomId, playerA.score, playerB.score)
+    } catch (error) {
+      console.error(
+        `Error sending gameStats data, but game was finished normally.`,
+      )
+    }
+  }
+
+  public setGameFinishedAbrubtly(): void {
+    this._pongData.gameDone = true
+    try {
+      endGameOnFailure(this.roomId)
+    } catch (error) {
+      console.error(
+        `Error sending gameStats data, the game was finished unexpectedly.`,
+      )
+    }
+    //envoyer GameError - roomId
   }
 
   public setGamePause(): void {
@@ -252,6 +276,10 @@ export class PongSession {
       this.gameLoopRunning = true
       this.moveBall()
       this.collisionCheck()
+      scoreFetch(
+        this._pongData.playerA.score,
+        this._pongData.playerB.score,
+      ) /* RECUPERATION DU SCORE POUR TOTOR */
       this.server.to(this.roomId).emit(`updatePongData`, this.pongData)
       if (!this.gameLoopRunning) this.stopGameLoop()
     }, GAME_LOOP_INTERVAL)
@@ -359,12 +387,12 @@ export class PongSession {
       this.server.to(this.roomId).emit(`victory`, `playerA`)
       this.stopGameLoop()
       this.setPlayersNotReady()
-      this.setGameFinished()
+      this.setGameFinishedNormally()
       //send gameStats
     } else if (this.pongData.playerB && this.pongData.playerB.score >= 11) {
       this.stopGameLoop()
       this.setPlayersNotReady()
-      this.setGameFinished()
+      this.setGameFinishedNormally()
       this.server.to(this.roomId).emit(`victory`, `playerB`)
       //send gameStats
     }
@@ -374,10 +402,10 @@ export class PongSession {
     if (this._pongData.playerA) {
       this.server.to(this.roomId).emit(`gameOverDisconnect`)
       this.stopGameLoop()
-      this.setGameFinished()
+      this.setGameFinishedAbrubtly()
     } else if (this.pongData.playerB) {
       this.stopGameLoop()
-      this.setGameFinished()
+      this.setGameFinishedAbrubtly()
       this.server.to(this.roomId).emit(`gameOverDisconnect`)
     }
   }
