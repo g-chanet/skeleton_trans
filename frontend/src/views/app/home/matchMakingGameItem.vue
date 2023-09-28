@@ -1,39 +1,64 @@
 <template>
-	<div class="matchmaking-item-layout">
-		<div class="picture-view">
-			<img style="border-radius: var(--el-border-radius-base); object-fit: cover; width:272px" src="../../../assets/card.png"/>
-		</div>
-		<div class="text-view">
-			<div style="display: flex; flex-direction: row; justify-content: space-between; height: 50%;">
+	<div class="matchmaking-item-layout" :class="{ 'isprivate' : isPrivate}">
+			<div class="head-text-view">
 				<div class="player-and-ration-layout">
 					<p class="player-text">PLAYER</p>
-					<p class="username-text">{{ publicInfos?.username }}</p>
+					<p class="username-text">{{ truncateStr(matchmakingItem?.userGameInfos?.username, 10) || "-" }}</p>
 				</div>
 				<div class="player-and-ration-layout">
 					<p class="player-text">RATIO</p>
-					<p class="ratio-text" >{{ publicInfos?.ratio }}</p>
+					<p class="ratio-text" >{{ matchmakingItem?.userGameInfos?.ratio || "9.9"}}</p>
 				</div>
 			</div>
-			<div>
+			<div class="picture-view">
+				<img class="picture" src="../../../assets/card.png"/>
+			</div>
 				<div class="message-layout">
-					<h1 class="player-text">MESSAGE SPECIAL</h1>
-					<div style="display:flex; flex-direction: row;">
-						<img style="margin-top: -20px;" src="../../../assets/icon-message.svg">
-						<h1 class="message-text">{{ message }}</h1>
+					<div v-if="!matchmakingItem?.targetUserId" style="display:flex; flex-direction: row;">
+						<img src="../../../assets/icon-message.svg">
+						<h1 class="message-text">{{ truncateStr(matchmakingItem?.message, 20) || "-" }}</h1>
+					</div>
+					<div v-if="matchmakingItem?.targetUserId" style="display:flex; flex-direction: row; justify-content: center; align-items:center">
+						<div class="accept-btn" @click="acceptGameInvite()">accept</div>
+						<div class="refuse-btn" @click="refuseGameInvite()">refuse</div>
 					</div>
 				</div>
-			</div>
-		</div>
 		</div>
 </template>
 	  
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+import { type GameMatchmakingMember, useJoinGameMatchmakingMemberMutation, useRefuseMatchMakingInviteMutation } from '@/graphql/graphql-operations'
+import { ElMessage } from 'element-plus'
+
+const { mutate:joinMatchmakingMutate } = useJoinGameMatchmakingMemberMutation()
+const { mutate:refuseMatchmakingMutate } = useRefuseMatchMakingInviteMutation()
 
 const props = defineProps({
-  publicInfos: Object,
-  message: String,
+  matchmakingItem: Object as () => GameMatchmakingMember
 })
-console.log(props.publicInfos)
+
+const acceptGameInvite = () => {
+	joinMatchmakingMutate({ userTargetId : props.matchmakingItem?.userId})
+	.catch((error) => {
+		ElMessage.error(error)
+	})
+}
+
+const refuseGameInvite = () => {
+	refuseMatchmakingMutate({ matchMakerId: props.matchmakingItem?.userId })
+	.catch((error) => {
+		ElMessage.error(error)
+	})
+}
+const truncateStr = (str:String, limit:number) => {
+	if (str.length < limit) {
+		return str
+	}
+	else {
+		return str.slice(0, limit) + "..."
+	}
+}
 
 </script>
 
@@ -41,72 +66,103 @@ console.log(props.publicInfos)
 
 .matchmaking-item-layout
 	display: flex
-	height: 100%
-	width: 100%
+	flex-shrink: 0
+	height: 90%
+	margin-top: 5%
+	width: 14vw
+	margin-left: 30px
 	flex-direction: column
-
-.player-text
-	font-family: "Roboto"
-	font-weight: 300
-	letter-spacing: 0.35em
-	font-size: 9px
-	-webkit-font-smoothing: antialiased
-	-moz-osx-font-smoothing: grayscale
-
-.player-and-ration-layout
-	display: flex
-	justify-content: stretch
-	flex-direction: column
-	margin: 30px
-	margin-top: 35px
-
-.message-layout
-	display: flex
-	justify-content: stretch
-	flex-direction: column
-	margin: 30px
-	margin-top: 10px
-.message-text
-	font-family: "Roboto"
-	font-weight: 400
-	font-size: 10px
-	margin-left: 5px
-	margin-top: -5px
-
-.username-text
-	font-family: "Roboto"
-	font-weight: 300
-	color: #f0c777
-	font-size: 24px
-	margin-top: -7px
-	-webkit-font-smoothing: antialiased
-	-moz-osx-font-smoothing: grayscale
-
-.ratio-text
-	font-family: "Roboto"
-	font-weight: 300
-	font-style: italic
-	color: #f0c777
-	font-size: 35px
-	margin-top: -7px
-	-webkit-font-smoothing: antialiased
-	-moz-osx-font-smoothing: grayscale
-.text-view
-	height: 50%
-	background-image: url("../../../assets/card.svg")
-	background-repeat: no-repeat
-	background-size: cover
+	background: #111115
 	border-radius: var(--el-border-radius-base)
-	margin-top: -70px
-	width: 100%
-	display: flex
-	flex-direction: column
-	justify-content: space-evenly
+	align-self: center
+	cursor: pointer
+	&.isprivate
+		border: 1px solid #EDB15A
 
-.picture-view
-	height: 60%
-	width: 100%
-	display: flex
+	.head-text-view
+		display: flex
+		flex-direction: row
+		justify-content: space-between
+		
+	.picture-view
+		height: 50%
+		width: 70%
+		justify-self: center
+		align-self: center
+	.picture
+		width: 100%
+		height: 100%
+		border-radius: var(--el-border-radius-base)
 
+	.player-text
+		font-family: "Roboto"
+		font-weight: 300
+		letter-spacing: 0.35em
+		font-size: 9px
+		-webkit-font-smoothing: antialiased
+		-moz-osx-font-smoothing: grayscale
+
+	.player-and-ration-layout
+		display: flex
+		justify-content: stretch
+		flex-direction: column
+		margin: 10px
+		margin-bottom: 0px
+
+	.message-layout
+		margin: 10px
+		margin-bottom: -4px
+		display: flex
+		justify-content: stretch
+		flex-direction: column
+	.message-text
+		font-family: "Roboto"
+		font-weight: 400
+		font-size: 10px
+		// margin-top: -6px
+
+	.username-text
+		font-family: "Roboto"
+		font-weight: 400
+		color: #00FF0A
+		font-size: 20px
+		-webkit-font-smoothing: antialiased
+		-moz-osx-font-smoothing: grayscale
+		margin-top: -5px
+
+	.ratio-text
+		font-family: "Roboto"
+		font-weight: 400
+		font-style: italic
+		color: #00FF0A
+		font-size: 20px
+		-webkit-font-smoothing: antialiased
+		-moz-osx-font-smoothing: grayscale
+		margin-top: -5px
+
+	.accept-btn
+		background: rgba(0, 255, 10, 0.18)
+		align-items: center
+		width: 45%
+		display: flex
+		justify-content: center
+		margin-right: 2%
+		border-top-left-radius: 5px
+		border-bottom-left-radius: 5px
+		height: 100%
+		padding: 1%
+		color: #00FF0A
+	.refuse-btn
+		background: rgba(255, 4, 4, 0.18)
+		width: 45%
+		align-items: center
+		display: flex
+		justify-content: center
+		margin-left: 2%
+		border-top-right-radius: 5px
+		border-bottom-right-radius: 5px
+		height: 100%
+		padding: 1%
+		color: rgba(255, 4, 4, 1)
 </style>
 	  

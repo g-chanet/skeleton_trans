@@ -372,7 +372,7 @@ export class PongSession {
       this.updateScore()
     } else if (
       this._pongData.ball.position.x + this._pongData.ball.radius >=
-        this._pongData.stageWidth &&
+      this._pongData.stageWidth &&
       this._pongData.playerA
     ) {
       const playerAId = this._pongData.playerA.socketId

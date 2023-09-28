@@ -8,4 +8,8 @@ export class GameMatchmakingMember {
   message: string
   @Field(() => Boolean)
   isDeleted: boolean
+  @Field(() => String, { nullable: true })
+  targetUserId: string
+  @Field(() => Boolean, { nullable: true })
+  isLaunched: boolean
 }

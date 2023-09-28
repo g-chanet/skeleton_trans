@@ -2,61 +2,65 @@
 <div class="common-layout">
     <el-container>
       <el-container>
-        <el-header>
-			<div style="justify-content: space-around; display: flex;">
-				<el-button @click="onMatchMackingJoined()" class="btn-5"><span>Join Matchmaking</span></el-button>
-				<el-button @click="RefNewOfflineGameDialog.changeDialogVisibility()" class="btn-5"><span>Play Offline</span></el-button>
-			</div>
+        <el-header style="height: 3vh">
+			<el-input class="input-base"
+				placeholder="Type something"
+				:prefix-icon="Search"
+			/>
 		</el-header>
         <el-main>
-			<div class="matchmaking-layout">
-				<!-- <h1 class="big-ratio-font-match">Matchmaking</h1> -->
-				<el-scrollbar>
-   				<div class="scrollbar-flex-content">
-					<el-empty v-if="!localMatchmakings.length" image="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"/>
-     				 <div v-for="item in localMatchmakings" :key="item.userId" class="matchmaking-item">
-       					 <matchMakingGameItem :publicInfos="item?.userGameInfos" :message="item?.message"/>
-					 </div>
-    			</div>
-  			</el-scrollbar>
-			</div>
-			<div style="display:flex; justify-content: center; height: 60%; margin-top: 20px; align-items: center;">
-				<h1 class="big-ratio-font-hist">Historique</h1>
-				<el-scrollbar>
-						<div v-for="item in gameStats" :key="item.id">
-							<newLastGameItem :id-player1="item.userId" :score1="item.userScore" :score2="item.opponentScore" :id-player2="item.opponentId"/>
+			<div class="matchmakings-layout">
+				<h1 class="title-header">GAMES</h1>
+				<div class="games-list-and-buttons-container">
+					<div class="games-buttons-container">
+						<div class="instant-matchmaking-btn" @click="onMatchMackingJoined()">
+							<h1>instant matchmaking</h1>
 						</div>
-				</el-scrollbar>
+						<div class="create-game-btn" @click="RefNewOfflineGameDialog.changeDialogVisibility()">
+							<el-icon :size="60" style="color: #4422EF;"><Plus /></el-icon>
+							<h1>create a new game</h1>
+						</div>
+					</div>
+					<div class="games-list-container">
+						<el-scrollbar>
+							<div style="display: flex; width: 50%; height:100%">
+								<p v-for="item in localMatchmakings" :key="item">
+									<matchMakingGameItem :matchmakingItem="item" />
+								</p>
+							</div>
+						</el-scrollbar>
+					</div>
+				</div>
 			</div>
+			<div class="last-games-layout">
+				<div class="active-games-container">
+					<h1 class="title-header">ACTIVE GAMES</h1>
+					<div class="active-games-list-container">
+						<el-scrollbar>
+							<div>
+								<p v-for="item in 50" :key="item">
+									<ActiveGameComponent/>
+								</p>
+							</div>
+						</el-scrollbar>
+					</div>
+				</div>
+				<div class="past-games-container">
+					<h1 class="title-header">GAME HISTORY</h1>
+					<div class="last-games-list-container">
+						<el-scrollbar>
+							<div>
+								<p v-for="item in gameStats" :key="item">
+									<newLastGameItem :id-player1="item.userId" :id-player2="item.opponentId" :score1="item.userScore" :score2="item.opponentScore"></newLastGameItem>
+								</p>
+							</div>
+						</el-scrollbar>
+					</div>
+				</div>
+			</div>
+			
 		</el-main>
       </el-container>
-	  <el-aside class="aside-layout">
-			<div class="card">
-				<div style="display: flex; flex-direction: column; justify-content:stretch;">
-					<h1 class="big-ratio-font-num">7.7</h1>
-					<h1 class="big-ratio-font-printed">Ratio</h1>
-				</div>
-			</div>
-		<div class="current-games-layout">
-			<h1>Parties en attente</h1>
-			<el-scrollbar>
-				<div v-for="item in matchMakers" :key="item" class="current-games-item">
-					<MatchmakerWaitingComponent/>
-				</div>
-			</el-scrollbar>
-			<el-scrollbar>
-				<div v-for="item in waitingGames" :key="item" class="current-games-item">
-					<HostedGames :targetUserId="item.targetUserId" :createdAt="item.createdAt"/>
-				</div>
-			</el-scrollbar>
-			<h1>Invitations</h1>
-			<el-scrollbar>
-				<div v-for="item in invitedGames" :key="item" class="current-games-item">
-					<CurrentsGames :publicInfos="item.gameMembers?.at(0)?.userGameInfos" :createdAt="item.createdAt"/>
-				</div>
-			</el-scrollbar>
-		</div>
-	  </el-aside>
     </el-container>
 	<matchmakingDialog/>
 	<newGameDialog ref="RefNewOfflineGameDialog"/>
@@ -67,9 +71,7 @@
 <script setup lang="ts">
 import newLastGameItem  from "../profile/components/newLastGameItem.vue"
 import matchMakingGameItem from "./matchMakingGameItem.vue"
-import CurrentsGames from "./CurrentsGames.vue"
-import HostedGames from "./HostedGames.vue"
-import MatchmakerWaitingComponent from "./MatchmakerWaitingComponent.vue"
+import ActiveGameComponent from "./ActiveGameComponent.vue"
 import { computed, ref, inject, watch } from "vue"
 import { useFindAllGameStatsSoftLimitQuery,
 	useFindAllGamesQuery, 
@@ -83,9 +85,11 @@ import { useFindAllGameStatsSoftLimitQuery,
 	type GameMatchmakingMember,
 	type Game, } from '@/graphql/graphql-operations'
 import  matchmakingDialog  from "./matchmakingDialog.vue"
+import { Calendar, Search } from '@element-plus/icons-vue'
 import newGameDialog from "./newGameDialog.vue"
 import { ElMessage } from "element-plus"
 import { useRouter } from 'vue-router'
+import ActiveGameComponentVue from "./ActiveGameComponent.vue"
 
 const RefNewOfflineGameDialog = null
 const { result: queryData } = useFindAllGameStatsSoftLimitQuery()
@@ -151,6 +155,7 @@ watch(matchmakersSub, (changedMember:GameMatchmakingMember) => {
         tmp.unshift(changedMember)
       }
       localMatchmakings.value = tmp.filter(member => member.userId != loggedInUser.value.id)
+	  .filter(member => member.targetUserId === loggedInUser.value.id || member.targetUserId === null)
     }
 })
 
@@ -174,189 +179,95 @@ const onMatchMackingJoined = () => {
 
   
 <style scoped lang="sass">
+
+.input-base
+	width: 15vw
+	margin-left: 15px
+.title-header
+	font-size: 1.2em
+	font-weight: bold
+	font-family: "Roboto"
+	margin : 25px
+	color: #979797
 .common-layout
 	display: flex
 	width: 100%
-	
-.aside-layout
-	width: 20%
-	justify-content: center
-	display: flex
-	flex-direction: column
-
-.current-games-layout
-	display: flex
-	height: 60%
-	flex-direction: column
-.matchmaking-layout
-	display: flex
-	height: 40%
-	margin-top: 30px
-	justify-content: center
-	align-items: center
-.scrollbar-flex-content 
-	display: flex
 	height: 100%
-	width: 100%
+	font-family: 'roboto'
+	.matchmakings-layout
+		display: flex
+		flex-direction: column
+		height: 40%
+		background-color: #0E0E10
+		border-radius: 20px
+		margin: 10px
+		.games-list-and-buttons-container
+			margin-top: -40px
+			display: flex
+			align-items: center
+			height: 100%
+			width: 100%
+			.games-buttons-container
+				display: flex
+				flex-direction: column
+				width: 14vw
+				height: 100%
+				margin: 20px
+				justify-content: center
+				.instant-matchmaking-btn
+					height: 15%
+					margin-bottom: 10px
+					width: 100%
+					display: flex
+					background: #111115
+					justify-content: center
+					align-items: center
+					cursor: pointer
+					border-radius: var(--el-border-radius-base)
+				.create-game-btn
+					display: flex
+					flex-direction: column
+					justify-content: center
+					align-items: center
+					height: 59%
+					width: 14vw
+					background: #111115
+					border-radius: var(--el-border-radius-base)
+					cursor: pointer
+			.games-list-container
+				display: flex
+				width: 89%
 
-.matchmaking-item
-	width: 450px
-	height: 350px
-	margin-left: 50px
-
-.current-games-item
-	width: 250px
-	height: 50px
-	margin-top: 30px
-	background: grey
-
-.btn-5
-	font-family: OutRun
-	width: 25%
-	height: 100%
-	margin: 10px
-	color: var(--el-color-primary)
-	font-size: 40px
-	border-color: transparent
-	background: transparent
-	.span
-		transition: text-shadow 0.3s ease
-	&:hover
-		span
-			text-stroke: 1px rgba(rgb(255, 66, 255), 0.5)
-			text-shadow: 0 0 5px rgba(rgb(255, 66, 255), 0.9), 0 0 10px rgba(rgb(255, 66, 255), 0.8), 0 0 20px rgba(rgb(255, 66, 255), 0.7), 0 0 40px rgba(rgb(255, 66, 255), 0.6), 0 0 80px rgba(rgb(255, 66, 255), 0.5), 0 0 120px rgba(rgb(255, 66, 255), 0.4)
-
-.big-ratio-font-num
-	font-family: OutRun
-	font-size: 70px
-	color: var(--el-color-primary)
-	margin: 0px
-
-.big-ratio-font-match
-	margin: 0px
-	font-family: OutRun
-	font-size: 30px
-	color: var(--el-color-primary)
-	animation: neonFlicker 2.5s infinite 
-
-.big-ratio-font-printed
-	margin: 0px
-	font-family: OutRun
-	font-size: 30px
-	color: var(--el-color-primary)
-.big-ratio-font-hist
-	margin: 0px
-	font-family: OutRun
-	font-size: 30px
-	color: var(--el-color-primary)
-	animation: neonFlicker 3s infinite reverse
-
-@keyframes neonFlicker
-	20%, 32%, 40%, 45%
-		text-stroke: 0px transparent
-		text-shadow: none
-	0%, 30%, 36%, 42%, 46%, 100%
-		text-stroke: 1px rgba(255, 66, 255, 0.5)
-		text-shadow: 0 0 5px rgba(255, 66, 255, 0.9), 0 0 10px rgba(255, 66, 255, 0.8), 0 0 20px rgba(255, 66, 255, 0.7), 0 0 40px rgba(255, 66, 255, 0.6), 0 0 80px rgba(255, 66, 255, 0.5), 0 0 120px rgba(255, 66, 255, 0.4)
-
-	
-@property --rotate
-	syntax: "<angle>"
-	initial-value: 132deg
-	inherits: false
-
-
-:root
-	--card-height: 650px
-	--card-width: calc(var(--card-height) / 1)
-
-
-body
-	min-height: 100vh
-	background: #212534
-	display: flex
-	align-items: center
-	flex-direction: column
-	padding-top: 2rem
-	padding-bottom: 2rem
-	box-sizing: border-box
-
-
-.card
-	background: black
-	margin-top: 60px
-	width: 270px
-	height: 270px
-	padding: 3px
-	position: relative
-	border-color: white
-	border: 10px
-	border-radius: 900px
-	justify-content: center
-	align-items: center
-	text-align: center
-	display: flex
-	font-size: 1.5em
-	color: rgb(88 199 250 / 0%)
-	cursor: pointer
-	font-family: cursive
-
-	&:hover
-		color: rgb(88 199 250 / 100%)
-		transition: color 1s 1s ease
-		&:before, &:after
-			width: 108%
-			height: 104%
-			opacity: 100
-			border-radius: 600px
-			background-image: linear-gradient(var(--rotate), #5ddcff, #3c67e3 63%, #4e00c2)
-			top: -1%
-			left: -2%
-			
-
-	&::before
-		content: ""
-		width: 104%
-		height: 102%
-		border-radius: 600px
-		background-image: linear-gradient(var(--rotate), #5ddcff, #3c67e3 43%, #4e00c2)
-		position: absolute
-		z-index: -1
-		top: -1%
-		left: -2%
-		animation: spin 2.5s linear infinite
-
-	&::after
-		position: absolute
-		content: ""
-		top: calc(var(--card-height) / 6)
-		left: 0
-		right: 0
-		z-index: -1
-		height: 80%
-		width: 100%
-		margin: 0 auto
-		transform: scale(0.8)
-		filter: blur(calc(var(--card-height) / 6))
-		background-image: linear-gradient(var(--rotate), #5ddcff, #3c67e3 43%, #4e00c2)
-		opacity: 1
-		transition: opacity .5s
-		animation: spin 2.5s linear infinite
-
-
-@keyframes spin
-	0%
-		--rotate: 0deg
-	100%
-		--rotate: 360deg
-
-
-a
-	color: #212534
-	text-decoration: none
-	font-family: sans-serif
-	font-weight: bold
-	margin-top: 2rem
-
+	.last-games-layout
+		display: flex
+		height: 58%
+		.active-games-container
+			background: #0E0E10
+			display: flex
+			flex-direction: column
+			width: 25%
+			height: 95%
+			margin: 10px
+			border-radius: 10px
+			.active-games-list-container
+				display: flex
+				justify-content: center
+				align-items: center
+				height: 85%
+				width: 100%
+		.past-games-container
+			background: #0E0E10
+			display: flex
+			flex-direction: column
+			width: 75%
+			height: 95%
+			margin: 10px
+			border-radius: 10px
+			.last-games-list-container
+				display: flex
+				justify-content: center
+				align-items: center
+				height: 85%
+				width: 100%
 </style>
   

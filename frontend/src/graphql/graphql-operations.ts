@@ -65,10 +65,6 @@ export type CreateChannelInput = {
   password?: InputMaybe<Scalars['String']>;
 };
 
-export type CreateGameInput = {
-  message?: InputMaybe<Scalars['String']>;
-};
-
 export type CreateMemberForChannelInput = {
   channelId: Scalars['String'];
   channelPassword?: InputMaybe<Scalars['String']>;
@@ -182,7 +178,9 @@ export type GameData = {
 export type GameMatchmakingMember = {
   __typename?: 'GameMatchmakingMember';
   isDeleted: Scalars['Boolean'];
+  isLaunched?: Maybe<Scalars['Boolean']>;
   message: Scalars['String'];
+  targetUserId?: Maybe<Scalars['String']>;
   userGameInfos: UserPublicGameInfos;
   userId: Scalars['String'];
 };
@@ -223,6 +221,7 @@ export type JoinGameInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  DEBUGkilleallgames: Array<Game>;
   acceptFriendRequest: UserRelation;
   blockRelation: UserRelation;
   commentAdded: Scalars['Boolean'];
@@ -245,6 +244,8 @@ export type Mutation = {
   leaveGameMatchmakingMember: GameMatchmakingMember;
   logout: Scalars['Boolean'];
   refuseFriendRequest: UserRelation;
+  refuseMatchMakingInvite: GameMatchmakingMember;
+  refusePrivateGameInvitation: Scalars['Boolean'];
   removeFalseGameStatData: Scalars['Boolean'];
   removeFriend: UserRelation;
   signIn42: Scalars['Boolean'];
@@ -285,7 +286,8 @@ export type MutationCreateChannelArgs = {
 
 
 export type MutationCreateGameArgs = {
-  args: CreateGameInput;
+  message?: InputMaybe<Scalars['String']>;
+  userTargetId?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -339,8 +341,24 @@ export type MutationJoinGameArgs = {
 };
 
 
+export type MutationJoinGameMatchmakingMemberArgs = {
+  message?: InputMaybe<Scalars['String']>;
+  userTargetId?: InputMaybe<Scalars['String']>;
+};
+
+
 export type MutationRefuseFriendRequestArgs = {
   args: UpdateUserRelationInput;
+};
+
+
+export type MutationRefuseMatchMakingInviteArgs = {
+  matchMakerId: Scalars['String'];
+};
+
+
+export type MutationRefusePrivateGameInvitationArgs = {
+  gameId: Scalars['String'];
 };
 
 
@@ -670,6 +688,7 @@ export type UserPublicGameInfos = {
 export type UserRelation = {
   __typename?: 'UserRelation';
   createdAt: Scalars['DateTime'];
+  friendInfos: UserPublicGameInfos;
   id: Scalars['ID'];
   type: EUserRealtionType;
   updatedAt: Scalars['DateTime'];
@@ -896,6 +915,7 @@ export type FindAllGamesQuery = { __typename?: 'Query', findAllGames: Array<{ __
 
 export type CreateGameMutationVariables = Exact<{
   message?: InputMaybe<Scalars['String']>;
+  userTargetId?: InputMaybe<Scalars['String']>;
 }>;
 
 
@@ -918,20 +938,44 @@ export type LeaveGameMatchmakingMemberMutationVariables = Exact<{ [key: string]:
 
 export type LeaveGameMatchmakingMemberMutation = { __typename?: 'Mutation', leaveGameMatchmakingMember: { __typename?: 'GameMatchmakingMember', userId: string, message: string } };
 
-export type JoinGameMatchmakingMemberMutationVariables = Exact<{ [key: string]: never; }>;
+export type JoinGameMatchmakingMemberMutationVariables = Exact<{
+  message?: InputMaybe<Scalars['String']>;
+  userTargetId?: InputMaybe<Scalars['String']>;
+}>;
 
 
-export type JoinGameMatchmakingMemberMutation = { __typename?: 'Mutation', joinGameMatchmakingMember: { __typename?: 'GameMatchmakingMember', userId: string, isDeleted: boolean, message: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } } };
+export type JoinGameMatchmakingMemberMutation = { __typename?: 'Mutation', joinGameMatchmakingMember: { __typename?: 'GameMatchmakingMember', userId: string, message: string, isDeleted: boolean, targetUserId?: string | null, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } } };
+
+export type JoinGameMutationVariables = Exact<{
+  gameId: Scalars['String'];
+}>;
+
+
+export type JoinGameMutation = { __typename?: 'Mutation', joinGame: { __typename?: 'Game', message: string, isDeleted: boolean, targetUserId?: string | null, createdAt: any, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null } };
 
 export type MatchmakingMembersChangedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MatchmakingMembersChangedSubscription = { __typename?: 'Subscription', matchmakingMembersChanged: { __typename?: 'GameMatchmakingMember', userId: string, isDeleted: boolean, message: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } } };
+export type MatchmakingMembersChangedSubscription = { __typename?: 'Subscription', matchmakingMembersChanged: { __typename?: 'GameMatchmakingMember', userId: string, isDeleted: boolean, targetUserId?: string | null, isLaunched?: boolean | null, message: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } } };
 
 export type FindAllGameMatchmakingMemberlQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllGameMatchmakingMemberlQuery = { __typename?: 'Query', findAllGameMatchmakingMemberl: Array<{ __typename?: 'GameMatchmakingMember', userId: string, isDeleted: boolean, message: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> };
+export type FindAllGameMatchmakingMemberlQuery = { __typename?: 'Query', findAllGameMatchmakingMemberl: Array<{ __typename?: 'GameMatchmakingMember', userId: string, isDeleted: boolean, targetUserId?: string | null, isLaunched?: boolean | null, message: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> };
+
+export type RefusePrivateGameInvitationMutationVariables = Exact<{
+  gameId: Scalars['String'];
+}>;
+
+
+export type RefusePrivateGameInvitationMutation = { __typename?: 'Mutation', refusePrivateGameInvitation: boolean };
+
+export type RefuseMatchMakingInviteMutationVariables = Exact<{
+  matchMakerId: Scalars['String'];
+}>;
+
+
+export type RefuseMatchMakingInviteMutation = { __typename?: 'Mutation', refuseMatchMakingInvite: { __typename?: 'GameMatchmakingMember', userId: string, message: string, isDeleted: boolean, targetUserId?: string | null } };
 
 export type AllGamesStatsUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -1068,7 +1112,7 @@ export type FindUserPresencesQuery = { __typename?: 'Query', findUserPresences: 
 export type FindAllRelationsForMyUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllRelationsForMyUserQuery = { __typename?: 'Query', findAllRelationsForMyUser: Array<{ __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any }> };
+export type FindAllRelationsForMyUserQuery = { __typename?: 'Query', findAllRelationsForMyUser: Array<{ __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any, friendInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> };
 
 export type CreateRequestFriendMutationVariables = Exact<{
   args: CreateRequestFriendInput;
@@ -1117,7 +1161,7 @@ export type OnUserRelationsChangedSubscriptionVariables = Exact<{
 }>;
 
 
-export type OnUserRelationsChangedSubscription = { __typename?: 'Subscription', userRelationsChanged: { __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any } };
+export type OnUserRelationsChangedSubscription = { __typename?: 'Subscription', userRelationsChanged: { __typename?: 'UserRelation', userOwnerId: string, userTargetId: string, type: EUserRealtionType, createdAt: any, updatedAt: any, friendInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } } };
 
 export const ChannelMessageFragmentDoc = gql`
     fragment channelMessage on ChannelMessage {
@@ -2101,8 +2145,8 @@ export function useFindAllGamesLazyQuery(options: VueApolloComposable.UseQueryOp
 }
 export type FindAllGamesQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllGamesQuery, FindAllGamesQueryVariables>;
 export const CreateGameDocument = gql`
-    mutation CreateGame($message: String) {
-  createGame(args: {message: $message}) {
+    mutation CreateGame($message: String, $userTargetId: String) {
+  createGame(message: $message, userTargetId: $userTargetId) {
     id
     message
     isDeleted
@@ -2135,6 +2179,7 @@ export const CreateGameDocument = gql`
  * const { mutate, loading, error, onDone } = useCreateGameMutation({
  *   variables: {
  *     message: // value for 'message'
+ *     userTargetId: // value for 'userTargetId'
  *   },
  * });
  */
@@ -2224,16 +2269,17 @@ export function useLeaveGameMatchmakingMemberMutation(options: VueApolloComposab
 }
 export type LeaveGameMatchmakingMemberMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<LeaveGameMatchmakingMemberMutation, LeaveGameMatchmakingMemberMutationVariables>;
 export const JoinGameMatchmakingMemberDocument = gql`
-    mutation JoinGameMatchmakingMember {
-  joinGameMatchmakingMember {
+    mutation JoinGameMatchmakingMember($message: String, $userTargetId: String) {
+  joinGameMatchmakingMember(message: $message, userTargetId: $userTargetId) {
     userId
+    message
     isDeleted
+    targetUserId
     userGameInfos {
       username
       avatarUrl
       ratio
     }
-    message
   }
 }
     `;
@@ -2249,17 +2295,65 @@ export const JoinGameMatchmakingMemberDocument = gql`
  * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
  *
  * @example
- * const { mutate, loading, error, onDone } = useJoinGameMatchmakingMemberMutation();
+ * const { mutate, loading, error, onDone } = useJoinGameMatchmakingMemberMutation({
+ *   variables: {
+ *     message: // value for 'message'
+ *     userTargetId: // value for 'userTargetId'
+ *   },
+ * });
  */
 export function useJoinGameMatchmakingMemberMutation(options: VueApolloComposable.UseMutationOptions<JoinGameMatchmakingMemberMutation, JoinGameMatchmakingMemberMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<JoinGameMatchmakingMemberMutation, JoinGameMatchmakingMemberMutationVariables>> = {}) {
   return VueApolloComposable.useMutation<JoinGameMatchmakingMemberMutation, JoinGameMatchmakingMemberMutationVariables>(JoinGameMatchmakingMemberDocument, options);
 }
 export type JoinGameMatchmakingMemberMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<JoinGameMatchmakingMemberMutation, JoinGameMatchmakingMemberMutationVariables>;
+export const JoinGameDocument = gql`
+    mutation joinGame($gameId: String!) {
+  joinGame(args: {id: $gameId}) {
+    message
+    isDeleted
+    targetUserId
+    createdAt
+    gameMembers {
+      gameId
+      userId
+      userGameInfos {
+        username
+        avatarUrl
+        ratio
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useJoinGameMutation__
+ *
+ * To run a mutation, you first call `useJoinGameMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useJoinGameMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useJoinGameMutation({
+ *   variables: {
+ *     gameId: // value for 'gameId'
+ *   },
+ * });
+ */
+export function useJoinGameMutation(options: VueApolloComposable.UseMutationOptions<JoinGameMutation, JoinGameMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<JoinGameMutation, JoinGameMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<JoinGameMutation, JoinGameMutationVariables>(JoinGameDocument, options);
+}
+export type JoinGameMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<JoinGameMutation, JoinGameMutationVariables>;
 export const MatchmakingMembersChangedDocument = gql`
     subscription MatchmakingMembersChanged {
   matchmakingMembersChanged {
     userId
     isDeleted
+    targetUserId
+    isLaunched
     userGameInfos {
       username
       avatarUrl
@@ -2291,6 +2385,8 @@ export const FindAllGameMatchmakingMemberlDocument = gql`
   findAllGameMatchmakingMemberl {
     userId
     isDeleted
+    targetUserId
+    isLaunched
     userGameInfos {
       username
       avatarUrl
@@ -2320,6 +2416,65 @@ export function useFindAllGameMatchmakingMemberlLazyQuery(options: VueApolloComp
   return VueApolloComposable.useLazyQuery<FindAllGameMatchmakingMemberlQuery, FindAllGameMatchmakingMemberlQueryVariables>(FindAllGameMatchmakingMemberlDocument, {}, options);
 }
 export type FindAllGameMatchmakingMemberlQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllGameMatchmakingMemberlQuery, FindAllGameMatchmakingMemberlQueryVariables>;
+export const RefusePrivateGameInvitationDocument = gql`
+    mutation RefusePrivateGameInvitation($gameId: String!) {
+  refusePrivateGameInvitation(gameId: $gameId)
+}
+    `;
+
+/**
+ * __useRefusePrivateGameInvitationMutation__
+ *
+ * To run a mutation, you first call `useRefusePrivateGameInvitationMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useRefusePrivateGameInvitationMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useRefusePrivateGameInvitationMutation({
+ *   variables: {
+ *     gameId: // value for 'gameId'
+ *   },
+ * });
+ */
+export function useRefusePrivateGameInvitationMutation(options: VueApolloComposable.UseMutationOptions<RefusePrivateGameInvitationMutation, RefusePrivateGameInvitationMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<RefusePrivateGameInvitationMutation, RefusePrivateGameInvitationMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<RefusePrivateGameInvitationMutation, RefusePrivateGameInvitationMutationVariables>(RefusePrivateGameInvitationDocument, options);
+}
+export type RefusePrivateGameInvitationMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<RefusePrivateGameInvitationMutation, RefusePrivateGameInvitationMutationVariables>;
+export const RefuseMatchMakingInviteDocument = gql`
+    mutation RefuseMatchMakingInvite($matchMakerId: String!) {
+  refuseMatchMakingInvite(matchMakerId: $matchMakerId) {
+    userId
+    message
+    isDeleted
+    targetUserId
+  }
+}
+    `;
+
+/**
+ * __useRefuseMatchMakingInviteMutation__
+ *
+ * To run a mutation, you first call `useRefuseMatchMakingInviteMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useRefuseMatchMakingInviteMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useRefuseMatchMakingInviteMutation({
+ *   variables: {
+ *     matchMakerId: // value for 'matchMakerId'
+ *   },
+ * });
+ */
+export function useRefuseMatchMakingInviteMutation(options: VueApolloComposable.UseMutationOptions<RefuseMatchMakingInviteMutation, RefuseMatchMakingInviteMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<RefuseMatchMakingInviteMutation, RefuseMatchMakingInviteMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<RefuseMatchMakingInviteMutation, RefuseMatchMakingInviteMutationVariables>(RefuseMatchMakingInviteDocument, options);
+}
+export type RefuseMatchMakingInviteMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<RefuseMatchMakingInviteMutation, RefuseMatchMakingInviteMutationVariables>;
 export const AllGamesStatsUpdatedDocument = gql`
     subscription allGamesStatsUpdated {
   allGamesStatsUpdated {
@@ -2985,6 +3140,11 @@ export const FindAllRelationsForMyUserDocument = gql`
     type
     createdAt
     updatedAt
+    friendInfos {
+      username
+      avatarUrl
+      ratio
+    }
   }
 }
     `;
@@ -3214,6 +3374,11 @@ export const OnUserRelationsChangedDocument = gql`
     type
     createdAt
     updatedAt
+    friendInfos {
+      username
+      avatarUrl
+      ratio
+    }
   }
 }
     `;

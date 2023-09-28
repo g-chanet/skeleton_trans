@@ -5,6 +5,7 @@ import {
   Subscription,
   ResolveField,
   Parent,
+  Args,
 } from '@nestjs/graphql'
 import { GameMatchmakingMembersService } from './game-matchmaking-members.service'
 import { GameMatchmakingMember } from './entities/game-matchmaking-member.entity'
@@ -28,9 +29,15 @@ export class GameMatchmakingMembersResolver {
 
   @Mutation(() => GameMatchmakingMember)
   @UseGuards(GqlAuthGuard)
-  async joinGameMatchmakingMember(@CtxUser() user: User) {
+  async joinGameMatchmakingMember(
+    @CtxUser() user: User,
+    @Args(`message`, { nullable: true }) message?: string,
+    @Args(`userTargetId`, { nullable: true }) userTargetId?: string,
+  ) {
     const newMember = await this.gameMatchmakingMembersService.create({
       userId: user.id,
+      targetUserId: userTargetId,
+      message: message,
     })
     return newMember
   }
@@ -42,13 +49,34 @@ export class GameMatchmakingMembersResolver {
     if (todelete) {
       todelete.isDeleted = true
       await this.gameMatchmakingMembersService.delete(user.id)
-      this.pubSub.publish(`matchmakingMembersChanged`, {
-        matchmakingMembersChanged: todelete,
-      })
     } else {
       throw new BadRequestException(`You're not looking for a game`)
     }
     return todelete
+  }
+
+  @Mutation(() => GameMatchmakingMember)
+  @UseGuards(GqlAuthGuard)
+  async refuseMatchMakingInvite(
+    @CtxUser() user: User,
+    @Args(`matchMakerId`) matchMakerId: string,
+  ) {
+    const matchmaker = await this.gameMatchmakingMembersService.findOne(
+      matchMakerId,
+    )
+    if (!matchmaker) {
+      throw new BadRequestException(`this player leaved matchmaking`)
+    }
+    if (matchmaker && matchmaker.targetUserId != user.id) {
+      throw new BadRequestException(`you're not invited to this game`)
+    }
+    if (matchmaker) {
+      matchmaker.isDeleted = true
+      await this.gameMatchmakingMembersService.delete(matchmaker.userId)
+    } else {
+      throw new BadRequestException(`this game did not existed`)
+    }
+    return matchmaker
   }
 
   //**************************************************//

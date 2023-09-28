@@ -5,6 +5,11 @@ query FindAllRelationsForMyUser {
         type
         createdAt
         updatedAt
+        friendInfos {
+            username
+            avatarUrl
+            ratio
+        }
     }
 }
 
@@ -75,5 +80,10 @@ subscription onUserRelationsChanged($userId: String!) {
         type
         createdAt
         updatedAt
+        friendInfos {
+            username
+            avatarUrl
+            ratio
+        }
   }
 }

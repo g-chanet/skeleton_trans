@@ -197,6 +197,15 @@ export class UserRelationsService {
           userTargetId,
         },
       },
+      include: {
+        userTarget: {
+          select: {
+            username: true,
+            avatarUrl: true,
+            gameStats: true,
+          },
+        },
+      },
     })
   }
 

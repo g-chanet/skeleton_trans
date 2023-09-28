@@ -90,6 +90,8 @@ type GameMatchmakingMember {
   userId: String!
   message: String!
   isDeleted: Boolean!
+  targetUserId: String
+  isLaunched: Boolean
   userGameInfos: UserPublicGameInfos!
 }
 
@@ -144,6 +146,7 @@ type UserRelation {
   type: EUserRealtionType!
   createdAt: DateTime!
   updatedAt: DateTime!
+  friendInfos: UserPublicGameInfos!
 }
 
 enum EUserRealtionType {
@@ -244,8 +247,9 @@ type Mutation {
   updateMyMessageForChannel(args: UpdateMyMessageForChannelInput!): ChannelMessage!
   deleteMyMessageForChannel(args: DeleteMyMessageForChannelInput!): ChannelMessage!
   updateGameMemberForGame(args: UpdateGameMemberInput!): GameMember!
-  joinGameMatchmakingMember: GameMatchmakingMember!
+  joinGameMatchmakingMember(message: String, userTargetId: String): GameMatchmakingMember!
   leaveGameMatchmakingMember: GameMatchmakingMember!
+  refuseMatchMakingInvite(matchMakerId: String!): GameMatchmakingMember!
   signInLocal(args: SignInLocalInput!): User!
   signUpLocal(args: SignUpLocalInput!): User!
   isGoogleAuthCodeValid(args: GoogleAuthCodeValidatorInput!): Boolean!
@@ -254,13 +258,15 @@ type Mutation {
   signIn42: Boolean!
   signInDiscord: Boolean!
   logout: Boolean!
-  createGame(args: CreateGameInput!): GameData!
+  createGame(message: String, userTargetId: String): GameData!
   updateGame(args: UpdateGameInput!): GameData!
   joinGame(args: JoinGameInput!): Game!
+  DEBUGkilleallgames: [Game!]!
   leaveGame: Boolean!
   injectFalseGameStatData: Boolean!
   removeFalseGameStatData: Boolean!
   createGameStat(args: createGameStatInput!): GameStat!
+  refusePrivateGameInvitation(gameId: String!): Boolean!
 }
 
 input UpdateMyUserInput {
@@ -356,10 +362,6 @@ input SignUpLocalInput {
 
 input GoogleAuthCodeValidatorInput {
   code: String!
-}
-
-input CreateGameInput {
-  message: String
 }
 
 input UpdateGameInput {

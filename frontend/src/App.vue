@@ -30,6 +30,8 @@ import { useFindMyUserQuery,
   useMatchmakingMembersChangedSubscription,
   useLeaveGameMatchmakingMemberMutation,
   useFindAllGameMatchmakingMemberlQuery,
+  useJoinGameMutation,
+  useRefusePrivateGameInvitationMutation,
   type User,
   type Game,
   type GameMatchmakingMember
@@ -48,13 +50,22 @@ const gameLaunched = ref(false)
 const { onResult, onError, loading } = useFindMyUserQuery()
 const { onResult: queryMatchmakersOnRes } = useFindAllGameMatchmakingMemberlQuery()
 const { onResult:gamesOnRes } = useAllGamesUpdatedSubscription()
+const { mutate:joinGameMutate } = useJoinGameMutation()
 const { mutate:leaveGameMutate } = useLeaveGameMutation()
+const { mutate:refuseGameInvitationMutate } = useRefusePrivateGameInvitationMutation()
 const { mutate:leaveMatchMakingMutate } = useLeaveGameMatchmakingMemberMutation()
 const { result: subscriptionMatchMakers, onResult: onResultsMatchMaker } = useMatchmakingMembersChangedSubscription()
 
 const loggedInUser = ref<User>()
 const usersOnmatchmaking = ref<GameMatchmakingMember>(null)
 const mustDiplayMatchmakingDialog = ref(false)
+const invitationAccepted = ref(false)
+const invitationReceivedHaveBeenCanceled = ref(false)
+const ownGameIsCancelled = ref(false)
+const acceptedGameId = ref<string>('')
+const createdGameId = ref<string>('')
+const isNotificationOnAutoClose = ref(false)
+const lastInvitedGame = ref<string>('')
 
 
 const openMatchMakingNotification = () => {
@@ -67,15 +78,32 @@ const openMatchMakingNotification = () => {
     })
 }
 
-const setMatchmakingDialogBackgroundState = (state:boolean) => {
-    if (state === true)
-      openMatchMakingNotification()
-    else {
-      ElNotification.closeAll()
-    }
+const openHostedPrivateGameNotification = () => {
+  ElNotification({
+      position: 'bottom-right',
+      title: `Player Invited !`,
+      message: 'You invited a player to a game, we are waiting for his approval... Click this notification to cancel',
+      onClick: onClosedSearchGameNotif,
+      showClose: false,
+      duration: 0
+    })
+}
+
+const openInvitedPrivateGameNotification = () => {
+  ElNotification({
+      position: 'bottom-right',
+      title: `You're Invited !`,
+      message: 'A player invited you to a game, click to navigate to your dashboard and play !',
+      onClick: onAcceptedGameInvitation,
+      duration: 30000
+    })
 }
 
 
+const onAcceptedGameInvitation = () => {
+  router.replace(`/app/home`)
+  ElNotification.closeAll()
+}
 
 queryMatchmakersOnRes((res) => {
   console.log(res.data)
@@ -86,10 +114,43 @@ queryMatchmakersOnRes((res) => {
 })
 
 const onClosedSearchGameNotif = () => {
-  leaveMatchMakingMutate()
-  ElMessage.success('vous ne recherchez plus de partie')
+  if (!isNotificationOnAutoClose.value) {
+    leaveMatchMakingMutate()
+    .catch(() => {})
+    ElMessage.success('vous avez quitté le matchmaking')
+  }
+  isNotificationOnAutoClose.value = false
 }
 
+const onClosedHostedGameInvite = () => {
+  // leaveMatchMakingMutate()
+  if (!isNotificationOnAutoClose.value) {
+    leaveGameMutate()
+    .catch(() => {}) //on some flows we're not in the game
+    console.log('have leaved game')
+  }
+  console.log('autoclose: ', isNotificationOnAutoClose.value)
+  ownGameIsCancelled.value = false
+  isNotificationOnAutoClose.value = false
+  createdGameId.value = ''
+  ElMessage.success('your invitation is canceled because, you or your friend canceled it')
+}
+
+const onClosedInvitedGameInvite = () => {
+  // handle for the other player
+  if (!invitationAccepted.value && !invitationReceivedHaveBeenCanceled.value) {
+    refuseGameInvitationMutate({ gameId : acceptedGameId.value })
+    .catch((error) => {
+      ElMessage.error(error)
+    })
+    acceptedGameId.value = ''
+    ElMessage.success('you refused the invitation')
+  }
+  else if (invitationReceivedHaveBeenCanceled.value) {
+    ElMessage.warning('I think you just lost a friend (the game invitaion you received have been canceled)')
+    invitationReceivedHaveBeenCanceled.value = false
+  }
+}
 
 onError(() => {
   if (!route.fullPath.startsWith(`/login`))
@@ -105,6 +166,28 @@ gamesOnRes((res) => {
   if (gameMembers && gameMembers.length === 1 && gameMembers[0].userId === loggedInUser.value.id && showAcceptedGameDialog.value == true) {
     ElMessage.error("votre adversaire a quitté la partie")
     onClosedDialog()
+  }
+  if (gameMembers && gameMembers.length === 1 && gameMembers[0].userId === loggedInUser.value.id && showAcceptedGameDialog.value == false && acceptedGame.value?.targetUserId?.length) {
+    createdGameId.value = acceptedGame.value.id
+    console.log('user is hosting game :', acceptedGame.value)
+    console.log('createdGameId: ', createdGameId.value)
+    openHostedPrivateGameNotification()
+  }
+  if (gameMembers && gameMembers.length === 1 && showAcceptedGameDialog.value == false && (acceptedGame.value?.targetUserId == loggedInUser.value?.id)) {
+    acceptedGameId.value = acceptedGame.value?.id
+    openInvitedPrivateGameNotification()
+  }
+  if (!gameMembers && showAcceptedGameDialog.value == false && (acceptedGame.value?.targetUserId == loggedInUser.value?.id)) {
+    console.log('iciii')
+    invitationReceivedHaveBeenCanceled.value = true
+    ElNotification.closeAll() //you were invited but the hoster cancelled the invite
+  }
+  if (!gameMembers && showAcceptedGameDialog.value == false && acceptedGame.value?.id == createdGameId.value &&acceptedGame.value.isDeleted) {
+    console.log('user just canceled :', acceptedGame.value)
+    console.log('createdGameId: ', createdGameId.value)
+    ownGameIsCancelled.value = true
+    isNotificationOnAutoClose.value = true //used to indicate that the notification closing is not from a user interaction
+    ElNotification.closeAll() //you invited someone and cancelled the invite
   }
   if (gameMembers && gameMembers.length === 2 && gameMembers.some(gm => gm.userId === loggedInUser.value.id)) {
     console.log("entered 2 ")
@@ -133,11 +216,27 @@ onResultsMatchMaker((res) => {
   if (member && member.userId == loggedInUser.value?.id)
   {
     if (!member.isDeleted) {
-      mustDiplayMatchmakingDialog.value = true
-      // openMatchMakingNotification()
+
+      if (!member.targetUserId) {
+        mustDiplayMatchmakingDialog.value = false
+        openMatchMakingNotification()
+      }
+      if (member.targetUserId) {
+        mustDiplayMatchmakingDialog.value = false
+        openHostedPrivateGameNotification()
+      }
     }
     else {
       mustDiplayMatchmakingDialog.value = false
+      ElNotification.closeAll()
+    }
+  }
+  if (member && member.targetUserId == loggedInUser.value.id) {
+    if (!member.isDeleted) {
+      openInvitedPrivateGameNotification()
+    }
+    else if (member.isDeleted && !member.isLaunched && !showAcceptedGameDialog.value){
+      ElMessage.info('I think you just lost a friend (the game invitaion you received have been canceled)')
       ElNotification.closeAll()
     }
   }
@@ -156,13 +255,12 @@ const onAcceptedGame = () => {
   router.replace(`/app/game/online/${acceptedGame.value?.id}`)
 }
 provide('matchmakingsSub', usersOnmatchmaking)
+provide('loggedInUser', loggedInUser)
 provide('mustDiplayMatchmakingDialog', mustDiplayMatchmakingDialog)
-provide('setMatchmakingDialogState', setMatchmakingDialogBackgroundState)
 
 </script>
 
 <style scoped lang="sass">
-
 .dialog
   .title
     display: flex

@@ -1,4 +1,4 @@
-import { UseGuards } from '@nestjs/common'
+import { BadRequestException, UseGuards } from '@nestjs/common'
 import { GameData } from './entities/game-data.entity'
 import { Resolver, Mutation, Args, Query, Subscription } from '@nestjs/graphql'
 import { GamesService } from './games.service'
@@ -27,9 +27,16 @@ export class GamesResolver {
 
   @Mutation(() => GameData)
   @UseGuards(GqlAuthGuard)
-  createGame(@CtxUser() user: User, @Args(`args`) args: DTO.CreateGameInput) {
+  createGame(
+    @CtxUser() user: User,
+    @Args(`message`, { nullable: true }) message?: string,
+    @Args(`userTargetId`, { nullable: true }) userTargetId?: string,
+  ) {
+    console.log(message)
+    console.log(userTargetId)
     return this.gamesService.create({
-      message: args.message,
+      message: message,
+      targetUserId: userTargetId,
       gameMembers: {
         create: {
           userId: user.id,
@@ -47,6 +54,11 @@ export class GamesResolver {
   @UseGuards(GqlAuthGuard)
   joinGame(@CtxUser() user: User, @Args(`args`) args: DTO.JoinGameInput) {
     return this.gamesService.playerJoin(args.id, user)
+  }
+
+  @Mutation(() => [Game])
+  DEBUGkilleallgames() {
+    return this.gamesService.killAll()
   }
 
   @Mutation(() => Boolean)
@@ -137,6 +149,24 @@ export class GamesResolver {
       isFakeData: args.isFakeData,
     })
     return gameStat
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(GqlAuthGuard)
+  async refusePrivateGameInvitation(
+    @CtxUser() user: User,
+    @Args(`gameId`) gameId: string,
+  ) {
+    const game = await this.gamesService.findOne(gameId)
+    if (!game) {
+      throw new BadRequestException(`this game does not exists`)
+    }
+    if (game && game.targetUserId != user.id) {
+      throw new BadRequestException(`you're not invited to this game`)
+    } else {
+      this.gamesService.endGameOnFailure(gameId)
+    }
+    return true
   }
   //**************************************************//
   //  QUERY
