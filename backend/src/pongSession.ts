@@ -7,8 +7,9 @@ export type DeepReadonlyObject<T> = {
 import {
   endGameOnFailure,
   endGameOnSuccess,
-  scoreFetch,
+  updateGameScore,
 } from 'src/games/games.service'
+/* Imports de totor */
 
 export interface PongPlayer {
   socketId: string
@@ -276,7 +277,8 @@ export class PongSession {
       this.gameLoopRunning = true
       this.moveBall()
       this.collisionCheck()
-      scoreFetch(
+      updateGameScore(
+        this.roomId,
         this._pongData.playerA.score,
         this._pongData.playerB.score,
       ) /* RECUPERATION DU SCORE POUR TOTOR */
