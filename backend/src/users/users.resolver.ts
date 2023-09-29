@@ -236,8 +236,12 @@ export class UsersResolver {
         totalwins++
       }
     })
+    let ratio = 0
+    if (totalwins / gameStats.length > 0) {
+      ratio = totalwins / gameStats.length
+    }
     const result: UserPublicGameInfos = {
-      ratio: totalwins / gameStats.length,
+      ratio: ratio,
       avatarUrl: usr.avatarUrl,
       username: usr.username,
     }

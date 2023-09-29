@@ -1,20 +1,20 @@
 <template>
     <div class="last-game-item">
-    <div class="last-game-item-overlay">
-        <div class="avatar-container">
+        <div class="avatar-container" :class="{'winned' : Number(score1) >= Number(score2)}">
             <el-avatar :src="userPublic?.avatarUrl"/>
         </div>
-        <div class="username">{{ userPublic ? userPublic.username : 'Loading...' }}</div>
-        <div class="score">{{ score1 }}</div>
+        <div class="username">{{ userPublic ? truncateStr(userPublic.username) : 'Loading...' }}</div>
 		<div :class="['status', Number(score1) >= Number(score2) ? 'winned' : 'loosed']">
-    		{{ score1 >= score2 ? 'Winned' : 'Loosed' }}
+    		{{ Number(score1) >= Number(score2) ? 'Winned' : 'Loosed' }}
 		</div>
-        <div class="score">{{ score2 }}</div>
-        <div class="opponent-name">{{ opponentPublic ? opponentPublic.username : 'Loading...' }}</div>
-        <div class="avatar-container">
+        <div class="score">{{ score1 }} - {{ score2 }}</div>
+        <div :class="['status', Number(score1) < Number(score2) ? 'winned' : 'loosed']">
+    		{{ Number(score1) <= Number(score2) ? 'Winned' : 'Loosed' }}
+		</div>
+        <div class="opponent-name">{{ opponentPublic ? truncateStr(opponentPublic.username) : 'Loading...' }}</div>
+        <div class="avatar-container" :class="{'winned' : Number(score1) <= Number(score2)}">
             <el-avatar :src="opponentPublic?.avatarUrl"/>
         </div>
-    </div>
     </div>
 </template>
 
@@ -45,9 +45,20 @@ export default {
 		opponentPublic = computed(() => resultForMyUserOpponent.value?.findUser)
 
 	}
+
+    const truncateStr = (str:String) => {
+	if (str.length < 8) {
+		return str
+	}
+	else {
+		return str.slice(0, 8) + "..."
+	}
+} 
+
 	return {
 	  userPublic,
-	  opponentPublic
+	  opponentPublic,
+      truncateStr
 	}
 }
 }
@@ -56,55 +67,52 @@ export default {
 <style scoped lang="sass">
 
 .last-game-item
-    width: 1120px
-    height: 90px
+    width: 65vw
+    height: 10vh
     display: flex
     margin: 20px
     border-radius: var(--el-border-radius-base)
-    background: rgba(28, 28, 30, 1)
+    background: #111115
     justify-content: space-evenly
     align-items: center
 
-.last-game-item-overlay
-    width: 1120px
-    height: 90px
-    display: flex
-    border-radius: var(--el-border-radius-base)
-    background: radial-gradient(ellipse at bottom, rgba(230, 118, 98, 0.1),rgba(240, 198, 118, 0.05), rgba(0, 0, 0, 0))
-    justify-content: space-evenly
-    align-items: center
+    .avatar-container
+        display: flex
+        border-radius: 180px
+        padding: 3px
+        background: transparent
+        border: 3px solid #58595E
+        &.winned
+            border: 3px solid #00FF0A
+    .username, .opponent-name
+            font-family: "Roboto"
+            font-weight: 300
+            color: #00FF0A
+            font-size: 24px
+            margin-top: -7px
+            -webkit-font-smoothing: antialiased
+            -moz-osx-font-smoothing: grayscale
 
-.avatar-container
-    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7))
-
-.username, .opponent-name
+    .score
+        font-size: 1.5em
+        font-weight: bold
         font-family: "Roboto"
-        font-weight: 300
-        color: #f0c777
-        font-size: 24px
-        margin-top: -7px
-        -webkit-font-smoothing: antialiased
-        -moz-osx-font-smoothing: grayscale
 
-.score
-    font-size: 1.5em
-    font-weight: bold
-    font-family: "Roboto"
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.4)
+    .status
+        font-weight: bold
+        font-family: "Roboto"
+        padding: 10px
+        border-radius: var(--el-border-radius-base)
 
-.status
-    font-weight: bold
-    font-family: "Roboto"
+        &.winned
+            color: #00FF0A
+            background: rgba(0, 255, 10, 0.18)
 
-    &.winned
-        color: green
-        text-shadow: 0 0 10px rgba(0, 255, 0, 0.7)
+        &.loosed
+            color: #FF0404
+            background: rgba(255, 4, 4, 0.18)
 
-    &.loosed
-        color: red
-        text-shadow: 0 0 10px rgba(255, 0, 0, 0.7)
-
-.last-game-item:hover
-    box-shadow: var(--my-box-shadow)
+    .last-game-item:hover
+        box-shadow: var(--my-box-shadow)
 
 </style>

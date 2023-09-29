@@ -1,5 +1,6 @@
 import { ObjectType, Field, registerEnumType, ID } from '@nestjs/graphql'
 import { EUserRelationType } from '@prisma/client'
+import { UserPublicGameInfos } from '../../users/entities/user.entity'
 
 @ObjectType()
 export class UserRelation {
@@ -20,6 +21,9 @@ export class UserRelation {
 
   @Field(() => Date)
   updatedAt: Date
+
+  @Field(() => UserPublicGameInfos)
+  friendInfos: UserPublicGameInfos
 }
 
 registerEnumType(EUserRelationType, {

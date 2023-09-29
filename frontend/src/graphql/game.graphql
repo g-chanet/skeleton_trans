@@ -36,8 +36,8 @@ query FindAllGames {
     }
 }
 
-mutation CreateGame($message: String) {
-    createGame(args: {message: $message}) {
+mutation CreateGame($message: String, $userTargetId: String) {
+    createGame(message: $message, userTargetId: $userTargetId) {
         id
         message
         isDeleted
@@ -74,16 +74,35 @@ mutation LeaveGameMatchmakingMember {
     }
 }
 
-mutation JoinGameMatchmakingMember {
-    joinGameMatchmakingMember {
+mutation JoinGameMatchmakingMember($message:String, $userTargetId: String) {
+    joinGameMatchmakingMember(message: $message, userTargetId: $userTargetId) {
         userId
+        message
         isDeleted
+        targetUserId
         userGameInfos {
             username
             avatarUrl
             ratio
         }
+    }
+}
+
+mutation joinGame($gameId:String!) {
+    joinGame(args: { id: $gameId }) {
         message
+        isDeleted
+        targetUserId
+        createdAt
+        gameMembers {
+            gameId
+            userId
+            userGameInfos {
+                username
+                avatarUrl
+                ratio
+            }
+        }
     }
 }
 
@@ -91,6 +110,8 @@ subscription MatchmakingMembersChanged {
     matchmakingMembersChanged {
         userId
         isDeleted
+        targetUserId
+        isLaunched
         userGameInfos {
             username
             avatarUrl
@@ -104,11 +125,26 @@ query FindAllGameMatchmakingMemberl {
     findAllGameMatchmakingMemberl {
         userId
         isDeleted
+        targetUserId
+        isLaunched
         userGameInfos {
             username
             avatarUrl
             ratio
         }
         message
+    }
+}
+
+mutation RefusePrivateGameInvitation($gameId: String!) {
+    refusePrivateGameInvitation(gameId: $gameId)
+}
+
+mutation RefuseMatchMakingInvite($matchMakerId: String!) {
+    refuseMatchMakingInvite(matchMakerId: $matchMakerId) {
+        userId
+        message
+        isDeleted
+        targetUserId
     }
 }

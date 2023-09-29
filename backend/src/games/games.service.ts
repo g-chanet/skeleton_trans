@@ -5,6 +5,7 @@ import { GameData, PlayerData } from './entities/game-data.entity'
 import { Game } from './entities/game.entity'
 import { Prisma } from '@prisma/client'
 import { PubSub } from 'graphql-subscriptions'
+import { randomInt } from 'crypto'
 
 @Injectable()
 export class GamesService {
@@ -236,6 +237,76 @@ export class GamesService {
     return memberToDelete
   }
 
+  async endGameOnFailure(gameId: string) {
+    console.log(`entered endGameOnFailure`)
+    const game = await this.prisma.game.delete({
+      where: {
+        id: gameId,
+      },
+    })
+    game.isDeleted = true
+    this.pubSub.publish(`allGamesUpdated`, {
+      allGamesUpdated: game,
+    })
+  }
+
+  async endGameOnSuccess(
+    gameId: string,
+    scorePlayer1: number,
+    scorePlayer2: number,
+  ) {
+    console.log(`entered endGameOnSuccess`)
+    const game = await this.prisma.game.delete({
+      where: {
+        id: gameId,
+      },
+      include: {
+        gameMembers: true,
+      },
+    })
+    game.isDeleted = true
+    this.pubSub.publish(`allGamesUpdated`, {
+      allGamesUpdated: game,
+    })
+    const isWinner = scorePlayer1 >= scorePlayer2 ? true : false
+    const gameStatForPlayer1 = await this.createGameStat({
+      userId: game.gameMembers[0].userId,
+      opponentId: game.gameMembers[1].userId,
+      isWinner: isWinner,
+      userScore: scorePlayer1.toString(),
+      opponentScore: scorePlayer2.toString(),
+      isFakeData: false,
+    })
+    const gameStatForPlayer2 = await this.createGameStat({
+      userId: game.gameMembers[1].userId,
+      opponentId: game.gameMembers[0].userId,
+      isWinner: !isWinner,
+      userScore: scorePlayer2.toString(),
+      opponentScore: scorePlayer1.toString(),
+      isFakeData: false,
+    })
+
+    const resGame = this.prisma.game.findFirst({
+      where: {
+        id: gameId,
+      },
+    })
+
+    if (resGame) {
+      throw new BadRequestException(`can't delete game !`)
+    }
+    if (!gameStatForPlayer1 || !gameStatForPlayer2) {
+      throw new BadRequestException(`can't create gameStats !`)
+    }
+    return gameStatForPlayer1
+  }
+
+  async killAll() {
+    const games = await this.prisma.game.findMany()
+    await Promise.all(games.map((game) => this.endGameOnFailure(game.id)))
+    return games
+  }
+
   //**************************************************//
   //  QUERY
   //**************************************************//
@@ -249,12 +320,42 @@ export class GamesService {
   }
 
   async findManyGameStatsSoftLimit(limit: number) {
-    return await this.prisma.gameStat.findMany({
-      take: limit,
+    let allStats = await this.prisma.gameStat.findMany({
       orderBy: {
         createdAt: `desc`,
       },
     })
+
+    for (let i = allStats.length - 1; i >= 0; i--) {
+      const stat = allStats[i]
+
+      const similarTimestampEntry = allStats.find(
+        (otherStat, otherIndex) =>
+          otherIndex > i &&
+          otherStat.userId === stat.opponentId &&
+          otherStat.opponentId === stat.userId &&
+          Math.abs(otherStat.createdAt.getTime() - stat.createdAt.getTime()) <
+          5000,
+      )
+
+      if (similarTimestampEntry) {
+        const rand = randomInt(0, 2)
+
+        if (rand) {
+          allStats.splice(i, 1)
+        } else {
+          const indexToRemove = allStats.findIndex(
+            (entry) => entry.id === similarTimestampEntry.id,
+          )
+          if (indexToRemove !== -1) {
+            allStats.splice(indexToRemove, 1)
+          }
+        }
+      }
+    }
+    allStats = allStats.slice(0, limit)
+
+    return allStats
   }
 
   async findOne(id: string) {

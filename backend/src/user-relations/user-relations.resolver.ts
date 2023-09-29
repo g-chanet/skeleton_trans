@@ -1,11 +1,19 @@
-import { Resolver, Mutation, Args, Query, Subscription } from '@nestjs/graphql'
+import {
+  Resolver,
+  Mutation,
+  Args,
+  Query,
+  Subscription,
+  ResolveField,
+  Parent,
+} from '@nestjs/graphql'
 import { PubSub } from 'graphql-subscriptions'
 import { UserRelationsService } from './user-relations.service'
 import { UserRelation } from './entities/user-relation.entity'
 import { UseGuards } from '@nestjs/common'
 import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
-import { User } from 'src/users/entities/user.entity'
+import { User, UserPublicGameInfos } from 'src/users/entities/user.entity'
 import * as DTO from './dto/user-relation.input'
 import { EUserRelationType } from '@prisma/client'
 
@@ -156,5 +164,32 @@ export class UserRelationsResolver {
   })
   userRelationsChanged(@Args(`userId`) userId: string) {
     return pubSub.asyncIterator(`userRelationsChanged:${userId}`)
+  }
+
+  @ResolveField(`friendInfos`, () => UserPublicGameInfos)
+  async userGameInfos(
+    @Parent() userRelation: UserRelation,
+  ): Promise<UserPublicGameInfos> {
+    const { userTarget } = await this.userRelationsService.findOne(
+      userRelation.userOwnerId,
+      userRelation.userTargetId,
+    )
+
+    const gameStats = userTarget.gameStats
+    let totalWins = 0
+
+    gameStats.forEach((stats) => {
+      if (stats.isWinner) {
+        totalWins++
+      }
+    })
+
+    const ratio = gameStats.length > 0 ? totalWins / gameStats.length : 0
+
+    return {
+      username: userTarget.username,
+      avatarUrl: userTarget.avatarUrl,
+      ratio: Number(ratio.toFixed(2)),
+    }
   }
 }

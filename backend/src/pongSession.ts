@@ -1,14 +1,10 @@
 import { Socket, Server } from 'socket.io'
+import { GamesService } from './games/games.service'
 export type primitive = string | number | boolean | undefined | null
 export type DeepReadonly<T> = T extends primitive ? T : DeepReadonlyObject<T>
 export type DeepReadonlyObject<T> = {
   readonly [P in keyof T]: DeepReadonly<T[P]>
 }
-// import {
-//   endGameOnFailure,
-//   endGameOnSuccess,
-//   scoreFetch,
-// } from 'src/games/games.service'
 /* Imports de totor */
 // try/catch NEST 12220 ERROR (sockets)
 
@@ -90,7 +86,12 @@ export class PongSession {
     gameDone: false,
   }
 
-  constructor(readonly roomId: string, socket: Socket, server: Server) {
+  constructor(
+    readonly roomId: string,
+    socket: Socket,
+    server: Server,
+    private readonly gameService: GamesService,
+  ) {
     this.server = server
     this.playerJoin(socket)
   }
@@ -119,27 +120,31 @@ export class PongSession {
     return true
   }
 
-  public setGameFinishedNormally(): void {
+  public async setGameFinishedNormally(): Promise<void> {
     this._pongData.gameDone = true
-    // try {
-    //   const { playerA, playerB } = this._pongData
-    //   endGameOnSuccess(this.roomId, playerA.score, playerB.score)
-    // } catch (error) {
-    //   console.error(
-    //     `Error sending gameStats data, but game was finished normally.`,
-    //   )
-    // }
+    try {
+      const { playerA, playerB } = this._pongData
+      await this.gameService.endGameOnSuccess(
+        this.roomId,
+        playerA.score,
+        playerB.score,
+      )
+    } catch (error) {
+      console.error(
+        `Error sending gameStats data, but game was finished normally.`,
+      )
+    }
   }
 
-  public setGameFinishedAbrubtly(): void {
+  public async setGameFinishedAbrubtly(): Promise<void> {
     this._pongData.gameDone = true
-    // try {
-    //   endGameOnFailure(this.roomId)
-    // } catch (error) {
-    //   console.error(
-    //     `Error sending gameStats data, the game was finished unexpectedly.`,
-    //   )
-    // }
+    try {
+      await this.gameService.endGameOnFailure(this.roomId)
+    } catch (error) {
+      console.error(
+        `Error sending gameStats data, the game was finished unexpectedly.`,
+      )
+    }
     //envoyer GameError - roomId
   }
 
@@ -278,7 +283,8 @@ export class PongSession {
       this.gameLoopRunning = true
       this.moveBall()
       this.collisionCheck()
-      // scoreFetch(
+      // updateGameScore(
+      //   this.roomId,
       //   this._pongData.playerA.score,
       //   this._pongData.playerB.score,
       // ) /* RECUPERATION DU SCORE POUR TOTOR */
@@ -372,7 +378,7 @@ export class PongSession {
       this.updateScore()
     } else if (
       this._pongData.ball.position.x + this._pongData.ball.radius >=
-        this._pongData.stageWidth &&
+      this._pongData.stageWidth &&
       this._pongData.playerA
     ) {
       const playerAId = this._pongData.playerA.socketId
