@@ -5,6 +5,7 @@ import { GameData, PlayerData } from './entities/game-data.entity'
 import { Game } from './entities/game.entity'
 import { Prisma } from '@prisma/client'
 import { PubSub } from 'graphql-subscriptions'
+import { randomInt } from 'crypto'
 
 @Injectable()
 export class GamesService {
@@ -237,6 +238,7 @@ export class GamesService {
   }
 
   async endGameOnFailure(gameId: string) {
+    console.log(`entered endGameOnFailure`)
     const game = await this.prisma.game.delete({
       where: {
         id: gameId,
@@ -253,6 +255,7 @@ export class GamesService {
     scorePlayer1: number,
     scorePlayer2: number,
   ) {
+    console.log(`entered endGameOnSuccess`)
     const game = await this.prisma.game.delete({
       where: {
         id: gameId,
@@ -317,12 +320,42 @@ export class GamesService {
   }
 
   async findManyGameStatsSoftLimit(limit: number) {
-    return await this.prisma.gameStat.findMany({
-      take: limit,
+    let allStats = await this.prisma.gameStat.findMany({
       orderBy: {
         createdAt: `desc`,
       },
     })
+
+    for (let i = allStats.length - 1; i >= 0; i--) {
+      const stat = allStats[i]
+
+      const similarTimestampEntry = allStats.find(
+        (otherStat, otherIndex) =>
+          otherIndex > i &&
+          otherStat.userId === stat.opponentId &&
+          otherStat.opponentId === stat.userId &&
+          Math.abs(otherStat.createdAt.getTime() - stat.createdAt.getTime()) <
+          5000,
+      )
+
+      if (similarTimestampEntry) {
+        const rand = randomInt(0, 2)
+
+        if (rand) {
+          allStats.splice(i, 1)
+        } else {
+          const indexToRemove = allStats.findIndex(
+            (entry) => entry.id === similarTimestampEntry.id,
+          )
+          if (indexToRemove !== -1) {
+            allStats.splice(indexToRemove, 1)
+          }
+        }
+      }
+    }
+    allStats = allStats.slice(0, limit)
+
+    return allStats
   }
 
   async findOne(id: string) {

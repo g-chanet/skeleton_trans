@@ -8,6 +8,7 @@ import {
 } from '@nestjs/websockets'
 import { Socket, Server } from 'socket.io'
 import { PongSession } from './pongSession'
+import { GamesService } from './games/games.service'
 
 export type primitive = string | number | boolean | undefined | null
 export type DeepReadonly<T> = T extends primitive ? T : DeepReadonlyObject<T>
@@ -17,6 +18,7 @@ export type DeepReadonlyObject<T> = {
 
 @WebSocketGateway()
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(private readonly gameService: GamesService) {}
   @WebSocketServer()
   server: Server
 
@@ -230,7 +232,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (session.playerJoin(socket)) joinSessionSuccess(session)
       else joinSessionSuccess(session)
     } else {
-      const pongSession = new PongSession(roomId, socket, this.server)
+      const pongSession = new PongSession(
+        roomId,
+        socket,
+        this.server,
+        this.gameService,
+      )
       console.log(`Socket Id:`, socket.id)
       this.pongSessions.set(roomId, pongSession)
       joinSessionSuccess(pongSession)

@@ -5,11 +5,11 @@
         </div>
         <div class="username">{{ userPublic ? truncateStr(userPublic.username) : 'Loading...' }}</div>
 		<div :class="['status', Number(score1) >= Number(score2) ? 'winned' : 'loosed']">
-    		{{ score1 >= score2 ? 'Winned' : 'Loosed' }}
+    		{{ Number(score1) >= Number(score2) ? 'Winned' : 'Loosed' }}
 		</div>
         <div class="score">{{ score1 }} - {{ score2 }}</div>
         <div :class="['status', Number(score1) < Number(score2) ? 'winned' : 'loosed']">
-    		{{ score1 <= score2 ? 'Winned' : 'Loosed' }}
+    		{{ Number(score1) <= Number(score2) ? 'Winned' : 'Loosed' }}
 		</div>
         <div class="opponent-name">{{ opponentPublic ? truncateStr(opponentPublic.username) : 'Loading...' }}</div>
         <div class="avatar-container" :class="{'winned' : Number(score1) <= Number(score2)}">

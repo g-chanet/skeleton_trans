@@ -24,7 +24,7 @@
 					<div class="games-list-container">
 						<el-scrollbar>
 							<div style="display: flex; width: 50%; height:100%">
-								<p v-for="item in localMatchmakings" :key="item">
+								<p v-for="item in displayedMatchmakings" :key="item">
 									<matchMakingGameItem :matchmakingItem="item" />
 								</p>
 							</div>
@@ -38,7 +38,7 @@
 					<div class="active-games-list-container">
 						<el-scrollbar>
 							<div>
-								<p v-for="item in 50" :key="item">
+								<p v-for="item in localGames" :key="item.id">
 									<ActiveGameComponent/>
 								</p>
 							</div>
@@ -62,7 +62,6 @@
 		</el-main>
       </el-container>
     </el-container>
-	<matchmakingDialog/>
 	<newGameDialog ref="RefNewOfflineGameDialog"/>
   </div>
 
@@ -72,41 +71,26 @@
 import newLastGameItem  from "../profile/components/newLastGameItem.vue"
 import matchMakingGameItem from "./matchMakingGameItem.vue"
 import ActiveGameComponent from "./ActiveGameComponent.vue"
-import { computed, ref, inject, watch } from "vue"
+import { computed, ref, inject, watch, onMounted } from "vue"
 import { useFindAllGameStatsSoftLimitQuery,
-	useFindAllGamesQuery, 
 	useAllGamesStatsUpdatedSubscription,
-	useAllGamesUpdatedSubscription,
-	useFindMyUserQuery,
 	useJoinGameMatchmakingMemberMutation,
-	useFindAllGameMatchmakingMemberlQuery,
-	useMatchmakingMembersChangedSubscription,
-	type GameStat,
-	type GameMatchmakingMember,
-	type Game, } from '@/graphql/graphql-operations'
-import  matchmakingDialog  from "./matchmakingDialog.vue"
-import { Calendar, Search } from '@element-plus/icons-vue'
+	type GameStat, type GameMatchmakingMember,
+	type Game, type User} from '@/graphql/graphql-operations'
 import newGameDialog from "./newGameDialog.vue"
 import { ElMessage } from "element-plus"
-import { useRouter } from 'vue-router'
-import ActiveGameComponentVue from "./ActiveGameComponent.vue"
+
 
 const RefNewOfflineGameDialog = null
 const { result: queryData } = useFindAllGameStatsSoftLimitQuery()
-const { result: queryUser } = useFindMyUserQuery()
 const { result: subscriptionData } = useAllGamesStatsUpdatedSubscription()
-const { result: queryMatchmakers } = useFindAllGameMatchmakingMemberlQuery()
 const { mutate: mutateJoinMatchmaking, onError: onErrorJoinMatchmaking } = useJoinGameMatchmakingMemberMutation()
 let localGameStats:GameStat[] = []
-let localGames:Game[] = []
-const localMatchmakings =ref<GameMatchmakingMember[]>([])
-const matchmakersSub = inject<GameMatchmakingMember>('matchmakingsSub')
-const isDataInitialized = ref(false)
+const localMatchmakings = inject<GameMatchmakingMember[]>('localMatchmakings')
+const loggedInUser = inject<User>('loggedInUser')
+const localGames = inject<Game[]>('localGames')
+const displayedMatchmakings = computed(() => localMatchmakings.value.filter(member => member.userId != loggedInUser.value.id).filter(member => member.targetUserId === loggedInUser.value.id || member.targetUserId === null))
 
-const loggedInUser = computed(() => queryUser.value?.findMyUser)
-console.log(localGameStats)
-console.log(localGames)
-console.log(loggedInUser.value)
 
 const gameStats = computed(() => {
 console.log(localGameStats.length)
@@ -115,15 +99,7 @@ if (localGameStats.length == 0 && queryData.value?.findAllGameStatsSoftLimit) {
 	localGameStats = queryData.value?.findAllGameStatsSoftLimit || []
 }
 
-if (localMatchmakings.value.length == 0 && queryMatchmakers.value?.findAllGameMatchmakingMemberl && !isDataInitialized.value) {
-	console.log(`refetch Matchmakings`)
-	localMatchmakings.value = computed(() => queryMatchmakers.value?.findAllGameMatchmakingMemberl).value?.filter(member => member.userId != loggedInUser.value.id)
-	isDataInitialized.value = true
-	console.log(`after efetch: `, localMatchmakings.value)
-}
-
 let ret = localGameStats
-
 
 if (subscriptionData.value?.allGamesStatsUpdated) {
 	const newGameStat = subscriptionData.value.allGamesStatsUpdated
@@ -139,41 +115,16 @@ if (subscriptionData.value?.allGamesStatsUpdated) {
 return ret
 })
 
-watch(matchmakersSub, (changedMember:GameMatchmakingMember) => {
-
-    const tmp = [...localMatchmakings.value]
-    if (changedMember.isDeleted) {
-      console.log(`received deleted :`, changedMember)
-      localMatchmakings.value = tmp.filter(member => member.userId !== changedMember.userId)
-    } else {
-      const existingIndex = tmp.findIndex(member => member.userId === changedMember.userId)
-      if (existingIndex > -1) {
-        tmp[existingIndex] = changedMember
-        console.log(`updated existing :`, changedMember)
-      } else {
-        console.log(`received new :`, changedMember)
-        tmp.unshift(changedMember)
-      }
-      localMatchmakings.value = tmp.filter(member => member.userId != loggedInUser.value.id)
-	  .filter(member => member.targetUserId === loggedInUser.value.id || member.targetUserId === null)
-    }
-})
-
-const displayedMatchmaking = computed(() => localMatchmakings.value)
-
-// const matchMakers = computed(() => {
-// 	if (subscriptionMatchMakers.value?.matchmakingMembersChanged) {
-// 		return (subscriptionMatchMakers.value.matchmakingMembersChanged)
-// 	}
-// 	return (queryMatchmakers.value?.findAllGameMatchmakingMemberl)
-// })
-
 const onMatchMackingJoined = () => {
 		mutateJoinMatchmaking()
 		.catch((error) => {
 		ElMessage.error(error.message)
 	})
 }
+
+onMounted(() => {
+	console.log('monteeee')
+})
 
 </script>
 
