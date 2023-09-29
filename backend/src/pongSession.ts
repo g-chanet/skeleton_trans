@@ -4,12 +4,13 @@ export type DeepReadonly<T> = T extends primitive ? T : DeepReadonlyObject<T>
 export type DeepReadonlyObject<T> = {
   readonly [P in keyof T]: DeepReadonly<T[P]>
 }
-import {
-  endGameOnFailure,
-  endGameOnSuccess,
-  updateGameScore,
-} from 'src/games/games.service'
+// import {
+//   endGameOnFailure,
+//   endGameOnSuccess,
+//   scoreFetch,
+// } from 'src/games/games.service'
 /* Imports de totor */
+// try/catch NEST 12220 ERROR (sockets)
 
 export interface PongPlayer {
   socketId: string
@@ -120,25 +121,25 @@ export class PongSession {
 
   public setGameFinishedNormally(): void {
     this._pongData.gameDone = true
-    try {
-      const { playerA, playerB } = this._pongData
-      endGameOnSuccess(this.roomId, playerA.score, playerB.score)
-    } catch (error) {
-      console.error(
-        `Error sending gameStats data, but game was finished normally.`,
-      )
-    }
+    // try {
+    //   const { playerA, playerB } = this._pongData
+    //   endGameOnSuccess(this.roomId, playerA.score, playerB.score)
+    // } catch (error) {
+    //   console.error(
+    //     `Error sending gameStats data, but game was finished normally.`,
+    //   )
+    // }
   }
 
   public setGameFinishedAbrubtly(): void {
     this._pongData.gameDone = true
-    try {
-      endGameOnFailure(this.roomId)
-    } catch (error) {
-      console.error(
-        `Error sending gameStats data, the game was finished unexpectedly.`,
-      )
-    }
+    // try {
+    //   endGameOnFailure(this.roomId)
+    // } catch (error) {
+    //   console.error(
+    //     `Error sending gameStats data, the game was finished unexpectedly.`,
+    //   )
+    // }
     //envoyer GameError - roomId
   }
 
@@ -277,11 +278,10 @@ export class PongSession {
       this.gameLoopRunning = true
       this.moveBall()
       this.collisionCheck()
-      updateGameScore(
-        this.roomId,
-        this._pongData.playerA.score,
-        this._pongData.playerB.score,
-      ) /* RECUPERATION DU SCORE POUR TOTOR */
+      // scoreFetch(
+      //   this._pongData.playerA.score,
+      //   this._pongData.playerB.score,
+      // ) /* RECUPERATION DU SCORE POUR TOTOR */
       this.server.to(this.roomId).emit(`updatePongData`, this.pongData)
       if (!this.gameLoopRunning) this.stopGameLoop()
     }, GAME_LOOP_INTERVAL)

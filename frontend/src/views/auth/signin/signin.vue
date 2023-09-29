@@ -146,6 +146,9 @@ const submitForm = async () => {
       .then((res) => {
         console.log(res?.data)
       })
+      .catch((error) => {
+        ElMessage.error(error.message)
+      })
 		} else {
 			ElMessage({
 				showClose: true,

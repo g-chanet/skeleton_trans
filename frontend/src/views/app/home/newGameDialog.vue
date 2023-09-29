@@ -11,7 +11,7 @@
       </div>
       
       <div class="button-container">
-        <el-button type="primary" @click="changeDialogVisibility(), onLocalChallengeClicked()">Jouer à deux</el-button>
+        <el-button type="primary" @click="changeDialogVisibility(), onLocalMultiClicked()">Jouer à deux</el-button>
         <el-button type="primary" @click="changeDialogVisibility(), onLocalChallengeClicked()">Jouer constre Brendon le robot</el-button>
       </div>
     </el-dialog>

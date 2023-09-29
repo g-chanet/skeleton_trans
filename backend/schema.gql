@@ -166,7 +166,6 @@ type Query {
   findPublicGeneralGameStatsForUser(userid: String!): GeneralUserGameStats!
   findAllGameStatsForUser: [GameStat!]!
   findAllPublicGameStatsForUser(userid: String!): [GameStat!]!
-  checkPseudo(args: CheckPseudoInput!): Boolean!
   findPublicGameInfosForUser(userid: String!): UserPublicGameInfos!
   findUserPresences(args: FindUserPresencesInput!): [UserPresence!]!
   findAllRelationsForMyUser: [UserRelation!]!
@@ -188,10 +187,6 @@ type Query {
 
 input FindUserInput {
   id: String!
-}
-
-input CheckPseudoInput {
-  pseudo: String!
 }
 
 input FindUserPresencesInput {

@@ -10,7 +10,7 @@ export class GameMatchmakingMembersService {
     private prisma: PrismaService,
     private readonly gameService: GamesService,
     private readonly pubSub: PubSub,
-  ) { }
+  ) {}
   //**************************************************//
   //  MUTATION
   //**************************************************//
