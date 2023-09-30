@@ -1,10 +1,11 @@
 import { Injectable, ExecutionContext } from '@nestjs/common'
 import { GqlExecutionContext } from '@nestjs/graphql'
 import { AuthGuard } from '@nestjs/passport'
+import { UserPresencesService } from 'src/user-presences/user-presences.service'
 
 @Injectable()
 export class GqlAuthGuard extends AuthGuard(`local`) {
-  constructor() {
+  constructor(private readonly userPresencesService: UserPresencesService) {
     super()
   }
 
@@ -14,9 +15,13 @@ export class GqlAuthGuard extends AuthGuard(`local`) {
     return ctx.getContext().req
   }
 
-  canActivate(context: ExecutionContext): Promise<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const ctx = GqlExecutionContext.create(context)
+    const usr = ctx.getContext().req.user
     //console.log(`classic: `, ctx.getContext().req)
+    if (usr) {
+      await this.userPresencesService.updateOrCreateUserPresence(usr.id)
+    }
     return ctx.getContext().req.isAuthenticated()
   }
 }

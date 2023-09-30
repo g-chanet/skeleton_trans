@@ -17,7 +17,8 @@ import { UserRelationsModule } from './user-relations/user-relations.module'
 import { PubSubModule } from './pub-sub/pub-sub.module'
 import { PassportModule } from '@nestjs/passport'
 import { AppGateway } from './app.gateway'
-import { AppController } from './app.controller'
+import { UserPresencesService } from './user-presences/user-presences.service'
+import { GamesService } from './games/games.service'
 
 @Module({
   imports: [
@@ -39,14 +40,14 @@ import { AppController } from './app.controller'
     ChannelsModule,
     ChannelMembersModule,
     ChannelMessagesModule,
-    GamesModule,
     GameMembersModule,
     GameMatchmakingMembersModule,
     AuthModule,
+    GamesModule,
     PubSubModule,
     PassportModule.register({ session: true }),
   ],
-  providers: [AppGateway],
+  providers: [AppGateway, UserPresencesService, GamesService],
   //controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule { }

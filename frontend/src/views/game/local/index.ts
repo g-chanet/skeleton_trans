@@ -1,12 +1,3 @@
-// vectoriser la direction de la balle frappée par un paddle
-// Peaufiner le skin
-// animation de but marqué (reprendre confetti en smaller)
-// effets de particules pour la trail de la balle
-// soundtrack ?
-// bouton 'READY ?' qui check les 2joueurs
-// textured background
-// explication des touches sur le startScreen
-
 import Konva from 'konva'
 import backgroundImageUrl from '../../../assets/ps-neutral.png'
 
@@ -20,9 +11,9 @@ export class Pong {
     private scoreLayer: Konva.Layer
     private player1Score: number
     private player2Score: number
-    private victoryScreenLayer!: Konva.Layer // Promesse que la Layer sera bien init
+    private victoryScreenLayer!: Konva.Layer
     private victoryScreenDisplayed: boolean = false
-    private animationFrameId?: number // on trivialise le FrameId qu'on settera dans la loop
+    private animationFrameId?: number
     private gameRunning: boolean = true
     private keysPressed: { [key: string]: boolean } = {}
     private paddleLayer: Konva.Layer
@@ -38,30 +29,25 @@ export class Pong {
         this.paddleRight = this.generatePaddle(`Right`, `#9a198a`)
         this.paddleSpeed = 15
 
-        // Bind les fonctions handler à la window, qui repère le user input
         window.addEventListener(`keydown`, this.handleKeyDown.bind(this))
         window.addEventListener(`keyup`, this.handleKeyUp.bind(this))
 
         this.backgroundLayer = new Konva.Layer
 
-        // Création de la ballz
         this.ball = this.generateBall()
-        // Set les base values ici pour init
+
         this.ballSpeed = 10
         this.ballX = this.stage.width() / 2
         this.ballY = this.stage.height() / 2
 
-        // Layer des paddles
         this.paddleLayer.add(this.paddleLeft)
         this.paddleLayer.add(this.paddleRight)
 
-        // Layer ball
         const gameLayer = new Konva.Layer()
         gameLayer.add(this.ball)
         this.stage.add(gameLayer)
         gameLayer.draw()
 
-        // Layer de score
         this.scoreLayer = new Konva.Layer()
         this.stage.add(this.scoreLayer)
         this.scoreLayer.hide()
@@ -69,14 +55,12 @@ export class Pong {
         this.player2Score = 0
         this.updateScoreText()
 
-        // Layer de victoire
         this.generateVictoryScreenLayer()
 
     }
 
 /* ---------------------------------------- Loop ---------------------------------------- */    
 
-  // Boucle du jeu, à opti pour plus de fps
   gameLoop() {
     if (!this.gameRunning || this.victoryScreenDisplayed || !this.gameStarted) return
   
@@ -92,10 +76,9 @@ export class Pong {
     if (this.keysPressed[`w`]) {
       this.movePaddleDown(this.paddleLeft)
     }
-  
+    
     this.collisionCheck()
     this.moveBall()
-  
     this.drawBall()
     this.drawPaddles()
   
@@ -116,7 +99,6 @@ export class Pong {
     this.startGameLayer.opacity(0.8)
     this.stage.add(this.startGameLayer)
 
-    // Define paddle colors
     const leftPaddleColor = `#ff9a00`
     const rightPaddleColor = `#9a198a`
 
@@ -129,14 +111,12 @@ export class Pong {
     })
     this.startGameLayer.add(backgroundRect)
 
-    // Linear gradient for the WELCOME TO PONG text
     const welcomeTextGradient = {
       start: { x: -this.stage.width() / 2, y: 0 },
       end: { x: this.stage.width() / 2, y: 0 },
       colorStops: [0, leftPaddleColor, 1, rightPaddleColor],
     }
 
-    // Add the text with the linear gradient
     const welcomeText = new Konva.Text({
       x: this.stage.width() / 2,
       y: this.stage.height() / 2 - 150,
@@ -153,14 +133,85 @@ export class Pong {
     welcomeText.offsetX(welcomeText.width() / 2)
     this.startGameLayer.add(welcomeText)
 
-    // Linear gradient for the START GAME button
+    const asciiIconTextLeft = new Konva.Text({
+      x: this.stage.width() / 2 - 100,
+      y: this.stage.height() / 2 - 350,
+      text: `
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣤⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢐⡿⠋⠀⠀⠀⠙⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠁⠀⣠⣤⣴⢦⣸⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⣠⠴⠦⢤⡀⠀⠀⠀⠀⠀⠀⠘⣷⡞⠛⠉⠁⠀⢻⣿⡒⡖⠲⡦⢤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⡾⠁⠀⠀⠀⢹⣆⠀⠀⠀⠀⠀⠀⢘⣿⣆⠀⠀⠀⢠⣿⣷⠀⡼⠁⠀⠈⢙⠦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠘⣧⠀⠀⠀⠀⣠⣿⠀⠀⠀⠀⠀⣰⠋⠀⠈⠑⢶⣶⣿⠿⡿⠀⢄⠀⠀⠀⡏⠀⠀⠙⠲⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠘⠷⣴⣾⣿⠻⣇⠀⠀⠀⠀⢀⡇⠀⠰⣄⠀⠀⠀⠀⢰⠁⠀⠈⠑⠤⠰⠷⣦⢤⣴⠊⠀⣹⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿
+      ⠀⠀⠀⠀⠀⠀⠀⢿⡉⠑⡌⠓⠶⠤⢤⣼⣁⠀⠀⠈⣣⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠹⣶⠃⠀⣰⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⣿⣿
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠛⠾⠛⢦⡀⠀⠀⢩⠀⠉⠉⣲⠋⢧⡀⠒⠓⢲⠢⠤⠤⠤⣀⣠⠴⠋⢀⡞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠦⣄⠀⠀⣠⠞⠁⠀⠀⠹⣄⢀⡞⠀⠀⠀⠀⣸⠋⠀⣀⠼⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠋⠁⠀⠀⢀⣴⠚⠉⠙⠳⠤⣀⡤⠚⠉⠉⣀⠀⠀⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠋⠀⠉⠢⡀⠓⢷⡒⠒⠒⠊⣁⠤⠒⠒⠈⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⠃⠀⠀⠀⠀⠈⢦⠀⠈⣢⡀⠊⠁⢀⡠⠒⠉⠻⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⢴⡇⠀⠀⠀⣀⡤⢶⣿⠴⠋⠀⢻⡄⣴⠁⠀⠀⠀⠀⢹⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠋⠀⠓⠂⣴⠋⠁⠀⠀⠀⠀⠀⠀⠀⠓⠛⢧⡀⠀⠀⠀⠘⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡏⠀⠀⠀⣰⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣦⡀⠀⢀⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠃⠀⠀⣰⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠁⠈⠒⢋⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡯⣀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⡗⠠⣴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡾⢄⣠⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢼⣅⠉⠈⠙⢧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠏⠀⠀⢀⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⢿⣆⡀⢀⣹⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡯⠒⠒⢠⣾⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠓⠚⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      `,
+      fontSize: 5,
+      fontFamily: `BaseRetroWave`,
+      fill: `white`,
+      shadowColor: `rgba(255, 154, 0, 0.9)`,
+      shadowBlur: 10,
+      align: `center`,
+    })
+    asciiIconTextLeft.offsetX(asciiIconTextLeft.width() / 2)
+    this.startGameLayer.add(asciiIconTextLeft)
+
+    const asciiIconText = new Konva.Text({
+      x: this.stage.width() / 2 + 90,
+      y: this.stage.height() / 2 - 350,
+      text: `
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣤⣤⣤⣀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣇⠙⠀⠀⠀⠋⡿⢐⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡆⣸⢦⣴⣤⣠⠀⠁⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⢤⡦⠲⡖⡒⣿⢻⠀⠁⠉⠛⡞⣷⠘⠀⠀⠀⠀⠀⠀⡀⢤⠦⠴⣠⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣄⠦⢙⠈⠀⠁⡼⠀⣷⣿⢠⠀⠀⠀⣆⣿⢘⠀⠀⠀⠀⠀⠀⣆⢹⠀⠀⠀⠁⡾⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⢤⠲⠙⠀⠀⡏⠀⠀⠀⢄⠀⡿⠿⣿⣶⢶⠑⠈⠀⠋⣰⠀⠀⠀⠀⠀⣿⣠⠀⠀⠀⠀⣧⠘⠀⠀⠀      
+      ⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣹⠀⠊⣴⢤⣦⠷⠰⠤⠑⠈⠀⠁⢰⠀⠀⠀⠀⣄⠰⠀⡇⢀⠀⠀⠀⠀⣇⠻⣿⣾⣴⠷⠘⠀⠀⠀⠀      
+      ⣿⣿ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⣰⠀⠃⣶⠹⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⣣⠈⠀⠀⣁⣼⢤⠤⠶⠓⡌⠑⡉⢿⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⡞⢀⠋⠴⣠⣀⠤⠤⠤⠢⢲⠓⠒⡀⢧⠋⣲⠉⠉⠀⢩⠀⠀⡀⢦⠛⠾⠛⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠼⣀⠀⠋⣸⠀⠀⠀⠀⡞⢀⣄⠹⠀⠀⠁⠞⣠⠀⠀⣄⠦⠙⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣷⠀⠀⣀⠉⠉⠚⡤⣀⠤⠳⠙⠉⠚⣴⢀⠀⠀⠁⠋⠉⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣿⠈⠒⠒⠤⣁⠊⠒⠒⡒⢷⠓⡀⠢⠉⠀⠋⣰⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠻⠉⠒⡠⢀⠁⠊⡀⣢⠈⠀⢦⠈⠀⠀⠀⠀⠃⣼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⢹⠀⠀⠀⠀⠁⣴⡄⢻⠀⠋⠴⣿⢶⡤⣀⠀⠀⠀⡇⢴⢠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠘⠀⠀⠀⡀⢧⠛⠓⠀⠀⠀⠀⠀⠀⠀⠁⠋⣴⠂⠓⠀⠋⢰⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣧⢀⠀⡀⣦⠙⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠃⣰⠀⠀⠀⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡿⢋⠒⠈⠁⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⣰⠀⠀⠃⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⣴⠠⡗⣴⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠞⣠⣀⡯⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⢧⠙⠈⠉⣅⢼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡏⣠⢄⡾⢠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣦⣹⢀⡀⣆⢿⠛⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣧⢀⠀⠀⠏⣠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠛⠚⠓⠙⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠃⣾⢠⠒⠒⡯⢰⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      
+      ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      `,
+      fontSize: 5,
+      fontFamily: `BaseRetroWave`,
+      fill: `white`,
+      shadowColor: `rgba(255, 154, 0, 0.9)`,
+      shadowBlur: 10,
+      align: `center`,
+    })
+    asciiIconText.offsetX(asciiIconText.width() / 2)
+    this.startGameLayer.add(asciiIconText)
+
     const buttonGradient = {
       start: { x: -150 / 2, y: 0 },
       end: { x: 150 / 2, y: 0 },
       colorStops: [0, leftPaddleColor, 1, rightPaddleColor],
     }
 
-    // Add the button with the linear gradient
     const buttonWidth = 150
     const buttonHeight = 40
     const buttonX = (this.stage.width() - buttonWidth) / 2
@@ -202,23 +253,20 @@ export class Pong {
 
     startButtonRect.on(`mouseover`, () => {
       document.body.style.cursor = `pointer`
-      // Make the button border glow in neon pink when hovered
       startButtonRect.stroke(`rgba(255, 0, 255, 0.8)`)
       this.startGameLayer.batchDraw()
   })
 
   startButtonRect.on(`mouseout`, () => {
       document.body.style.cursor = `default`
-      // Revert back to the original border color when not hovered
       startButtonRect.stroke(``)
   })
 
     startButtonRect.on(`click`, this.startGame.bind(this))
 
-    // Add player one controls text
     const playerOneControlsText = new Konva.Text({
       x: this.stage.width() / 2 - 400,
-      y: this.stage.height() / 2 + 200, // Adjust the Y position as needed
+      y: this.stage.height() / 2 + 200,
       text: `Player one: ↑ S ↓ X`,
       fontSize: 20,
       fontFamily: `BaseRetroWave`,
@@ -230,10 +278,9 @@ export class Pong {
     playerOneControlsText.offsetX(playerOneControlsText.width() / 2)
     this.startGameLayer.add(playerOneControlsText)
 
-    // Add player two controls text
     const playerTwoControlsText = new Konva.Text({
       x: this.stage.width() / 2 + 400,
-      y: this.stage.height() / 2 + 200, // Adjust the Y position as needed
+      y: this.stage.height() / 2 + 200,
       text: `Player two: ↑ arrowUp ↓ arrowDown`,
       fontSize: 20,
       fontFamily: `BaseRetroWave`,
@@ -257,7 +304,6 @@ export class Pong {
   
     this.startGameLayer.add(ball)
   
-    // Animation parameters
     const amplitude = 600
     const period = 3500
     const centerX = this.stage.width() / 2
@@ -282,7 +328,6 @@ export class Pong {
     private ballX = 0
     private ballY = 0
 
-    // On set les propriétés de la ball dans un .Group
     generateBall(): Konva.Group {
       const ballRadius = this.ballRadius
       const gameWidth = this.stage.width() - ballRadius * 2
@@ -300,7 +345,6 @@ export class Pong {
       return new Konva.Group()
     }
 
-    // On représente les paddles par un .Group de .Rect
     generatePaddle(side: `Left` | `Right`, color: string): Konva.Group {
       const paddleWidth = 15
       const paddleHeight = 150
@@ -334,7 +378,6 @@ export class Pong {
 
     startGame() {
       if (!this.gameStarted) {
-          // Hide the start game screen and start the game loop
           this.startGameLayer.hide()
           this.gameStarted = true
           this.gameRunning = true
@@ -343,8 +386,7 @@ export class Pong {
       }
     }
 
-      // Besoin d'aide pour le resize(responsive ?)
-      generateStage(): Konva.Stage {
+    generateStage(): Konva.Stage {
         const container = document.getElementById(`konvaRef`)
         if (!container) {
             throw new Error(`Container 'konvaRef' not found.`)
@@ -359,11 +401,9 @@ export class Pong {
             height: stageHeight,
         })
 
-        // /!\ Stage set en dur, voir plus tard les @media queries
         stage.width(stageWidth)
         stage.height(stageHeight)
 
-        // Nouveau layer pour le bg
         const backgroundLayer = new Konva.Layer()
         const backgroundRect = new Konva.Rect({
           x: 0,
@@ -380,7 +420,6 @@ export class Pong {
         stage.add(backgroundLayer)
         this.addBackgroundImage()
 
-        // Layer for the score
         const scoreLayer = new Konva.Layer()
         stage.add(scoreLayer)
 
@@ -394,30 +433,25 @@ export class Pong {
 
   updateScoreText() {
     const scoreText = `${this.player1Score} : ${this.player2Score}`
-    // Nouvel objet konva pour display les scores
     const text = new Konva.Text({
       x: this.stage.width() / 2,
-      y: 10, // `margin-top: en gros`
+      y: 10,
       text: scoreText,
       fontSize: 30,
-      // voir pour la base-font du projet
       fontFamily: `BaseRetroWave`,
       fill: `black`,
       shadowColor: `rgba(255, 154, 0, 0.9)`,
       shadowBlur: 10,
     })
 
-    // remove les child déjà présents, et ajoute le nouveau avant de draw la layer
     text.offsetX(text.width() / 2)
     this.scoreLayer.destroyChildren()
     this.scoreLayer.add(text)
     this.scoreLayer.batchDraw()
 
-    // met en cache le layer score après l'avoir update
     this.scoreLayer.cache()
   }
 
-  // Incrémente les scores en fonction du joueur qui marque le but / lance le victory screen à scoreMax
   updateScore(player: `player1` | `player2`) {
     this.ballSpeed = 10
     if (player === `player1`) {
@@ -437,17 +471,14 @@ export class Pong {
     this.updateScoreText()
   }
 
-    // Créé la new layer pour le Vscreen / peut etre à reskin
     generateVictoryScreenLayer(): void {
       this.victoryScreenLayer = new Konva.Layer()
       this.stage.add(this.victoryScreenLayer)
     }
 
     displayVictoryScreen(winner: `player1` | `player2`) {
-      // On stop le jeu (peut-être trouver mieux)
       this.gameRunning = false
     
-      // Cache les autres layers / peut etre les delete est plus worth ?
       this.ball.hide()
       this.scoreLayer.hide()
     
@@ -457,15 +488,13 @@ export class Pong {
         width: this.stage.width(),
         height: this.stage.height(),
         fill: `black`,
-        opacity: 0.8, // Set the opacity to darken the background
+        opacity: 0.8,
       })
       this.victoryScreenLayer.add(darkeningRect)
 
-      // Display
       this.victoryScreenLayer.show()
-      this.victoryScreenLayer.moveToTop() // Pour s'assurer que la layer soit en z-axis max
+      this.victoryScreenLayer.moveToTop()
     
-      // On fait une box pour le victory Text
       const rectWidth = this.stage.width() / 2
       const rectHeight = this.stage.height() / 2
       const rectX = (this.stage.width() - rectWidth) / 2
@@ -487,7 +516,6 @@ export class Pong {
         colorStops: [0, `#ff9a00`, 1, `#9a198a`],
       }
 
-      // On add le message de victoire du player concerné
       const text = new Konva.Text({
         x: this.stage.width() / 2,
         y: this.stage.height() / 2 - 60,
@@ -527,21 +555,19 @@ export class Pong {
 
       this.victoryScreenLayer.batchDraw()
 
-      // Animate the falling letters
-      const animationDuration = 2 // Duration of the falling animation in seconds
-      const animationDelay = 0.1 // Delay between each letter's animation in seconds
+      const animationDuration = 2
+      const animationDelay = 0.1
 
       letters.forEach((letter, index) => {
         const targetY = this.stage.height() / 4
         const tween = new Konva.Tween({
           node: letter,
-          y: targetY, // Move the letter downwards
+          y: targetY,
           duration: animationDuration,
           easing: Konva.Easings.BounceEaseOut,
           delay: index * animationDelay,
           onFinish: () => {
             if (index === letters.length - 1) {
-              // After the last letter's animation is complete
               tween.reverse()
               tween.play()
             }
@@ -551,11 +577,11 @@ export class Pong {
         tween.play()
       })
 
-      const confettiCount = 200 // Number of confetti particles
-      const confettiColors = [`#ff9a00`, `#9a198a`, `#ff00f1`, `#fc8741`] // Colors for the confetti particles
+      const confettiCount = 200
+      const confettiColors = [`#ff9a00`, `#9a198a`, `#ff00f1`, `#fc8741`]
 
       for (let i = 0; i < confettiCount; i++) {
-        const confettiSize = Math.random() * 20 + 30 // Increase the size of each confetti
+        const confettiSize = Math.random() * 20 + 30
         const confetti = new Konva.Rect({
           x: this.stage.width() / 2,
           y: this.stage.height() / 2,
@@ -566,10 +592,9 @@ export class Pong {
     
         this.victoryScreenLayer.add(confetti)
     
-        const angle = Math.random() * Math.PI * 2 // Random angle for each confetti
-        const power = 150 + Math.random() * 200 // Increase the power for each confetti
+        const angle = Math.random() * Math.PI * 2
+        const power = 150 + Math.random() * 200
     
-        // Set the confetti behind the 'GAME OVER' text
         confetti.zIndex(-10)
     
         const animation = new Konva.Tween({
@@ -588,7 +613,6 @@ export class Pong {
         animation.play()
       }
 
-      // Display du score sur le Vscreen (à bouger pour faire + beau)
       const scoreText = new Konva.Text({
         x: this.stage.width() / 2,
         y: this.stage.height() / 2,
@@ -604,7 +628,6 @@ export class Pong {
     
       this.victoryScreenLayer.add(scoreText)
     
-      // Bouton `Rejouer`
       const buttonWidth = 150
       const buttonHeight = 40
       const buttonX = (this.stage.width() - buttonWidth) / 2
@@ -639,7 +662,7 @@ export class Pong {
         fill: `white`,
         align: `center`,
         verticalAlign: `middle`,
-        listening: false, // A l'inverse, c'est pour ignorer l'intéraction du texte et passer sur celle du bouton
+        listening: false,
       })
 
         buttonText.offsetX(buttonText.width() / 2)
@@ -648,25 +671,21 @@ export class Pong {
         this.victoryScreenLayer.add(buttonRect)
         this.victoryScreenLayer.add(buttonText)
       
-      // On change le curseur pdt l'hover
       buttonRect.on(`mouseover`, () => {
         document.body.style.cursor = `pointer`
         buttonRect.stroke(`rgba(255, 0, 255, 0.8)`)
         this.startGameLayer.batchDraw()
       })
     
-      // Et le repasse en default quand la souris sort
       buttonRect.on(`mouseout`, () => {
         document.body.style.cursor = `default`
         buttonRect.stroke(``)
       })
     
-      // On lie les events au clic du bouton
       buttonRect.on(`click`, () => {
         this.resetScore()
         this.resetVictoryScreen()
 
-        // On remontre les autres layers (comme dit plus haut, peut être devoir les redraw)
         this.paddleLeft.show()
         this.paddleRight.show()
         this.ball.show()
@@ -678,7 +697,6 @@ export class Pong {
     
       this.victoryScreenLayer.add(buttonRect)
     
-      // on redraw tous les éléments du Vscreen
       this.victoryScreenLayer.batchDraw()
     }
     
@@ -730,8 +748,6 @@ collisionCheck() {
   const paddleHeight = 150
 
   // On check si la position de la balle se trouve à l'intérieur des coordonnées de la paddle
-  // la paddle dans sa largeur est représentée par paddleX + paddleWidth _
-  // la paddle en hauteur, c'est paddleY + paddleHeight |
   if ((this.ballX - ballRadius <= paddleLeftX + paddleWidth && this.ballY >= paddleLeftY && this.ballY <= paddleLeftY + paddleHeight))
     {
       this.ballX = (paddleLeftX + paddleWidth) + ballRadius
@@ -747,7 +763,6 @@ collisionCheck() {
 
   // Check si un `BUT` est marqué
   if (this.ballX - ballRadius <= 0) {
-    // Reset la balle + update le score
     this.updateScore(`player2`)
     this.ballX = this.stage.width() / 2
     this.ballY = this.stage.height() / 2
@@ -770,18 +785,15 @@ collisionCheck() {
       const ballX = this.ballX + this.ballSpeed * this.ballXDirection
       const ballY = this.ballY + this.ballSpeed * this.ballYDirection
     
-      // Update la pos de la balle
       this.ballX = ballX
       this.ballY = ballY
     }
     
 
   drawBall() {
-    // Cherche la forme 'ball' dans le ball.group via son id 'ball-shape'
     const ball = this.ball.findOne(`.ball-shape`) as Konva.Circle
 
     if (!ball) {
-      // Créé et ajoute la balle au ball.group si none
       const newBall = new Konva.Circle({
         x: this.ballX,
         y: this.ballY,
@@ -796,7 +808,6 @@ collisionCheck() {
 
       this.ball.add(newBall)
     } else {
-      // Update la position de l'objet ball en assignant ballX et ballY
       ball.position({ x: this.ballX, y: this.ballY })
     }
     this.updateStage()
@@ -817,14 +828,11 @@ collisionCheck() {
         const paddleHeight = paddle.height()
         const stageHeight = this.stage.height()
         
-        // Check if the paddle's bottom position is below the stage's height - paddle's height
         if (paddleY < (stageHeight - paddleHeight) - 140) {
             paddle.y(paddleY)
         }
       }
 
-    // Throttle pour fluidifier les movements (limiter le nombre de calls fonction)
-    // Bougé la logique de dispatch dans gameLoop, pour laisser le browser décider du rate
     handleKeyDown(event: KeyboardEvent): void {
       this.keysPressed[event.key] = true
     }

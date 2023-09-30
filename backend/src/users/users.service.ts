@@ -31,7 +31,19 @@ export class UsersService {
   //**************************************************//
 
   async findOne(id: string) {
-    return await this.prisma.user.findUnique({ where: { id } })
+    if (id) {
+      const usr = await this.prisma.user.findUnique({
+        where: { id },
+        include: {
+          gameStats: true,
+          relationFollowings: true,
+        },
+      })
+      if (usr) {
+        return usr
+      }
+    }
+    return null
   }
 
   async findAll(args: Prisma.UserFindManyArgs) {
@@ -52,5 +64,10 @@ export class UsersService {
 
   async findAllUsersSorted() {
     return await this.prisma.user.findMany({})
+  }
+
+  async checkPseudo(username: string) {
+    const found = await this.prisma.user.findFirst({ where: { username } })
+    return found === null
   }
 }

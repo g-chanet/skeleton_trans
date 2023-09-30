@@ -34,9 +34,8 @@
 
 <script setup lang="ts">
 import { useLogoutMutation } from '@/graphql/graphql-operations'
-import axios from 'axios'
 import { useRouter, useRoute } from 'vue-router'
-import {computed} from "vue"
+import { computed } from "vue"
 
 const route = useRoute()
 const router = useRouter()

@@ -1,8 +1,6 @@
 <template>
-  <!-- <el-button @click="socketMoveUp" class="'bite'">MOVE UP</el-button>
-  <el-button @click="socketMoveDown" class="'bite'">MOVE DOWN</el-button> -->
   <div class="konva-container">
-    <div class="konva" id="konvaRef"/>
+    <div class="konva" id="konvaRef"></div>
   </div>
 </template>
 
@@ -23,35 +21,6 @@ onMounted(() => {
   pong.value = new Pong(props.socket, props.pongData)
 })
 
-
-// socket.on(`updateGameData`, (gameData) => {
-
-// })
-
-
-// socket.on(`movePaddleError`, (error) => {
-//     console.error(`Move Paddle Error:`, error.message)
-// })
-
-
-// socket.on(`leaveRoomSuccess`, () => {
-//     console.log(`Left room successfully`)
-// })
-
-// socket.on(`leaveRoomError`, (error) => {
-//     console.error(`Leave Room Error:`, error.message)
-// })
-
-// // socket.on(`startGame`, (initialGameData) => {
-// // })
-
-// socket.on(`updatePaddlePosition`, (position) => {
-//   console.log(position)
-//   //INGAME
-//   pong.value.setPaddlePosition(socket.id, position)
-//   //opponent paddle Y = position
-// })
-
 </script>
 
 <style scoped lang="sass">
@@ -60,6 +29,10 @@ onMounted(() => {
   display: flex
   justify-content: center
   align-items: center
+  top: 0
+  left: 5px
+  padding-left: 5px
+  padding-right: 5px
   .konva
     margin-top: 25px
     height: 600px

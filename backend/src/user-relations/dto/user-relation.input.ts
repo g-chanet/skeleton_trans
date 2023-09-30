@@ -16,6 +16,12 @@ export class UpdateUserRelationInput {
   userTargetid: string
 }
 
+@InputType()
+export class RelationChangeSubscribeInput {
+  @Field(() => String)
+  userId: string
+}
+
 //**************************************************//
 //  QUERY
 //**************************************************//

@@ -1,122 +1,224 @@
 <template>
-  <div class="home-container">
-    <div class="actions-container">
-      <el-button class="btn-5"><span>Join Matchmaking</span></el-button>
-      <el-button class="btn-5"><span>Create Game</span></el-button>
-    </div>
-    <h1>Parties en Cours</h1>
-    <div class="waiting-room">
-      <div>Salles en attente de joueurs</div>
-    <el-carousel :interval="4000" type="card" height="200px">
-      <el-carousel-item v-for="item in 5" :key="item">
-        <h3 text="2xl" justify="center">{{ item }}</h3>
-    </el-carousel-item>
-  </el-carousel>
-    </div>
-    <h1>Dernières Parties</h1>
-    <div class="last-game-list">
-      <div class="last-game">
-      lastGame1
-      </div>
-      <div class="last-game">
-      lastGame2
-      </div>
-      <div class="last-game">
-      lastGame3
-      </div>
-      <div class="last-game">
-      lastGame4
-      </div>
-      <div class="last-game">
-      lastGame5
-      </div>
-      <div class="last-game">
-      lastGame1
-      </div>
-      <div class="last-game">
-      lastGame2
-      </div>
-      <div class="last-game">
-      lastGame3
-      </div>
-      <div class="last-game">
-      lastGame4
-      </div>
-      <div class="last-game">
-      lastGame5
-      </div>
-    </div>
+<div class="common-layout">
+    <el-container>
+      <el-container>
+        <el-header style="height: 3vh">
+			<el-input class="input-base"
+				placeholder="Type something"
+				:prefix-icon="Search"
+			/>
+		</el-header>
+        <el-main>
+			<div class="matchmakings-layout">
+				<h1 class="title-header">GAMES</h1>
+				<div class="games-list-and-buttons-container">
+					<div class="games-buttons-container">
+						<div class="instant-matchmaking-btn" @click="onMatchMackingJoined()">
+							<h1>instant matchmaking</h1>
+						</div>
+						<div class="create-game-btn" @click="RefNewOfflineGameDialog.changeDialogVisibility()">
+							<el-icon :size="60" style="color: #4422EF;"><Plus /></el-icon>
+							<h1>create a new game</h1>
+						</div>
+					</div>
+					<div class="games-list-container">
+						<el-scrollbar>
+							<div style="display: flex; width: 50%; height:100%">
+								<p v-for="item in displayedMatchmakings" :key="item">
+									<matchMakingGameItem :matchmakingItem="item" />
+								</p>
+							</div>
+						</el-scrollbar>
+					</div>
+				</div>
+			</div>
+			<div class="last-games-layout">
+				<div class="active-games-container">
+					<h1 class="title-header">ACTIVE GAMES</h1>
+					<div class="active-games-list-container">
+						<el-scrollbar>
+							<div>
+								<p v-for="item in localGames" :key="item.id">
+									<ActiveGameComponent/>
+								</p>
+							</div>
+						</el-scrollbar>
+					</div>
+				</div>
+				<div class="past-games-container">
+					<h1 class="title-header">GAME HISTORY</h1>
+					<div class="last-games-list-container">
+						<el-scrollbar>
+							<div>
+								<p v-for="item in gameStats" :key="item">
+									<newLastGameItem :id-player1="item.userId" :id-player2="item.opponentId" :score1="item.userScore" :score2="item.opponentScore"></newLastGameItem>
+								</p>
+							</div>
+						</el-scrollbar>
+					</div>
+				</div>
+			</div>
+			
+		</el-main>
+      </el-container>
+    </el-container>
+	<newGameDialog ref="RefNewOfflineGameDialog"/>
   </div>
+
 </template>
+  
+<script setup lang="ts">
+import newLastGameItem  from "../profile/components/newLastGameItem.vue"
+import matchMakingGameItem from "./matchMakingGameItem.vue"
+import ActiveGameComponent from "./ActiveGameComponent.vue"
+import { computed, ref, inject, watch, onMounted } from "vue"
+import { useFindAllGameStatsSoftLimitQuery,
+	useAllGamesStatsUpdatedSubscription,
+	useJoinGameMatchmakingMemberMutation,
+	type GameStat, type GameMatchmakingMember,
+	type Game, type User} from '@/graphql/graphql-operations'
+import newGameDialog from "./newGameDialog.vue"
+import { ElMessage } from "element-plus"
 
-<script setup lang="ts"></script>
 
-<!-- const onCreateRoom = () => {
-  window.location.href = `/game/lobby`
+const RefNewOfflineGameDialog = null
+const { result: queryData } = useFindAllGameStatsSoftLimitQuery()
+const { result: subscriptionData } = useAllGamesStatsUpdatedSubscription()
+const { mutate: mutateJoinMatchmaking, onError: onErrorJoinMatchmaking } = useJoinGameMatchmakingMemberMutation()
+let localGameStats:GameStat[] = []
+const localMatchmakings = inject<GameMatchmakingMember[]>('localMatchmakings')
+const loggedInUser = inject<User>('loggedInUser')
+const localGames = inject<Game[]>('localGames')
+const displayedMatchmakings = computed(() => localMatchmakings.value.filter(member => member.userId != loggedInUser.value.id).filter(member => member.targetUserId === loggedInUser.value.id || member.targetUserId === null))
+
+
+const gameStats = computed(() => {
+console.log(localGameStats.length)
+if (localGameStats.length == 0 && queryData.value?.findAllGameStatsSoftLimit) {
+	console.log(`refetch`)
+	localGameStats = queryData.value?.findAllGameStatsSoftLimit || []
 }
 
-const onJoinMatchmaking = () => {
-  window.location.href = `/game/matchmaking`
-} -->
+let ret = localGameStats
 
+if (subscriptionData.value?.allGamesStatsUpdated) {
+	const newGameStat = subscriptionData.value.allGamesStatsUpdated
+	if (newGameStat.isDeleted) {
+		ret = ret.filter(gameStat => gameStat.id !== newGameStat.id)
+		localGameStats = ret
+	} else {
+		console.log(newGameStat)
+		ret = [newGameStat, ...ret]
+		localGameStats = ret
+	}
+}
+return ret
+})
+
+const onMatchMackingJoined = () => {
+		mutateJoinMatchmaking()
+		.catch((error) => {
+		ElMessage.error(error.message)
+	})
+}
+
+onMounted(() => {
+	console.log('monteeee')
+})
+
+</script>
+
+  
 <style scoped lang="sass">
-.home-container
-  width: 100%
-  display: flex
-  flex-direction: column
-  .waiting-room
-    display: flex
-    gap: 20px
-    width: 100%
-    div
-      background-color: red
-      flex: 1
-      height: 400px
-  .actions-container
-    display: flex
-    gap: 20px
-    width: 100%
-    justify-content: space-around
-    div
-      flex: 1
-      height: 80px
-  .last-game-list
-    display: flex
-    flex-direction: column
-    gap:20px
-    flex:1
-    overflow-y: scroll
-    .last-game
-      min-height: 40px
-      background-color: green
 
-.el-carousel__item h3
-  color: #475669
-  opacity: 0.75
-  line-height: 200px
-  margin: 0
-  text-align: center
+.input-base
+	width: 15vw
+	margin-left: 15px
+.title-header
+	font-size: 1.2em
+	font-weight: bold
+	font-family: "Roboto"
+	margin : 25px
+	color: #979797
+.common-layout
+	display: flex
+	width: 100%
+	height: 100%
+	font-family: 'roboto'
+	.matchmakings-layout
+		display: flex
+		flex-direction: column
+		height: 40%
+		background-color: #0E0E10
+		border-radius: 20px
+		margin: 10px
+		.games-list-and-buttons-container
+			margin-top: -40px
+			display: flex
+			align-items: center
+			height: 100%
+			width: 100%
+			.games-buttons-container
+				display: flex
+				flex-direction: column
+				width: 14vw
+				height: 100%
+				margin: 20px
+				justify-content: center
+				.instant-matchmaking-btn
+					height: 15%
+					margin-bottom: 10px
+					width: 100%
+					display: flex
+					background: #111115
+					justify-content: center
+					align-items: center
+					cursor: pointer
+					border-radius: var(--el-border-radius-base)
+				.create-game-btn
+					display: flex
+					flex-direction: column
+					justify-content: center
+					align-items: center
+					height: 59%
+					width: 14vw
+					background: #111115
+					border-radius: var(--el-border-radius-base)
+					cursor: pointer
+			.games-list-container
+				display: flex
+				width: 89%
 
-.el-carousel__item:nth-child(2n)
-  background-color: #99a9bf
-
-.el-carousel__item:nth-child(2n + 1)
-  background-color: #d3dce6
-
-.btn-5
-  font-family: OutRun
-  width: 25%
-  height: 100%
-  margin: 10px
-  color: var(--el-color-primary)
-  font-size: 40px
-  border-color: transparent
-  background: transparent
-  .span
-    transition: text-shadow 0.3s ease
-  &:hover
-    span
-      text-stroke: 1px rgba(rgb(255, 66, 255), 0.5)
-      text-shadow: 0 0 5px rgba(rgb(255, 66, 255), 0.9), 0 0 10px rgba(rgb(255, 66, 255), 0.8), 0 0 20px rgba(rgb(255, 66, 255), 0.7), 0 0 40px rgba(rgb(255, 66, 255), 0.6), 0 0 80px rgba(rgb(255, 66, 255), 0.5), 0 0 120px rgba(rgb(255, 66, 255), 0.4)
-
+	.last-games-layout
+		display: flex
+		height: 58%
+		.active-games-container
+			background: #0E0E10
+			display: flex
+			flex-direction: column
+			width: 25%
+			height: 95%
+			margin: 10px
+			border-radius: 10px
+			.active-games-list-container
+				display: flex
+				justify-content: center
+				align-items: center
+				height: 85%
+				width: 100%
+		.past-games-container
+			background: #0E0E10
+			display: flex
+			flex-direction: column
+			width: 75%
+			height: 95%
+			margin: 10px
+			border-radius: 10px
+			.last-games-list-container
+				display: flex
+				justify-content: center
+				align-items: center
+				height: 85%
+				width: 100%
 </style>
+  

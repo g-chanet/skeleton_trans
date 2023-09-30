@@ -1,39 +1,37 @@
 <template>
 	<el-col :span="8">
 		<div class="statistic-card">
-							<el-statistic :value="98500">
+							<el-statistic :value="statNumber" :precision="2">
 							<template #title>
 								<div style="display: inline-flex; align-items: center">
-								Daily active users
+									<el-icon style="margin-left: 4px" :size="52">
+									<SwitchFilled v-if="indicator == `nombres de parties`"/>
+									<DataAnalysis  v-if="indicator == `ratio général`"/>
+									<Aim v-if="indicator == `points moyen par partie`"/>
+									</el-icon>
+								{{indicator}}
 								<el-tooltip
 									effect="dark"
-									content="Number of users who logged into the product in one day"
+									:content= "toolTipValue"
 									placement="top"
 								>
-									<el-icon style="margin-left: 4px" :size="12">
-									<Warning />
-									</el-icon>
 								</el-tooltip>
 								</div>
 							</template>
 							</el-statistic>
-							<div class="statistic-footer">
-							<div class="footer-item">
-								<span>than yesterday</span>
-								<span class="green">
-								24%
-								<el-icon>
-									<CaretTop />
-								</el-icon>
-								</span>
-							</div>
-							</div>
 						</div>
 						</el-col>
 </template>
 
-<script setup lang="ts">
-
+<script lang="ts">
+export default {
+  name: `statistic-card`,
+  props: {
+	statNumber: Number,
+	indicator: String,
+	toolTipValue: String,
+  },
+}
 </script>
 
 <style scoped lang="sass">
@@ -42,7 +40,7 @@
 	height: 100%
 	padding: 20px
 	border-radius: 4px
-	background-color: var(--el-bg-color-overlay)
+	background-color: rgb(26,35,50)
 	  
 .statistic-footer
 	display: flex

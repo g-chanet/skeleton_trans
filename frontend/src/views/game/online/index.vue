@@ -24,17 +24,32 @@ onUnmounted(() => {
 })
 
 socket.on(`joinRoomSuccess`, (data: PongData) => {
-  ElMessage({
-    message: `Joined room successfully: ${data}`,
-    type: `success`,
-  })
   pongData.value = data
+})
+
+socket.on(`playerReady`, (player: string) => {
+  ElMessage({
+    message: `${player} is Ready to play!`,
+    type: `success`,
+    duration: 5000,
+  })
+})
+
+socket.on(`playerAskHardMode`, (player: string) => {
+  ElMessage({
+    message: `${player} Requested hard mode!<br/> <br/>Select hard mode and start the game if you're feeling risky!`,
+    type: `success`,
+    dangerouslyUseHTMLString: true,
+    duration: 5000,
+    customClass: 'centered-message'
+  })
 })
 
 socket.on(`joinRoomError`, (error) => {
   ElMessage({
-    message: `Join Room Error: ${error.message}`,
+    message: `JOIN ROOM ERROR: ${error.message}`,
     type: `warning`,
+    duration: 5000,
   })
   pongData.value = undefined
 })
@@ -45,11 +60,11 @@ socket.on(`joinRoomError`, (error) => {
 
 .konva-container
   display: flex
-  justify-content: center
-  align-items: center
-  margin-top: 25px
-  height: 90%
-  width: 95%
+  justify-content: flex-start
+  align-items: stretch
+  margin-top: auto
+  height: 100%
+  width: 100%
 
 .button
     margin: 0
@@ -64,4 +79,11 @@ socket.on(`joinRoomError`, (error) => {
 
 .el-button
   z-index: 1000
+
+.centered-message
+  display: flex
+  align-items: center
+  justify-content: center
+  text-align: center
+
 </style> 

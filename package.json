@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "konva": "^9.2.0",
+    "moment": "^2.29.4"
+  }
+}

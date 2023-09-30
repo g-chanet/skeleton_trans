@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport'
 import { Strategy } from 'passport-discord'
 import { VerifyCallback } from 'passport-discord-oauth2'
 import { AuthService } from '../auth.service'
+import { RedirectError } from '../custom-errors/redirect-errors'
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET
@@ -19,7 +20,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, `discord`) {
     })
   }
 
-  validate(
+  async validate(
     req,
     accessToken: string,
     refreshToken: string,
@@ -33,6 +34,17 @@ export class DiscordStrategy extends PassportStrategy(Strategy, `discord`) {
       username: profile.username,
       avatar: profile.avatar,
       locale: profile.locale,
+    }
+    try {
+      const user = await this.authService.transOauthLogin(userData)
+      return done(null, user)
+    } catch (error) {
+      console.error(`Error: `, error)
+      throw new RedirectError(
+        302,
+        `${process.env.FRONTEND_URL}/login?error=` + error.message,
+      )
+      return done(error, null)
     }
     return done(null, userData)
   }

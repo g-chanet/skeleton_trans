@@ -1,0 +1,17 @@
+subscription UsersPresenceUpdated($args: FindUserPresencesInput!) {
+    usersPresenceUpdated(
+        args: $args
+    ) {
+        id
+        userId
+        connectedAt
+    }
+}
+
+query FindUserPresences($args: FindUserPresencesInput!) {
+    findUserPresences(args: $args) {
+        userId
+        connectedAt
+        id
+    }
+}

@@ -10,6 +10,7 @@ import { SessionSerializer } from './utils/serializer'
 import { DiscordStrategy } from './strategies/discord.strategy'
 import { GithubStrategy } from './strategies/github.strategy'
 import { School42Strategy } from './strategies/school42.strategy'
+import { UserPresencesService } from 'src/user-presences/user-presences.service'
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { School42Strategy } from './strategies/school42.strategy'
     GithubStrategy,
     School42Strategy,
     SessionSerializer,
+    UserPresencesService,
     {
       provide: `AUTH_SERVICE`,
       useClass: AuthService,

@@ -21,10 +21,10 @@ export class AuthHelper {
 
   static verifyPassword(password: string) {
     if (password === ``) {
-      throw new Error(`Mot de passe non définit`)
+      throw new Error(`Mot de passe non défini`)
     }
     if (!MIN_LENGTH.test(password)) {
-      throw new Error(`Le mot de passe fait au moins 8 caractères de long.`)
+      throw new Error(`Le mot de passe fait moins 8 caractères.`)
     }
     if (!MAX_LENGTH.test(password)) {
       throw new Error(`Le mot de passe ne doit pas dépasser 256 caractères.`)

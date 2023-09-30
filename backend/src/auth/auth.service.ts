@@ -14,7 +14,7 @@ import { toDataURL } from 'qrcode'
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   //**************************************************//
   //  MUTATION
@@ -64,6 +64,7 @@ export class AuthService {
       email: email,
       twoFactorAuthSecret: qrObject.secret,
       googleAuthenticatorQrCode: qrCodeBase64,
+      isOauth: false,
     })
     console.log(user.googleAuthenticatorQrCode)
     delete user.password
@@ -71,7 +72,7 @@ export class AuthService {
   }
 
   async validateUser(emailOrUsername: string, password: string) {
-    console.log(`entered validatUser`)
+    console.log(`entered validateUser`)
     const user =
       (await this.usersService.findOneByEmail(emailOrUsername)) ||
       (await this.usersService.findOneByUsername(emailOrUsername))
@@ -88,16 +89,16 @@ export class AuthService {
   }
 
   async validateUserId(userId: string) {
-    return await this.usersService.findOne(userId)
+    const usr = await this.usersService.findOne(userId)
+    if (usr) {
+      return usr
+    }
+    return null
   }
 
   async transOauthLogin(payload: TransOauthDto) {
-    console.error(`entered auth Oauth`)
-    try {
-      this.sanitize(payload)
-    } catch (error) {
-      console.log(error)
-    }
+    console.log(`entered auth Oauth`)
+    this.sanitize(payload)
     console.error(`escaping auth Oauth`)
     // need to catch exceptions ?
     let dbUser = await this.usersService.findOneByEmail(payload.mail)

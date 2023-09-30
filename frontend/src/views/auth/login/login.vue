@@ -29,7 +29,7 @@
         <el-button @click="onConnectWithSchool42" class="bt" circle>42</el-button>
       </div>
       <el-divider> </el-divider>
-      <el-button class="bt-submit" native-type="submit">Create Account</el-button>
+      <el-button @click="pushSignup" class="bt-submit" native-type="submit">Create Account</el-button>
       <!-- <router-link to="/signup" class="create-account">Create Account</router-link> -->
       <router-view></router-view>
     </div>
@@ -64,21 +64,15 @@ const form = ref({
   doubleAuthCode: ``
 })
 
-onDone((e) => {
-  ElMessage({
-    showClose: true,
-    message: `Congrats, this is a success message.`,
-    type: `success`
-  })
-})
 
 onError((e) => {
-  if (e.message == `GraphQL error: 4242`) {
+  if (e.message == `4242`) {
     ElMessageBox.prompt(`veuillez remplir votre code Google Authenticator`, `2fa`, {
       confirmButtonText: `OK`,
       cancelButtonText: `Cancel`,
       inputPattern: /^\d{6}$/,
-      inputErrorMessage: `Invalid Code`
+      inputErrorMessage: `Invalid Code`,
+      closeOnClickModal: false
     }).then(({ value }) => {
       if (value !== null) {
         form.value.doubleAuthCode = value
@@ -86,19 +80,36 @@ onError((e) => {
         form.value.doubleAuthCode = ``
       }
     })
-    return
   }
-  ElMessage({
+  else {
+    console.log("error !")
+    router.push('/login')
+    ElMessage({
     showClose: true,
     message: e.message,
     type: `error`
   })
+  }
 })
 
 const onSubmitForm = () => {
-  mutate({ args: form.value }).then(() => {
-    router.push(`/app/home`)
+  console.log('form usbmitted')
+  mutate({ args: form.value }).then((res) => {
+    if (res && res.data && res.data.signInLocal.id) {
+      console.log('response ok')
+      router.push(`/app/home`)
+    }
+    if (res)
+    {
+      console.log('response !')
+      console.log(res)
+    }
   })
+  .catch((error) => {
+    console.log('error!')
+    console.log(error)
+    router.push(`/login`)
+    })
 }
 
 const onConnectWithGoogle = () => {
@@ -116,6 +127,9 @@ const onConnectWithGithub = () => {
 const onConnectWithSchool42 = () => {
   window.location.href = `/auth/42`
 }
+
+const pushSignup = () => router.push(`signup`)
+
 </script>
 
 <style scoped lang="sass">

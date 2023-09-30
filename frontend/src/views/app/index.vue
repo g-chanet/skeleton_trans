@@ -1,18 +1,41 @@
 <template>
   <el-container class="container-app">
-    <el-aside class="aside">
+    <el-aside class="aside" v-if="!isMobile">
       <NavBar />
     </el-aside>
     <el-container class="center">
-      <div class="center-background panel-blur" />
-
+      <div class="center-background panel-blur"/>
       <router-view class="center-main" />
     </el-container>
+    <el-footer v-if="isMobile" style="width: 100%; display: flex; justify-content: center;">
+      <NavBarMobile />
+    </el-footer>
   </el-container>
 </template>
 
 <script setup lang="ts">
 import NavBar from './navBar/index.vue'
+import NavBarMobile from './navBarMobile/index.vue'
+import { ref, onMounted, watch } from 'vue'
+
+const isMobile = ref(false)
+
+function checkMobile() {
+  isMobile.value = window.innerWidth <= 768
+}
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+watch(isMobile, () => {
+  console.log("hola")
+  document.body.style.overflow = 'hidden'
+  setTimeout(() => {
+    document.body.style.overflow = 'auto'
+  }, 0)
+})
 </script>
 
 <style scoped lang="sass">

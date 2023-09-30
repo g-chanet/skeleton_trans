@@ -1,8 +1,9 @@
-import { ObjectType, Field, ID } from '@nestjs/graphql'
+import { ObjectType, Field } from '@nestjs/graphql'
+import { GameStat } from 'src/games/entities/gameStat.entity'
 
 @ObjectType()
 export class UserPublic {
-  @Field(() => ID)
+  @Field(() => String)
   id: string
 
   @Field(() => String)
@@ -19,4 +20,58 @@ export class UserPublic {
 export class User extends UserPublic {
   @Field(() => Boolean)
   doubleAuth: boolean
+
+  @Field(() => Boolean)
+  isOauth: boolean
+}
+
+@ObjectType()
+export class UserTwoFaSettings {
+  @Field(() => String)
+  googleAuthenticatorQrCode: string
+}
+
+@ObjectType()
+export class DailyGameRatios {
+  @Field(() => Date)
+  date: Date
+
+  @Field(() => Number)
+  wins: number
+
+  @Field(() => Number)
+  losses: number
+
+  @Field(() => Number)
+  ratio: number
+}
+
+@ObjectType()
+export class UserGameStats {
+  @Field(() => [GameStat])
+  gameStats: GameStat[]
+}
+
+@ObjectType()
+export class GeneralUserGameStats {
+  @Field(() => Number)
+  gamesCount: number
+
+  @Field(() => Number)
+  allTimeRatio: number
+
+  @Field(() => Number)
+  MeanPoints: number
+}
+
+@ObjectType()
+export class UserPublicGameInfos {
+  @Field(() => String)
+  username: string
+
+  @Field(() => String)
+  avatarUrl: string
+
+  @Field(() => Number)
+  ratio: number
 }
