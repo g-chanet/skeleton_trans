@@ -130,20 +130,17 @@ export class PongSession {
         playerB.score,
       )
     } catch (error) {
-      console.error(
-        `Error sending gameStats data, but game was finished normally.`,
-      )
+      console.error(error)
     }
   }
 
   public async setGameFinishedAbrubtly(): Promise<void> {
+    // proc aussi quand user quitte la page -> Dashboard
     this._pongData.gameDone = true
     try {
       await this.gameService.endGameOnFailure(this.roomId)
     } catch (error) {
-      console.error(
-        `Error sending gameStats data, the game was finished unexpectedly.`,
-      )
+      console.error(error)
     }
     //envoyer GameError - roomId
   }
@@ -378,7 +375,7 @@ export class PongSession {
       this.updateScore()
     } else if (
       this._pongData.ball.position.x + this._pongData.ball.radius >=
-      this._pongData.stageWidth &&
+        this._pongData.stageWidth &&
       this._pongData.playerA
     ) {
       const playerAId = this._pongData.playerA.socketId
@@ -416,6 +413,7 @@ export class PongSession {
       this.setGameFinishedAbrubtly()
       this.server.to(this.roomId).emit(`gameOverDisconnect`)
     }
+    // Proc sur changement routeur à implémenter
   }
 
   /*------------  UTILS ------------*/

@@ -286,7 +286,7 @@ export class GamesService {
       isFakeData: false,
     })
 
-    const resGame = this.prisma.game.findFirst({
+    const resGame = await this.prisma.game.findFirst({
       where: {
         id: gameId,
       },
