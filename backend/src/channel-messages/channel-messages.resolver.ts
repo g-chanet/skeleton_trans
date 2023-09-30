@@ -2,11 +2,12 @@ import { Resolver, Query, Mutation, Args, Subscription } from '@nestjs/graphql'
 import { ChannelMessagesService } from './channel-messages.service'
 import { ChannelMessage } from './entities/channel-message.entity'
 import * as DTO from './dto/channel-message.input'
-import { UseGuards } from '@nestjs/common'
+import { UnauthorizedException, UseGuards } from '@nestjs/common'
 import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User, UserPublic } from 'src/users/entities/user.entity'
 import { PubSub } from 'graphql-subscriptions'
+import { ChannelMembersService } from 'src/channel-members/channel-members.service'
 
 const PUB_UPSERT_CHANNEL_MESSAGE = `onUpsertChannelMessageForChannel`
 const PUB_DELETE_CHANNEL_MESSAGE = `onDeleteChannelMessageForChannel`
@@ -14,6 +15,7 @@ const PUB_DELETE_CHANNEL_MESSAGE = `onDeleteChannelMessageForChannel`
 @Resolver(() => ChannelMessage)
 export class ChannelMessagesResolver {
   constructor(
+    private readonly channelMembersService: ChannelMembersService,
     private readonly channelMessagesService: ChannelMessagesService,
     private readonly pubSub: PubSub,
   ) {}
@@ -28,6 +30,11 @@ export class ChannelMessagesResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.CreateMessageForChannelInput,
   ) {
+    const member = await this.channelMembersService.findOne(
+      args.channelId,
+      user.id,
+    )
+    if (member.muted) throw new UnauthorizedException(`You are muted`)
     const res = await this.channelMessagesService.create({
       ...args,
       userId: user.id,

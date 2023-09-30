@@ -17,21 +17,22 @@
       <div class="scroll">
         Channel Members:
         <el-scrollbar max-height="300px">
-          <div v-for="item in members" :key="item.id" class="members-scroll">
+          <div v-for="item in queryMembers.result.value?.findAllChannelMembersForChannel" :key="item.userId"
+            class="members-scroll">
             <div style="display: flex; flex-direction: column; justify-content: space-evenly;">
               <div>
-                {{ item.name }}
+                {{ item.user.username }}
               </div>
               <div style="color: white; font-size: small;">
                 {{ item.type.toString() }}
               </div>
             </div>
-            <div>
-              <el-button><el-icon>
+            <div v-if="item.userId !== myUser?.findMyUser.id">
+              <el-button @click="directMessage(item.userId)"><el-icon>
                   <Promotion />
                 </el-icon></el-button>
               <el-button><font-awesome-icon icon="gamepad" /></el-button>
-              <el-button><el-icon>
+              <el-button @click="pushPublicProfile(item.userId)"><el-icon>
                   <Avatar />
                 </el-icon></el-button>
             </div>
@@ -54,13 +55,14 @@
 
 <script setup lang="ts">
 import type { ChannelMember } from '@/graphql/graphql-operations'
-import { EChannelMemberType, useDeleteChannelMutation, useFindMyChannelMemberForChannelQuery, useFindMyUserQuery, useOnDeleteChannelMemberForChannelIdSubscription, useOnNewChannelMemberForChannelIdSubscription, useOnUpdateChannelMemberForChannelIdSubscription, useOnUpdateChannelSubscription } from '@/graphql/graphql-operations'
+import { EChannelMemberType, useDeleteChannelMutation, useFindMyChannelMemberForChannelQuery, useFindMyUserQuery, useOnDeleteChannelMemberForChannelIdSubscription, useOnDeleteChannelMemberForUserlIdSubscription, useOnNewChannelMemberForChannelIdSubscription, useOnUpdateChannelMemberForChannelIdSubscription, useOnUpdateChannelMemberForUserlIdSubscription, useOnUpdateChannelSubscription, useSendDirectMessageMutation } from '@/graphql/graphql-operations'
 import { useFindChannelQuery, EChannelType, useFindAllChannelMembersForChannelQuery, useDeleteMyMemberForChannelMutation } from '@/graphql/graphql-operations'
 import ChannelOptionsDialog from "../dialogs/channelOption/channelOptionsDialog.vue"
-import { computed, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 import moment from "moment"
 import { useRouter } from 'vue-router'
 import { cacheDelete, cacheUpsert } from '@/utils/cacheUtils'
+import { ElNotification } from 'element-plus'
 
 const router = useRouter()
 const { result: myUser } = useFindMyUserQuery()
@@ -95,6 +97,9 @@ const queryChannel = useFindChannelQuery({
 const channel = computed(() => { return queryChannel.result.value?.findChannel })
 
 const queryMyMemberForChannel = useFindMyChannelMemberForChannelQuery({ args: { channelId: props.channelId } })
+useOnUpdateChannelMemberForUserlIdSubscription({ args: { userId: myUser.value!.findMyUser.id } }).onResult(() => {
+  queryMyMemberForChannel.refetch()
+})
 
 const queryMembers = useFindAllChannelMembersForChannelQuery({
   args: {
@@ -102,9 +107,39 @@ const queryMembers = useFindAllChannelMembersForChannelQuery({
   }
 })
 
-useOnNewChannelMemberForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(({ data }) => cacheUpsert(queryMembers, data?.onNewChannelMemberForChannelId))
-useOnUpdateChannelMemberForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(({ data }) => cacheUpsert(queryMembers, data?.onUpdateChannelMemberForChannelId))
-useOnDeleteChannelMemberForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(({ data }) => cacheDelete(data?.onDeleteChannelMemberForChannelId))
+useOnNewChannelMemberForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(({ data }) => {
+  queryMembers.refetch({
+    args: {
+      channelId: props.channelId
+    }
+  })
+  ElNotification({
+    title: 'New channel member',
+    message: h('i', { style: 'color: teal' }, data?.onNewChannelMemberForChannelId.user?.username + ' joined the channel'),
+    type: 'info'
+  })
+})
+
+useOnUpdateChannelMemberForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(({ data }) => {
+  queryMembers.refetch({
+    args: {
+      channelId: props.channelId
+    }
+  })
+})
+
+useOnDeleteChannelMemberForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(({ data }) => {
+  queryMembers.refetch({
+    args: {
+      channelId: props.channelId
+    }
+  })
+  ElNotification({
+    title: 'New channel member',
+    message: h('i', { style: 'color: teal' }, data?.onDeleteChannelMemberForChannelId.user?.username + ' left the channel'),
+    type: 'info'
+  })
+})
 
 const { mutate: deleteChannel } = useDeleteChannelMutation({})
 const { mutate: leaveChannel } = useDeleteMyMemberForChannelMutation({})
@@ -125,21 +160,26 @@ interface MemberForTable {
   type: EChannelMemberType
 }
 
-const members = computed(() => {
-  const data: MemberForTable[] = []
-  queryMembers.result.value?.findAllChannelMembersForChannel.forEach((member) => {
-    data.push({
-      id: member.user!.id,
-      name: member.user!.username,
-      type: member.type,
-    })
-  })
-  return data
-})
+const isOwner = computed(() => queryMyMemberForChannel.result.value?.findMyChannelMemberForChannel.type === EChannelMemberType.Owner)
+const isAdmin = computed(() => queryMyMemberForChannel.result.value?.findMyChannelMemberForChannel.type === EChannelMemberType.Admin)
 
-const myChannelMember = computed(() => queryMyMemberForChannel.result.value?.findMyChannelMemberForChannel)
-const isOwner = computed(() => myChannelMember.value?.type === EChannelMemberType.Owner)
-const isAdmin = computed(() => myChannelMember.value?.type === EChannelMemberType.Admin)
+const { mutate: sendDirectMessage } = useSendDirectMessageMutation({})
+
+const directMessage = (userId: string) => {
+  sendDirectMessage({
+    args: {
+      otherUserId: userId
+    }
+  }).then((args) => {
+    router.replace({ query: { channelId: args?.data?.sendDirectMessage.id } })
+  })
+}
+
+const pushPublicProfile = (userId: string) => {
+  router.push(`/app/publicprofile`).then(() =>
+    router.replace({ query: { id: userId } })
+  )
+}
 
 </script>
 

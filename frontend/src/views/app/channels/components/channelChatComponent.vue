@@ -1,7 +1,7 @@
 <template>
     <el-container>
         <el-header height="15%">
-            <h3 class="top">{{ channelName }}</h3>
+            <h3 class="top">{{ channel?.name }}</h3>
         </el-header>
         <el-main>
             <el-scrollbar ref="chatScroll" v-loading="loading" element-loading-background="rgba(0, 0, 0, 0)">
@@ -17,9 +17,12 @@
                             <DArrowRight />
                         </el-icon></el-button></template>
             </el-input>
-            <el-button size="large" @click="drawer = true"><el-icon>
+            <el-button v-if="channel?.channelType !== EChannelType.Direct" size="large" @click="drawer = true"><el-icon>
                     <Menu />
                 </el-icon></el-button>
+            <el-button v-if="channel?.channelType === EChannelType.Direct" size="large"
+                @click="deleteChannel({ args: { id: props.channelId } }).then(() => router.replace({ query: {} }))"><font-awesome-icon
+                    icon="ban" /></el-button>
             <el-button size="large" @click="closeChannel" type="info" plain><el-icon>
                     <Close />
                 </el-icon></el-button>
@@ -38,12 +41,14 @@ import {
     useFindAllChannelMessagesForChannelQuery,
     useOnNewChannelMessageForChannelIdSubscription,
     useOnDeleteChannelMessageForChannelSubscription,
+    EChannelType,
+    useDeleteChannelMutation,
 } from '@/graphql/graphql-operations'
 import { computed, onMounted, ref } from 'vue'
 import ChannelChatMessage from './channelChatMessageComponent.vue'
 import ChannelDetails from './channelDetailsComponent.vue'
 import { cacheDelete, cacheUpsert } from '@/utils/cacheUtils'
-import type { ElScrollbar } from 'element-plus/es/components'
+import { ElMessage, type ElScrollbar } from 'element-plus'
 import { router } from '@/router'
 
 const props = defineProps<{
@@ -63,13 +68,23 @@ onMounted(() => {
     }, 500)
 })
 
+const { mutate: deleteChannel } = useDeleteChannelMutation({})
+
 const queryChannel = useFindChannelQuery({
     args: {
         id: props.channelId
     }
 })
 
-const channelName = computed(() => queryChannel.result.value?.findChannel.name ?? '')
+queryChannel.onError((e) => {
+    ElMessage({
+        message: e.message,
+        type: 'warning',
+    })
+    closeChannel()
+})
+
+const channel = computed(() => queryChannel.result.value?.findChannel)
 
 const inputValue = ref(``)
 
@@ -81,7 +96,7 @@ const queryMessages = useFindAllChannelMessagesForChannelQuery({
 
 const { mutate: mutateDelete } = useDeleteMyMessageForChannelMutation()
 
-const { mutate } = useCreateMessageForChannelMutation({})
+const { mutate, onError } = useCreateMessageForChannelMutation({})
 
 useOnNewChannelMessageForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(
     ({ data }) => {
@@ -110,6 +125,14 @@ const onCreateMessage = () => {
         }).then(() => (inputValue.value = ``))
     }
 }
+
+onError((e) => {
+    ElMessage({
+        showClose: true,
+        message: e.message,
+        type: `warning`
+    })
+})
 
 const closeChannel = () => {
     router.replace({ query: {} })

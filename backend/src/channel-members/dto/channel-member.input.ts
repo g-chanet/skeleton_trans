@@ -24,8 +24,8 @@ export class UpdateMyMemberForChannelInput {
   @Field(() => String)
   userId: string
 
-  @Field(() => Date, { nullable: true })
-  mute?: Date
+  @Field(() => Boolean, { nullable: true })
+  muted?: boolean
 
   @Field(() => EChannelMemberType, { nullable: true })
   type?: EChannelMemberType

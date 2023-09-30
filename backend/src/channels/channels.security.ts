@@ -1,5 +1,4 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common'
-import { EChannelMemberType } from '@prisma/client'
 import { ChannelMembersService } from 'src/channel-members/channel-members.service'
 import { ChannelsService } from './channels.service'
 
@@ -11,7 +10,7 @@ export class ChannelsSecurity {
     private readonly channelMembersService: ChannelMembersService,
   ) {}
 
-  async channelRW(channelId: string, userId: string): Promise<Boolean> {
+  /*async channelRW(channelId: string, userId: string): Promise<Boolean> {
     const channel = await this.channelsService.findOne(channelId)
     if (!channel) return false
     const member = await this.channelMembersService.findOne(channelId, userId)
@@ -25,5 +24,5 @@ export class ChannelsSecurity {
     if (!channel) return false
     const member = await this.channelMembersService.findOne(channelId, userId)
     return false
-  }
+  }*/
 }

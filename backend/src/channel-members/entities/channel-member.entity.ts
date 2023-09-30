@@ -14,8 +14,8 @@ export class ChannelMember {
   @Field(() => EChannelMemberType)
   type: EChannelMemberType
 
-  @Field(() => Date)
-  muted: Date
+  @Field(() => Boolean)
+  muted: Boolean
 
   @Field(() => Date)
   createdAt: Date
@@ -23,11 +23,11 @@ export class ChannelMember {
   @Field(() => Date)
   updatedAt: Date
 
-  @Field(() => ChannelEntity, { nullable: true })
-  channel?: Channel
+  @Field(() => ChannelEntity)
+  channel: Channel
 
-  @Field(() => UserPublic, { nullable: true })
-  user?: User
+  @Field(() => UserPublic)
+  user: User
 }
 
 registerEnumType(EChannelMemberType, {

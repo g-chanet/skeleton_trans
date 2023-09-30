@@ -15,9 +15,15 @@ import { ChannelsService } from 'src/channels/channels.service'
 import { PubSub } from 'graphql-subscriptions'
 import { EChannelMemberType } from '@prisma/client'
 
-const PUB_INSERT_CHANNEL_MEMBER = `onInsertChannelMemberForUserId`
-const PUB_UPDATE_CHANNEL_MEMBER = `onUpdataChannelMemberForUserId`
-const PUB_DELETE_CHANNEL_MEMBER = `onDeleteChannelMemberForUserId`
+const PUB_INSERT_CHANNEL_MEMBER = `onInsertChannelMemberForChannelId`
+const PUB_UPDATE_CHANNEL_MEMBER = `onUpdataChannelMemberForChannelId`
+const PUB_DELETE_CHANNEL_MEMBER = `onDeleteChannelMemberForChannelId`
+
+const PUB_INSERT_MY_CHANNEL_MEMBER = `onInsertMyChannelMemberForUserId`
+const PUB_UPDATE_MY_CHANNEL_MEMBER = `onUpdateMyChannelMemberForUserId`
+const PUB_DELETE_MY_CHANNEL_MEMBER = `onDeleteMyChannelMemberForUserId`
+
+const PUB_DELETE_CHANNEL = `onDeleteChannel`
 
 @Resolver(() => ChannelMember)
 export class ChannelMembersResolver {
@@ -46,12 +52,19 @@ export class ChannelMembersResolver {
     )
       throw new UnauthorizedException(`Invalid password`)
     delete args.channelPassword
-    const res = await this.channelMembersService.create({
-      ...args,
-      userId: user.id,
-    })
-    await this.pubSub.publish(PUB_INSERT_CHANNEL_MEMBER, res)
-    return res
+    try {
+      const res = await this.channelMembersService.create({
+        ...args,
+        userId: user.id,
+      })
+      await this.pubSub.publish(PUB_INSERT_CHANNEL_MEMBER, res)
+      await this.pubSub.publish(PUB_INSERT_MY_CHANNEL_MEMBER, res)
+      return res
+    } catch (e) {
+      throw new UnauthorizedException(
+        `Unable to join the channel, you may already be a member of this channel or you are banned`,
+      )
+    }
   }
 
   @Mutation(() => ChannelMember)
@@ -74,7 +87,10 @@ export class ChannelMembersResolver {
       args.channelId,
       args,
     )
+    if (res.type === EChannelMemberType.Banned)
+      await this.pubSub.publish(PUB_DELETE_MY_CHANNEL_MEMBER, res)
     await this.pubSub.publish(PUB_UPDATE_CHANNEL_MEMBER, res)
+    await this.pubSub.publish(PUB_UPDATE_MY_CHANNEL_MEMBER, res)
     return res
   }
 
@@ -97,7 +113,10 @@ export class ChannelMembersResolver {
       args.userId,
       args.channelId,
     )
+    if (res.type === EChannelMemberType.Owner)
+      this.transferOwnership(user, args)
     await this.pubSub.publish(PUB_DELETE_CHANNEL_MEMBER, res)
+    await this.pubSub.publish(PUB_DELETE_MY_CHANNEL_MEMBER, res)
     return res
   }
 
@@ -108,7 +127,10 @@ export class ChannelMembersResolver {
     @Args(`args`) args: DTO.DeleteMyMemberForChannelInput,
   ) {
     const res = await this.channelMembersService.delete(user.id, args.channelId)
+    if (res.type === EChannelMemberType.Owner)
+      this.transferOwnership(user, args)
     await this.pubSub.publish(PUB_DELETE_CHANNEL_MEMBER, res)
+    await this.pubSub.publish(PUB_DELETE_MY_CHANNEL_MEMBER, res)
     return res
   }
 
@@ -175,5 +197,82 @@ export class ChannelMembersResolver {
     @Args(`args`) args: DTO.OnChannelMemberChannelInput,
   ) {
     return this.pubSub.asyncIterator(PUB_DELETE_CHANNEL_MEMBER)
+  }
+
+  @Subscription(() => ChannelMember, {
+    filter: (payload: ChannelMember, variables: any) => {
+      return payload.userId === variables.args.userId
+    },
+    resolve: (payload) => {
+      return payload
+    },
+  })
+  onNewChannelMemberForUserId(
+    @Args(`args`) args: DTO.OnChannelMemberUserInput,
+  ) {
+    return this.pubSub.asyncIterator(PUB_INSERT_MY_CHANNEL_MEMBER)
+  }
+
+  @Subscription(() => ChannelMember, {
+    filter: (payload: ChannelMember, variables: any) => {
+      return payload.userId === variables.args.userId
+    },
+    resolve: (payload) => {
+      return payload
+    },
+  })
+  onUpdateChannelMemberForUserlId(
+    @Args(`args`) args: DTO.OnChannelMemberUserInput,
+  ) {
+    return this.pubSub.asyncIterator(PUB_UPDATE_MY_CHANNEL_MEMBER)
+  }
+
+  @Subscription(() => ChannelMember, {
+    filter: (payload: ChannelMember, variables: any) => {
+      return payload.userId === variables.args.userId
+    },
+    resolve: (payload) => {
+      return payload
+    },
+  })
+  onDeleteChannelMemberForUserlId(
+    @Args(`args`) args: DTO.OnChannelMemberUserInput,
+  ) {
+    return this.pubSub.asyncIterator(PUB_DELETE_MY_CHANNEL_MEMBER)
+  }
+
+  //**************************************************//
+  //  OTHER
+  //**************************************************//
+
+  async transferOwnership(user: User, args: DTO.DeleteMyMemberForChannelInput) {
+    const oldestAdmin =
+      await this.channelMembersService.findOldestAdminForChannel(args.channelId)
+    const oldestMember =
+      await this.channelMembersService.findOldestMemberForChannel(
+        args.channelId,
+      )
+    if (oldestAdmin !== null) {
+      oldestAdmin.type = EChannelMemberType.Owner
+      const res = await this.channelMembersService.update(
+        oldestAdmin.userId,
+        oldestAdmin.channelId,
+        oldestAdmin,
+      )
+      await this.pubSub.publish(PUB_UPDATE_CHANNEL_MEMBER, res)
+      await this.pubSub.publish(PUB_UPDATE_MY_CHANNEL_MEMBER, res)
+    } else if (oldestMember !== null) {
+      oldestMember.type = EChannelMemberType.Owner
+      const res = await this.channelMembersService.update(
+        oldestMember.userId,
+        oldestMember.channelId,
+        oldestMember,
+      )
+      await this.pubSub.publish(PUB_UPDATE_CHANNEL_MEMBER, res)
+      await this.pubSub.publish(PUB_UPDATE_MY_CHANNEL_MEMBER, res)
+    } else {
+      const res = await this.channelsService.delete(args.channelId)
+      this.pubSub.publish(PUB_DELETE_CHANNEL, res)
+    }
   }
 }
