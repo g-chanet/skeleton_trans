@@ -2,39 +2,50 @@
 	<div class="active-game-item" :class="{ 'active': isActive }" @click="toggleActive">
 		<div class="vs-container">
 			<div class="avatar-container">
-				<el-avatar/>
+				<el-avatar :src="GameMember1?.userGameInfos?.avatarUrl"/>
 			</div>
 			<h1 class="vs-text">Vs</h1>
 			<div class="avatar-container">
-				<el-avatar />
+				<el-avatar :src="GameMember2?.userGameInfos?.avatarUrl"/>
 			</div>
 		</div>
 		<div class="vs-container" v-if="isActive">
-			<h1 class="vs-text">3</h1>
+			<h1 class="vs-text">{{ GameMember1?.score }}</h1>
 			<h1 class="vs-text">:</h1>
-			<h1 class="vs-text">7</h1>
+			<h1 class="vs-text">{{ GameMember2?.score }}</h1>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 	import { ref, computed } from "vue"
+	import { type Game, type GameMember } from "@/graphql/graphql-operations"
 
 
 	export default {
 		name: `statistic-card`,
 		props: {
-			idPlayer1: String,
-			score1: String,
-			idPlayer2: String,
-			score2: String
-		},
-		setup() {
+        GameMember1: {
+            type: Object as () => GameMember,
+            required: true
+        },
+        GameMember2: {
+            type: Object as () => GameMember,
+            required: true
+        }
+    },
+		setup(props) {
+			const GameMember1 = ref(props.GameMember1)
+			const GameMember2 = ref(props.GameMember2)
+			console.log(GameMember1.value)
+			console.log(GameMember2.value)
 			const isActive = ref(false)
 			const toggleActive = () => {
-				isActive.value = !isActive.value;
+				isActive.value = !isActive.value
 			}
 			return {
+				GameMember1,
+				GameMember2,
 				isActive,
 				toggleActive
 			}

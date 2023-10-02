@@ -54,10 +54,6 @@ export type CheckChannelInput = {
   channelName: Scalars['String'];
 };
 
-export type CheckPseudoInput = {
-  pseudo: Scalars['String'];
-};
-
 export type CreateChannelInput = {
   avatarUrl?: InputMaybe<Scalars['String']>;
   channelType: EChannelType;
@@ -189,6 +185,7 @@ export type GameMatchmakingMember = {
 export type GameMember = {
   __typename?: 'GameMember';
   gameId: Scalars['String'];
+  score: Scalars['Float'];
   userGameInfos: UserPublicGameInfos;
   userId: Scalars['String'];
 };
@@ -446,7 +443,6 @@ export type OnNewChannelMessageForChannelIdInput = {
 export type Query = {
   __typename?: 'Query';
   checkChannelName: Scalars['Boolean'];
-  checkPseudo: Scalars['Boolean'];
   findAllChannelMembersForChannel: Array<ChannelMember>;
   findAllChannelMessagesForChannel: Array<ChannelMessage>;
   findAllChannels: Array<Channel>;
@@ -480,11 +476,6 @@ export type Query = {
 
 export type QueryCheckChannelNameArgs = {
   args: CheckChannelInput;
-};
-
-
-export type QueryCheckPseudoArgs = {
-  args: CheckPseudoInput;
 };
 
 
@@ -720,7 +711,6 @@ export type UserRelation = {
   __typename?: 'UserRelation';
   createdAt: Scalars['DateTime'];
   friendInfos: UserPublicGameInfos;
-  id: Scalars['ID'];
   type: EUserRealtionType;
   updatedAt: Scalars['DateTime'];
   userOwnerId: Scalars['String'];
@@ -960,12 +950,12 @@ export type OnDeleteChannelMessageForChannelSubscription = { __typename?: 'Subsc
 export type AllGamesUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllGamesUpdatedSubscription = { __typename?: 'Subscription', allGamesUpdated?: { __typename?: 'Game', id: string, message: string, isDeleted: boolean, createdAt: any, targetUserId?: string | null, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null } | null };
+export type AllGamesUpdatedSubscription = { __typename?: 'Subscription', allGamesUpdated?: { __typename?: 'Game', id: string, message: string, isDeleted: boolean, createdAt: any, targetUserId?: string | null, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, score: number, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null } | null };
 
 export type FindAllGamesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllGamesQuery = { __typename?: 'Query', findAllGames: Array<{ __typename?: 'Game', id: string, message: string, isDeleted: boolean, createdAt: any, targetUserId?: string | null, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null }> };
+export type FindAllGamesQuery = { __typename?: 'Query', findAllGames: Array<{ __typename?: 'Game', id: string, message: string, isDeleted: boolean, createdAt: any, targetUserId?: string | null, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, score: number, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null }> };
 
 export type CreateGameMutationVariables = Exact<{
   message?: InputMaybe<Scalars['String']>;
@@ -1034,7 +1024,7 @@ export type RefuseMatchMakingInviteMutation = { __typename?: 'Mutation', refuseM
 export type AllGamesStatsUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllGamesStatsUpdatedSubscription = { __typename?: 'Subscription', allGamesStatsUpdated?: { __typename?: 'GameStat', id?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null } | null };
+export type AllGamesStatsUpdatedSubscription = { __typename?: 'Subscription', allGamesStatsUpdated?: { __typename?: 'GameStat', id?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null, isDeleted: boolean } | null };
 
 export type AllGamesStatsUpdatedForUserSubscriptionVariables = Exact<{
   userId: Scalars['String'];
@@ -1046,7 +1036,7 @@ export type AllGamesStatsUpdatedForUserSubscription = { __typename?: 'Subscripti
 export type FindAllGameStatsSoftLimitQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllGameStatsSoftLimitQuery = { __typename?: 'Query', findAllGameStatsSoftLimit: Array<{ __typename?: 'GameStat', id?: string | null, userId?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null }> };
+export type FindAllGameStatsSoftLimitQuery = { __typename?: 'Query', findAllGameStatsSoftLimit: Array<{ __typename?: 'GameStat', id?: string | null, userId?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null, isDeleted: boolean }> };
 
 export type FindLeaderboardUserListQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1141,13 +1131,6 @@ export type FindPublicUsersListQueryVariables = Exact<{ [key: string]: never; }>
 
 
 export type FindPublicUsersListQuery = { __typename?: 'Query', findPublicUsersList: Array<{ __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null }> };
-
-export type CheckPseudoQueryVariables = Exact<{
-  args: CheckPseudoInput;
-}>;
-
-
-export type CheckPseudoQuery = { __typename?: 'Query', checkPseudo: boolean };
 
 export type UsersPresenceUpdatedSubscriptionVariables = Exact<{
   args: FindUserPresencesInput;
@@ -2256,6 +2239,7 @@ export const AllGamesUpdatedDocument = gql`
     gameMembers {
       gameId
       userId
+      score
       userGameInfos {
         username
         avatarUrl
@@ -2293,6 +2277,7 @@ export const FindAllGamesDocument = gql`
     gameMembers {
       gameId
       userId
+      score
       userGameInfos {
         username
         avatarUrl
@@ -2662,6 +2647,7 @@ export const AllGamesStatsUpdatedDocument = gql`
     userScore
     opponentScore
     createdAt
+    isDeleted
   }
 }
     `;
@@ -2726,6 +2712,7 @@ export const FindAllGameStatsSoftLimitDocument = gql`
     userScore
     opponentScore
     createdAt
+    isDeleted
   }
 }
     `;
@@ -3221,34 +3208,6 @@ export function useFindPublicUsersListLazyQuery(options: VueApolloComposable.Use
   return VueApolloComposable.useLazyQuery<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>(FindPublicUsersListDocument, {}, options);
 }
 export type FindPublicUsersListQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>;
-export const CheckPseudoDocument = gql`
-    query CheckPseudo($args: CheckPseudoInput!) {
-  checkPseudo(args: $args)
-}
-    `;
-
-/**
- * __useCheckPseudoQuery__
- *
- * To run a query within a Vue component, call `useCheckPseudoQuery` and pass it any options that fit your needs.
- * When your component renders, `useCheckPseudoQuery` returns an object from Apollo Client that contains result, loading and error properties
- * you can use to render your UI.
- *
- * @param variables that will be passed into the query
- * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
- *
- * @example
- * const { result, loading, error } = useCheckPseudoQuery({
- *   args: // value for 'args'
- * });
- */
-export function useCheckPseudoQuery(variables: CheckPseudoQueryVariables | VueCompositionApi.Ref<CheckPseudoQueryVariables> | ReactiveFunction<CheckPseudoQueryVariables>, options: VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<CheckPseudoQuery, CheckPseudoQueryVariables>(CheckPseudoDocument, variables, options);
-}
-export function useCheckPseudoLazyQuery(variables: CheckPseudoQueryVariables | VueCompositionApi.Ref<CheckPseudoQueryVariables> | ReactiveFunction<CheckPseudoQueryVariables>, options: VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<CheckPseudoQuery, CheckPseudoQueryVariables>(CheckPseudoDocument, variables, options);
-}
-export type CheckPseudoQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<CheckPseudoQuery, CheckPseudoQueryVariables>;
 export const UsersPresenceUpdatedDocument = gql`
     subscription UsersPresenceUpdated($args: FindUserPresencesInput!) {
   usersPresenceUpdated(args: $args) {

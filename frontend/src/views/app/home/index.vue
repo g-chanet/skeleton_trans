@@ -39,7 +39,7 @@
 						<el-scrollbar>
 							<div>
 								<p v-for="item in localGames" :key="item.id">
-									<ActiveGameComponent/>
+									<ActiveGameComponent :GameMember1="item.gameMembers?.at(0)" :GameMember2="item?.gameMembers?.at(1)"/>
 								</p>
 							</div>
 						</el-scrollbar>
@@ -89,6 +89,7 @@ let localGameStats:GameStat[] = []
 const localMatchmakings = inject<GameMatchmakingMember[]>('localMatchmakings')
 const loggedInUser = inject<User>('loggedInUser')
 const localGames = inject<Game[]>('localGames')
+console.log('localGames = ', localGames)
 const displayedMatchmakings = computed(() => localMatchmakings.value.filter(member => member.userId != loggedInUser.value.id).filter(member => member.targetUserId === loggedInUser.value.id || member.targetUserId === null))
 
 

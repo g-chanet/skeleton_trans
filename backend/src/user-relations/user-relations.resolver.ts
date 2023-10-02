@@ -7,7 +7,6 @@ import {
   ResolveField,
   Parent,
 } from '@nestjs/graphql'
-import { PubSub } from 'graphql-subscriptions'
 import { UserRelationsService } from './user-relations.service'
 import { UserRelation } from './entities/user-relation.entity'
 import { UseGuards } from '@nestjs/common'
@@ -16,11 +15,15 @@ import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User, UserPublicGameInfos } from 'src/users/entities/user.entity'
 import * as DTO from './dto/user-relation.input'
 import { EUserRelationType } from '@prisma/client'
+import { PubSub } from 'graphql-subscriptions'
 
-const pubSub = new PubSub()
 @Resolver(() => UserRelation)
 export class UserRelationsResolver {
-  constructor(private readonly userRelationsService: UserRelationsService) { }
+  constructor(
+    private readonly userRelationsService: UserRelationsService,
+    private readonly pubSub: PubSub,
+  ) { }
+
   //**************************************************//
   //  MUTATION
   //**************************************************//
@@ -39,10 +42,10 @@ export class UserRelationsResolver {
       args.userTargetId,
       user.id,
     )
-    pubSub.publish(`userRelationsChanged:${user.id}`, {
+    await this.pubSub.publish(`userRelationsChanged:${user.id}`, {
       userRelationsChanged: { ...result, userId: user.id },
     })
-    pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
+    await this.pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
       userRelationsChanged: { ...targetResult, userId: result.userTargetId },
     })
     return result
@@ -62,10 +65,12 @@ export class UserRelationsResolver {
       args.userTargetid,
       user.id,
     )
-    pubSub.publish(`userRelationsChanged:${user.id}`, {
+    console.log(result)
+    console.log(targetResult)
+    await this.pubSub.publish(`userRelationsChanged:${user.id}`, {
       userRelationsChanged: { ...result, userId: user.id },
     })
-    pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
+    await this.pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
       userRelationsChanged: { ...targetResult, userId: result.userTargetId },
     })
     return result
@@ -77,6 +82,7 @@ export class UserRelationsResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.UpdateUserRelationInput,
   ) {
+    console.log(`entered refuse friend request`)
     const result = await this.userRelationsService.refusePendingRelation(
       user.id,
       args.userTargetid,
@@ -85,10 +91,12 @@ export class UserRelationsResolver {
       args.userTargetid,
       user.id,
     )
-    pubSub.publish(`userRelationsChanged:${user.id}`, {
+    console.log(result)
+    console.log(targetResult)
+    await this.pubSub.publish(`userRelationsChanged:${user.id}`, {
       userRelationsChanged: { ...result, userId: user.id },
     })
-    pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
+    await this.pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
       userRelationsChanged: { ...targetResult, userId: result.userTargetId },
     })
     return result
@@ -134,10 +142,10 @@ export class UserRelationsResolver {
     )
     targetResult.type = EUserRelationType.Terminated
     result.type = EUserRelationType.Terminated
-    pubSub.publish(`userRelationsChanged:${user.id}`, {
+    await this.pubSub.publish(`userRelationsChanged:${user.id}`, {
       userRelationsChanged: { ...result, userId: user.id },
     })
-    pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
+    await this.pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
       userRelationsChanged: { ...targetResult, userId: result.userTargetId },
     })
     return result
@@ -163,33 +171,39 @@ export class UserRelationsResolver {
     },
   })
   userRelationsChanged(@Args(`userId`) userId: string) {
-    return pubSub.asyncIterator(`userRelationsChanged:${userId}`)
+    return this.pubSub.asyncIterator(`userRelationsChanged:${userId}`)
   }
 
   @ResolveField(`friendInfos`, () => UserPublicGameInfos)
   async userGameInfos(
     @Parent() userRelation: UserRelation,
   ): Promise<UserPublicGameInfos> {
-    const { userTarget } = await this.userRelationsService.findOne(
-      userRelation.userOwnerId,
-      userRelation.userTargetId,
-    )
+    if (userRelation.type != EUserRelationType.Terminated) {
+      const { userTarget } = await this.userRelationsService.findOne(
+        userRelation.userOwnerId,
+        userRelation.userTargetId,
+      )
+      const gameStats = userTarget.gameStats
+      let totalWins = 0
 
-    const gameStats = userTarget.gameStats
-    let totalWins = 0
+      gameStats.forEach((stats) => {
+        if (stats.isWinner) {
+          totalWins++
+        }
+      })
 
-    gameStats.forEach((stats) => {
-      if (stats.isWinner) {
-        totalWins++
+      const ratio = gameStats.length > 0 ? totalWins / gameStats.length : 0
+
+      return {
+        username: userTarget.username,
+        avatarUrl: userTarget.avatarUrl,
+        ratio: Number(ratio.toFixed(2)),
       }
-    })
-
-    const ratio = gameStats.length > 0 ? totalWins / gameStats.length : 0
-
+    }
     return {
-      username: userTarget.username,
-      avatarUrl: userTarget.avatarUrl,
-      ratio: Number(ratio.toFixed(2)),
+      username: `deleted`,
+      avatarUrl: `https://https://img-4.linternaute.com/q_N1jQGmO8sUI6v2LOGFcRrXqpE=/1500x/smart/08e82cbcdf5a42c8b79808bc6b15792a/ccmcms-linternaute/48672760.jpg`,
+      ratio: 0,
     }
   }
 }

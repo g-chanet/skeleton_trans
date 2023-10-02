@@ -6,6 +6,7 @@ subscription allGamesStatsUpdated {
         userScore
         opponentScore
         createdAt
+        isDeleted
     }
 }
 
@@ -31,5 +32,6 @@ query FindAllGameStatsSoftLimit {
         userScore
         opponentScore
         createdAt
+        isDeleted
     }
 }

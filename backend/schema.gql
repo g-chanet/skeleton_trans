@@ -66,6 +66,7 @@ type GameMember {
   gameId: String!
   userId: String!
   userGameInfos: UserPublicGameInfos!
+  score: Float!
 }
 
 type Game {
@@ -141,7 +142,6 @@ enum EChannelMemberType {
 }
 
 type UserRelation {
-  id: ID!
   userOwnerId: String!
   userTargetId: String!
   type: EUserRealtionType!

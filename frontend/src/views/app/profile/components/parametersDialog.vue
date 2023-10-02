@@ -309,6 +309,7 @@ $hover-color: #2f3e50
 	background-color: $primary-color
 	border-radius: var(--el-border-radius-base)
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1)
+	font-family: 'roboto'
   
 .avatar-section
 	position: relative
@@ -354,6 +355,7 @@ $hover-color: #2f3e50
 .username-container
 	position: relative
 	cursor: pointer
+	font-family: 'roboto'
   
 .edit-icon
 	position: absolute

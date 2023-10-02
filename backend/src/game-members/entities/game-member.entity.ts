@@ -11,4 +11,7 @@ export class GameMember {
 
   @Field(() => UserPublicGameInfos)
   userGameInfos: UserPublicGameInfos
+
+  @Field(() => Number)
+  score: number
 }

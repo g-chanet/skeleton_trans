@@ -20,7 +20,7 @@
 							</template>
 							</el-statistic>
 						</div>
-						</el-col>
+		</el-col>
 </template>
 
 <script lang="ts">
