@@ -7,7 +7,7 @@
 						<el-avatar shape="square" :size="150" fit="cover" :src="user?.avatarUrl" />
 					</el-col>
 				</el-row>
-				<el-row justify="center"><el-col span=8 style="font-size: x-large; font-weight: bold;">{{ user?.username }}</el-col></el-row>
+				<el-row justify="center"><el-col span=8 style="font-size: x-large; font-weight: bold; font-family: 'roboto';">{{ user?.username }}</el-col></el-row>
 				<el-row justify="center">
 					<el-divider style="width: 75%;"/>
 				</el-row>
@@ -15,7 +15,7 @@
           <el-col span=8>
             <el-button v-if="userRelation?.type === EUserRealtionType.Friend" @click="removeFriend()">Retirer de la liste d'amis</el-button>
 			<el-button v-if="userRelation?.type === EUserRealtionType.PendingAccept" @click="removeFriend()">Demande d'ami envoyée</el-button>
-			<el-button v-if="!userRelation?.type" @click="createFriendRequest()">Ajouter en ami</el-button>
+			<el-button v-if="!userRelation?.type && user?.id != loggedInUser?.id" @click="createFriendRequest()">Ajouter en ami</el-button>
           </el-col>
         </el-row>
 	  </el-aside>
@@ -28,7 +28,7 @@
         <el-main class="debug-main-component">
 			<el-container style="height: 100%; width:100%; align-items: center;" direction="vertical">
 				<div class="graph-container">
-					<gameHistoryGraph style="height: 100%; width: 100%; display: flex;" userId="user?.id"/>
+					<gameHistoryGraph style="height: 100%; width: 100%; display: flex;" :userId="user?.id"/>
 				</div>
 				<el-scrollbar height="400px;" style="margin-top: 35px;">
     				<div v-for="item in userGameStats" :key="item.id">
@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 
-import { computed, onMounted, onUnmounted, watch, ref } from "vue"
+import { computed, onMounted, onUnmounted, inject, ref, type Ref } from "vue"
 import { ElMessage } from "element-plus"
 import { useFindUserQuery,
 	useFindPublicDailyGameRatiosQuery,
@@ -55,11 +55,12 @@ import { useFindUserQuery,
 	useFindMyUserQuery,
 	useCreateRequestFriendMutation,
 	useRemoveFriendMutation,
-EUserRealtionType
+	EUserRealtionType,
+	type User
 } from '@/graphql/graphql-operations'
 import newLastGameItem from "../profile/components/newLastGameItem.vue"
 import gameHistoryGraph from "../profile/components/game-history-graph.vue"
-import statsComponentVue from "../profile/components/statsComponent.vue"
+import statsComponent from "../profile/components/statsComponent.vue"
 
 
 const urlParams = new URLSearchParams(window.location.search)
@@ -73,7 +74,7 @@ const { result:resultForUserGameStatsQuery } = useFindAllPublicGameStatsForUserQ
 const { result:resultForDailyGameRatioQuery } = useFindPublicDailyGameRatiosQuery({ userid : id})
 const { result:resultForMyRelations } = useFindAllRelationsForMyUserQuery()
 const { result:resultForMyUser } = useFindMyUserQuery()
-const loggedInUser = computed(() => resultForMyUser.value?.findMyUser)
+const loggedInUser = inject<Ref<User>>('loggedInUser')
 const { result: userRelationsSubRes, stop: userRelationsSubStop} = useOnUserRelationsChangedSubscription({userId: loggedInUser.value?.id})
 const { mutate:createfriendrequestmutation, onError:createfriendrequestonerror } = useCreateRequestFriendMutation()
 const { mutate:removefriendmutation, onError:removefriendonerror } = useRemoveFriendMutation()

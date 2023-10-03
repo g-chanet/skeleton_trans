@@ -9,7 +9,7 @@ import {
 } from '@nestjs/graphql'
 import { UserRelationsService } from './user-relations.service'
 import { UserRelation } from './entities/user-relation.entity'
-import { UseGuards } from '@nestjs/common'
+import { BadRequestException, UseGuards } from '@nestjs/common'
 import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User, UserPublicGameInfos } from 'src/users/entities/user.entity'
@@ -34,6 +34,11 @@ export class UserRelationsResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.CreateRequestFriendInput,
   ) {
+    if (user.id === args.userTargetId) {
+      throw new BadRequestException(
+        `You can't be friends with yourself, sadly that's life`,
+      )
+    }
     const result = await this.userRelationsService.createRequestFriend(
       user.id,
       args.userTargetId,
