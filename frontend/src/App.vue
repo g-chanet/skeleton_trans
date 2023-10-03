@@ -37,7 +37,7 @@ import { useFindMyUserQuery,
   type GameMatchmakingMember
 } from '@/graphql/graphql-operations'
 import { ElMessage, ElNotification } from 'element-plus'
-import { ref, provide, inject, watch } from 'vue'
+import { ref, provide, inject, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Background from './views/BackgroundRetroWave.vue'
 
@@ -47,7 +47,7 @@ const router = useRouter()
 const acceptedGame = ref<Game>()
 const onConnectQuery = ref(true)
 const gameLaunched = ref(false)
-const { onResult, onError, loading } = useFindMyUserQuery()
+const { onResult, onError, loading, refetch: refetchLoggedInUser } = useFindMyUserQuery()
 const { onResult: queryGamesOnRes } = useFindAllGamesQuery()
 const { onResult: queryMatchmakersOnRes } = useFindAllGameMatchmakingMemberlQuery()
 const { onResult:gamesOnRes } = useAllGamesUpdatedSubscription()
@@ -69,6 +69,12 @@ const isNotificationOnAutoClose = ref(false)
 const localMatchmakings = ref<GameMatchmakingMember[]>([])
 const localGames = ref<Game[]>([])
 
+onMounted(async () => {
+  console.log("app.vue is mounted")
+  console.log(loggedInUser.value)
+  await refetchLoggedInUser()
+  console.log(loggedInUser.value)
+})
 
 const openMatchMakingNotification = () => {
   ElNotification({
@@ -273,8 +279,9 @@ onError(() => {
 })
 
 
-onResult((res) => {
-  if (res.data.findMyUser.id) {
+onResult(async (res) => {
+  console.log('result !')
+  if (await res.data.findMyUser.id) {
     loggedInUser.value = res.data.findMyUser
     setTimeout(() => {
     if (!route.fullPath.startsWith(`/app`))
