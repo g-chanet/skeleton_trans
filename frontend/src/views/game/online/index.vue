@@ -54,6 +54,14 @@ socket.on(`playerReady`, (player: string) => {
   })
 })
 
+socket.on(`opponentLeft`, () => {
+  ElMessage({
+    message: `Your opponent left! Go back to dashboard.`,
+    type: `warning`,
+    duration: 5000,
+  })
+})
+
 socket.on(`playerAskHardMode`, (player: string) => {
   ElMessage({
     message: `${player} Requested hard mode!<br/> <br/>Select hard mode and start the game if you're feeling risky!`,
