@@ -190,6 +190,7 @@ export type GameMatchmakingMember = {
 export type GameMember = {
   __typename?: 'GameMember';
   gameId: Scalars['String'];
+  score: Scalars['Float'];
   userGameInfos: UserPublicGameInfos;
   userId: Scalars['String'];
 };
@@ -970,12 +971,12 @@ export type OnDeleteChannelMessageForChannelSubscription = { __typename?: 'Subsc
 export type AllGamesUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllGamesUpdatedSubscription = { __typename?: 'Subscription', allGamesUpdated?: { __typename?: 'Game', id: string, message: string, isDeleted: boolean, createdAt: any, targetUserId?: string | null, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null } | null };
+export type AllGamesUpdatedSubscription = { __typename?: 'Subscription', allGamesUpdated?: { __typename?: 'Game', id: string, message: string, isDeleted: boolean, createdAt: any, targetUserId?: string | null, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, score: number, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null } | null };
 
 export type FindAllGamesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllGamesQuery = { __typename?: 'Query', findAllGames: Array<{ __typename?: 'Game', id: string, message: string, isDeleted: boolean, createdAt: any, targetUserId?: string | null, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null }> };
+export type FindAllGamesQuery = { __typename?: 'Query', findAllGames: Array<{ __typename?: 'Game', id: string, message: string, isDeleted: boolean, createdAt: any, targetUserId?: string | null, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, score: number, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null }> };
 
 export type CreateGameMutationVariables = Exact<{
   message?: InputMaybe<Scalars['String']>;
@@ -1044,7 +1045,7 @@ export type RefuseMatchMakingInviteMutation = { __typename?: 'Mutation', refuseM
 export type AllGamesStatsUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllGamesStatsUpdatedSubscription = { __typename?: 'Subscription', allGamesStatsUpdated?: { __typename?: 'GameStat', id?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null } | null };
+export type AllGamesStatsUpdatedSubscription = { __typename?: 'Subscription', allGamesStatsUpdated?: { __typename?: 'GameStat', id?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null, isDeleted: boolean } | null };
 
 export type AllGamesStatsUpdatedForUserSubscriptionVariables = Exact<{
   userId: Scalars['String'];
@@ -1056,7 +1057,7 @@ export type AllGamesStatsUpdatedForUserSubscription = { __typename?: 'Subscripti
 export type FindAllGameStatsSoftLimitQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllGameStatsSoftLimitQuery = { __typename?: 'Query', findAllGameStatsSoftLimit: Array<{ __typename?: 'GameStat', id?: string | null, userId?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null }> };
+export type FindAllGameStatsSoftLimitQuery = { __typename?: 'Query', findAllGameStatsSoftLimit: Array<{ __typename?: 'GameStat', id?: string | null, userId?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null, isDeleted: boolean }> };
 
 export type FindLeaderboardUserListQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2284,6 +2285,7 @@ export const AllGamesUpdatedDocument = gql`
     gameMembers {
       gameId
       userId
+      score
       userGameInfos {
         username
         avatarUrl
@@ -2321,6 +2323,7 @@ export const FindAllGamesDocument = gql`
     gameMembers {
       gameId
       userId
+      score
       userGameInfos {
         username
         avatarUrl
@@ -2690,6 +2693,7 @@ export const AllGamesStatsUpdatedDocument = gql`
     userScore
     opponentScore
     createdAt
+    isDeleted
   }
 }
     `;
@@ -2754,6 +2758,7 @@ export const FindAllGameStatsSoftLimitDocument = gql`
     userScore
     opponentScore
     createdAt
+    isDeleted
   }
 }
     `;

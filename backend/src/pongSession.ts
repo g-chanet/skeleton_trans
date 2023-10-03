@@ -129,9 +129,7 @@ export class PongSession {
         playerB.score,
       )
     } catch (error) {
-      console.error(
-        `Error sending gameStats data, but game was finished normally.`,
-      )
+      console.error(error)
     }
   }
 
@@ -140,9 +138,7 @@ export class PongSession {
     try {
       await this.gameService.endGameOnFailure(this.roomId)
     } catch (error) {
-      console.error(
-        `Error sending gameStats data, the game was finished unexpectedly.`,
-      )
+      console.error(error)
     }
     //envoyer GameError - roomId
   }

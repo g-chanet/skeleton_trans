@@ -52,6 +52,9 @@ const refuseGameInvite = () => {
 	})
 }
 const truncateStr = (str:String, limit:number) => {
+	if (!str) {
+		return
+	}
 	if (str.length < limit) {
 		return str
 	}

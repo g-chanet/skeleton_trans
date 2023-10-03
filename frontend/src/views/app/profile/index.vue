@@ -10,46 +10,32 @@
 				<el-row justify="center"><el-col span=8 style="font-size: x-large; font-weight: bold;">{{
 					loggedInUser?.username }}</el-col></el-row>
 				<el-row justify="center">
-					<el-divider style="width: 75%;" />
+					<div style="margin-top: 20px; display:flex; justify-content: center;">
+						<el-button class="left-styled-btn"
+							@click="testRefParams.changeDialogVisibility()">Parameters</el-button>
+						<el-button class="right-styled-btn" @click="testRefFriend.changeDialogVisibility()">Add
+							Friends</el-button>
+					</div>
 				</el-row>
-				<el-row justify="center">
-					<el-col span=8>
-						<el-button @click="testRefParams.changeDialogVisibility()">Paramètres</el-button>
-						<el-button @click="testRefFriend.changeDialogVisibility()">Ajouter des amis</el-button>
-					</el-col>
-				</el-row>
-				<div v-if="friendRequests?.at(0)">
-					<el-row justify="center"><el-col span=8
-							style="font-size: x-medium; font-weight: bold; margin-top: 20px;">demande
-							d'amis</el-col></el-row>
-					<el-scrollbar v-if="friendRequests"
-						style="height : 100%; justify-content: center; align-items: center; display:flex; margin-bottom: 10px;">
-						<p v-for="relation in friendRequests" :key="relation.createdAt" style="display:flex; z-index: 1;">
-							<friendCard :userId="relation.userTargetId" :relationType="relation.type" />
+				<div class="friends-container">
+					<el-scrollbar
+						style="height : 100%; justify-content: center; align-items: center; display:flex; background: #0E0E10; border-radius: 20px">
+						<el-row justify="flex-start"><el-col span=8
+								style="font-size: x-medium; font-weight: bold; margin-top: 20px; font-family:'roboto'">Friends</el-col></el-row>
+						<p v-for="relation in displayedRelations" :key="relation.createdAt"
+							style="display:flex; z-index: 1;">
+							<friendCard :userId="relation.userTargetId" :relationType="relation.type" :isValidated="true" />
 						</p>
 					</el-scrollbar>
 				</div>
-				<el-row justify="center"><el-col span=8
-						style="font-size: x-medium; font-weight: bold; margin-top: 20px;">Amis</el-col></el-row>
-				<el-scrollbar v-if="friendsList"
-					style="height : 400px; justify-content: center; align-items: center; display:flex">
-					<p v-for="relation in friendsList" :key="relation.createdAt" style="display:flex; z-index: 1;">
-						<friendCard :userId="relation.userTargetId" :relationType="relation.type" />
-					</p>
-				</el-scrollbar>
 			</el-aside>
 
 
 			<el-container>
 				<el-header class="debug-header">
-					<el-row :gutter="16">
-						<statisticCard :statNumber="userGeneralStats?.gamesCount" :indicator="`nombres de parties`"
-							:toolTipValue="`nombre total de parties jouées`" />
-						<statisticCard :statNumber="userGeneralStats?.allTimeRatio" :indicator="`ratio général`"
-							:toolTipValue="`ratio correpondant à l'ensemble des parties jouées`" />
-						<statisticCard :statNumber="userGeneralStats?.MeanPoints" :indicator="`points moyen par partie`"
-							:toolTipValue="`moyenne des points marqués par partie`" />
-					</el-row>
+					<statsComponent style="z-index: 12;" :meanPoints="userGeneralStats?.MeanPoints"
+						:globalRation="userGeneralStats?.allTimeRatio" :evolution="2"
+						:played-games="userGeneralStats?.gamesCount" />
 				</el-header>
 
 
@@ -61,7 +47,7 @@
 						</div>
 						<el-scrollbar height="2000px;" style="margin-top: 35px;">
 							<div v-for="item in userGameStats" :key="item.id">
-								<lastGameItem :id-player1="loggedInUser?.id" :id-player2="item.opponentId"
+								<newLastGameItem :id-player1="loggedInUser?.id" :id-player2="item.opponentId"
 									:score1="item.userScore" :score2="item.opponentScore" />
 							</div>
 						</el-scrollbar>
@@ -69,18 +55,6 @@
 				</el-main>
 			</el-container>
 		</el-container>
-		<!-- <el-footer class="debug-footer">
-		<el-container direction="horizontal" style="justify-content: center; align-items: center;">
-			<el-button style="z-index: 1;">Add Friend</el-button>
-			<el-scrollbar style="margin-left: 20px;">
-				<div class="scrollbar-flex-content">
-					<p v-for="item in 50" :key="item" class="scrollbar-demo-item">
-						<friendCard/>
-					</p>
-				</div>
-  			</el-scrollbar>
-		</el-container>
-	</el-footer> -->
 	</el-container>
 	<parametersDialog ref="testRefParams" />
 	<addFriendDialog ref="testRefFriend" />
@@ -88,77 +62,107 @@
 
 <script setup lang="ts">
 
-import { computed, onMounted, onUnmounted, watch, ref } from "vue"
+import { computed, onMounted, onUnmounted, inject, ref, provide, type Ref } from "vue"
 import {
-	useFindMyUserQuery,
-	useFindDailyGameRatiosQuery,
 	useFindGeneralGameStatsForUserQuery,
 	useFindAllGameStatsForUserQuery,
 	useFindAllRelationsForMyUserQuery,
 	EUserRealtionType,
 	useOnUserRelationsChangedSubscription,
-	useFindUserPresencesQuery,
-	useUsersPresenceUpdatedSubscription,
-	type GameStat,
-	type GeneralUserGameStats
+	type UserRelation,
+	type User
 } from '@/graphql/graphql-operations'
 import gameHistoryGraph from "./components/game-history-graph.vue"
-import lastGameItem from "./components/lastGameItem.vue"
+import newLastGameItem from "./components/newLastGameItem.vue"
 import friendCard from "./components/friendCard.vue"
-import statisticCard from "./components/statisticCard.vue"
+import statsComponent from "./components/statsComponent.vue"
 import parametersDialog from "./components/parametersDialog.vue"
 import addFriendDialog from "./components/addFriendDialog.vue"
 
-const { result: resultForMyUser } = useFindMyUserQuery()
 const { result: resultForGeneralGameStat } = useFindGeneralGameStatsForUserQuery()
 const { result: resultForUserGameStatsQuery } = useFindAllGameStatsForUserQuery()
-const { result: resultForMyRelations } = useFindAllRelationsForMyUserQuery()
-const loggedInUser = computed(() => resultForMyUser.value?.findMyUser)
-
-const { result: userRelationsSubRes, stop: userRelationsSubStop } = useOnUserRelationsChangedSubscription({ userId: loggedInUser.value?.id })
+const { onResult: onResultRelationsQuery, refetch: refetchRelations } = useFindAllRelationsForMyUserQuery()
+const loggedInUser = inject<Ref<User>>('loggedInUser')
+const { onResult: onResultRelationsSubscription } = useOnUserRelationsChangedSubscription({ userId: loggedInUser.value?.id })
 const userGeneralStats = computed(() => resultForGeneralGameStat.value?.findGeneralGameStatsForUser)
 const userGameStats = computed(() => resultForUserGameStatsQuery.value?.findAllGameStatsForUser)
+const localUserRelations = ref<UserRelation[]>([])
 
-const userRelations = computed(() => {
-	if (userRelationsSubRes.value?.userRelationsChanged) {
-		let newRelationsList = [...(resultForMyRelations.value?.findAllRelationsForMyUser || [])]
-		const changedRelation = userRelationsSubRes.value.userRelationsChanged
-		const existingIndex = newRelationsList.findIndex(rel => rel.createdAt === changedRelation.createdAt)
-
-		if (existingIndex !== -1) {
-			newRelationsList[existingIndex] = changedRelation
-		} else {
-			newRelationsList.push(changedRelation)
-		}
-		return newRelationsList
-	}
-	return resultForMyRelations.value?.findAllRelationsForMyUser
+onResultRelationsQuery((res) => {
+	console.log('entered relation result')
+	let ret: UserRelation[] = res.data.findAllRelationsForMyUser
+	console.log(ret)
+	localUserRelations.value = ret
 })
 
-const friendsList = computed(() => {
-	return userRelations.value?.filter(relation =>
-		relation.type === EUserRealtionType.Friend
+onResultRelationsSubscription((res) => {
+	const relation = res.data?.userRelationsChanged
+
+	if (relation) {
+		const tmp = [...localUserRelations.value]
+		if (relation.type == EUserRealtionType.Terminated) {
+			console.log("received deleted relation : ", relation)
+			localUserRelations.value = tmp.filter(tmprel => tmprel.userTargetId !== relation.userTargetId)
+		} else {
+			const existingIndex = tmp.findIndex(tmpgame => tmpgame.userTargetId === relation.userTargetId)
+			if (existingIndex > -1) {
+				tmp[existingIndex] = relation
+				console.log(`updated existing realtion:`, relation)
+			} else {
+				console.log(`received new :`, relation)
+				tmp.unshift(relation)
+			}
+			localUserRelations.value = tmp
+		}
+	}
+})
+
+const displayedRelations = computed(() => {
+	return localUserRelations.value?.filter(relation =>
+		relation.type === EUserRealtionType.Friend || relation.type === EUserRealtionType.WaitingAccept
 	)
 })
 
 const testRefParams = null
 const testRefFriend = null
 
+onMounted(() => {
+	refetchRelations()
+})
 onUnmounted(() => {
-	userRelationsSubStop()
+	// userRelationsSubStop()
 })
+provide('userRelations', localUserRelations)
 
-const friendRequests = computed(() => {
-	return userRelations.value?.filter(relation =>
-		relation.type === EUserRealtionType.WaitingAccept
-	)
-})
 </script>
 
 <style scoped lang="sass">
 
 .el-row
 	margin-bottom: 10px
+
+.left-styled-btn
+	border-radius: 0px
+	border-top-left-radius: 12px
+	border-bottom-left-radius: 12px
+	width: 50%
+	height: 40px
+	margin-right: 2px
+	background: #151519
+	border: 0px solid
+
+.right-styled-btn
+	border-radius: 0px
+	border-top-right-radius: 12px
+	border-bottom-right-radius: 12px
+	width: 50%
+	height: 40px
+	margin-left: 2px
+	background: #151519
+	border: 0px solid
+
+.friends-container
+	height: 65%
 .el-avatar
 	margin-top: 35%
 .debug-footer
@@ -167,6 +171,7 @@ const friendRequests = computed(() => {
 	align-items: center
 .debug-header
 	height: 17%
+	z-index: 3
 .debug-main-component
 	justify-content: center
 	align-items: center
@@ -174,16 +179,11 @@ const friendRequests = computed(() => {
 
 .graph-container
 	height: 70%
-	width: 100%
+	width: 96%
 	display: flex
-	background: radial-gradient(circle at center, rgba(0, 0, 0, 0.9), rgba(255, 255, 255, 0.1))
-	border-radius: var(--el-border-radius-base)
-	backdrop-filter: blur(5px) 
-	border: 1px solid rgba(255, 255, 255, 0.2)
+	background: #151519
+	border-radius: var(--el-border-radius-base) 
 	z-index: 1
-
-.graph-container:hover
-	box-shadow: var(--my-box-shadow)
 .scrollbar-flex-content
 	display: flex
 	align-items: center

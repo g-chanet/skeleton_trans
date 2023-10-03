@@ -8,6 +8,7 @@ subscription AllGamesUpdated {
         gameMembers {
             gameId
             userId
+            score
             userGameInfos {
                 username
                 avatarUrl
@@ -27,6 +28,7 @@ query FindAllGames {
         gameMembers {
             gameId
             userId
+            score
             userGameInfos {
                 username
                 avatarUrl

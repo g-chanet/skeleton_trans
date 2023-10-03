@@ -66,6 +66,7 @@ type GameMember {
   gameId: String!
   userId: String!
   userGameInfos: UserPublicGameInfos!
+  score: Float!
 }
 
 type Game {

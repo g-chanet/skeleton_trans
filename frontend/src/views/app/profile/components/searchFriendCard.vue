@@ -1,8 +1,11 @@
 <template>
-    <div class="search-friend-card-item">
-        <el-avatar :src="avatarUrl"/>
-        <text>{{username}}</text>
-        <el-button @click="handleButtonClick()"
+    <div class="user-item-component">
+		<div class="avatar-username-wrapper">
+			<el-avatar class="avatar" :src="avatarUrl"/>
+        	<text>{{ truncateStr(username, 8) }}</text>
+		</div>
+        <el-button class="add-btn"
+				   @click="handleButtonClick()"
                    @mouseenter="handleMouseEnter()" 
                    @mouseleave="handleMouseLeave()">
             <el-icon v-if="relationType != 'PendingAccept'">
@@ -34,8 +37,8 @@ export default {
   },
   setup(props) {
 
-	const { mutate:createfriendrequestmutation, onError:createfriendrequestonerror } = useCreateRequestFriendMutation()
-	const { mutate:removefriendmutation, onError:removefriendonerror } = useRemoveFriendMutation()
+	const { mutate:createfriendrequestmutation } = useCreateRequestFriendMutation()
+	const { mutate:removefriendmutation } = useRemoveFriendMutation()
 
 	const relationType = ref(props.relationStatus)
 	const isHovered = ref(false)
@@ -87,7 +90,21 @@ export default {
 			})
 		}
 	}
-		return {props, createFriendRequest, relationType, handleMouseLeave, handleMouseEnter, handleButtonClick, isHovered}
+
+	const truncateStr = (str:string | undefined, limit: number) => {
+		if (str) {
+			if (str.length < limit) {
+			return str
+			}
+			else {
+				return str.slice(0, limit) + "..."
+			}
+		} else {
+			return '...'
+		}
+	}
+
+		return {props, createFriendRequest, relationType, handleMouseLeave, handleMouseEnter, handleButtonClick, isHovered, truncateStr}
 	}
 }
 
@@ -95,14 +112,27 @@ export default {
 
 <style scoped lang="sass">
 
-.search-friend-card-item
-	width: 400px
-	height: 60px
-	margin-top : 20px
-	display: flex
-	background: rgb(26,35,50)
-	color: var(--el-color-primary)
-	justify-content: space-evenly
-	align-items: center
+.user-item-component
+		width: 17vw
+		height: 100%
+		background: #151519
+		display: flex
+		justify-content: space-between
+		align-items: center
+		border-radius: 8px
+		.avatar-username-wrapper
+			display: flex
+			justify-content: flex-start
+			align-items: center
+			.avatar
+				margin-right: 10px
+				border-radius: 3px
+				margin: 10px
+		.add-btn
+			width: 6vw
+			height: 100%
+			border-radius: 3px
+			background: rgba(217, 217, 217, 0.18)
+			margin: 10px
 
 </style>

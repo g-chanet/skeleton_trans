@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, computed, watch, toRef } from 'vue'
+import { ref, computed, watch, toRef } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   Chart as ChartJS,
