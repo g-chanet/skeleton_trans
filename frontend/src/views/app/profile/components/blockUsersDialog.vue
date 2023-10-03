@@ -5,7 +5,7 @@
 				class="input"
 				placeholder="Rechercher un utilisateur"
 				:prefix-icon="Search"
-				v-model="searchValue"
+				v-model="searched"
 				style="width:100%"
 			></el-input>
 			<el-scrollbar>
@@ -13,7 +13,7 @@
 					<p v-for="item in filtered" :key="item.id">
 						<blockUserCard 
 							:userId="item.id" 
-							:avatarUrl="item.avatarUrl" 
+							:avatarUrl="item.avatarUrl || ''" 
 							:username="item.username" 
 							:relationStatus="gestUserRelation(item.id)?.type"
 						/>
@@ -26,6 +26,7 @@
 
 <script setup lang="ts">
 import { ref, inject, watch, computed, type Ref } from 'vue'
+import { Search } from '@element-plus/icons-vue'
 import {  useFindPublicUsersListQuery , type UserRelation, type UserPublic, type User } from '@/graphql/graphql-operations'
 import blockUserCard from './blockUserCard.vue'
 

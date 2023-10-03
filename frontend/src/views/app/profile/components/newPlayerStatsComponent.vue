@@ -15,9 +15,7 @@
 
 <script lang="ts">
  
- import type { UserPublic } from '@/graphql/graphql-operations'
 import { useFindPublicGameInfosForUserQuery } from '@/graphql/graphql-operations'
-import addOpponentDIalog from '../../home/addOpponentDIalog.vue'
 import { ref, computed } from "vue"
 
 
@@ -28,7 +26,7 @@ export default {
   },
   setup(props) {
     let userPublic = ref(null)
-	let displayName = props.name
+	let displayName = ref(props.name)
 	console.log('rendered')
 	console.log(props.idPlayer)
 	if (props.idPlayer) {

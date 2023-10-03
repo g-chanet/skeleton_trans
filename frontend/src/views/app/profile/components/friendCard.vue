@@ -39,13 +39,10 @@ import {
 	useFindUserPresencesQuery,
 	useUsersPresenceUpdatedSubscription,
 	useJoinGameMatchmakingMemberMutation,
-	type UserPublic,
 	type UpdateUserRelationInput,
-	type UpdateChannelMutationCompositionFunctionResult
 } from '@/graphql/graphql-operations'
 import { computed, ref, watch } from 'vue'
-import { CirclePlus } from '@element-plus/icons-vue'
-import { ElMessage, useOrderedChildren } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 export default {
   name: 'friend-card-item',
@@ -56,7 +53,9 @@ export default {
   },
   setup(props) {
 
-	const userIdArr = ref<string[]>([props.userId])
+	const userIdArr = computed(() => {
+      return props.userId ? [props.userId] : []
+    })
 
 	const { mutate: acceptfriendrequestmutate } = useAcceptFriendRequestMutation()
 	const { mutate: refusefriendrequestmutate } = useRefuseFriendRequestMutation()
@@ -67,7 +66,7 @@ export default {
 	const isSelected = ref(false)
 
 	let relationStatus = ref(props.relationType)
-    const { result } = useFindUserQuery({ args: { id: props.userId } })
+    const { result } = useFindUserQuery({ args: { id: props.userId || "" } })
 	const usr = computed(() => result.value?.findUser)
 
 	const handleSelected = () => {
@@ -79,7 +78,7 @@ export default {
 		}
 	}
 
-	const truncateStr = (str:String, limit:number) => {
+	const truncateStr = (str:String | undefined, limit:number) => {
 		if (!str) {
 			return
 		}
@@ -92,37 +91,43 @@ export default {
 	}
 	
 	const acceptFriendRequest = () => {
-		const input: UpdateUserRelationInput = { userTargetid: props.userId }
-		acceptfriendrequestmutate({ args: input })
-		.then((res) => {
-			relationStatus.value = res?.data?.acceptFriendRequest.type
-		})
-		.catch((Error) => {
-			ElMessage.error(Error.message)
-		})
+		if (props.userId) {
+			const input: UpdateUserRelationInput = { userTargetid: props.userId }
+			acceptfriendrequestmutate({ args: input })
+			.then((res) => {
+				relationStatus.value = res?.data?.acceptFriendRequest.type
+			})
+			.catch((Error) => {
+				ElMessage.error(Error.message)
+			})
+		}
 	}
 
 	const refuseFriendRequest = () => {
-		const input: UpdateUserRelationInput = { userTargetid: props.userId }
-		refusefriendrequestmutate({ args: input })
-		.then((res) => {
-			relationStatus.value = res?.data?.refuseFriendRequest.type
-		})
-		.catch((Error) => {
-			ElMessage.error(Error.message)
-		})
+		if (props.userId) {
+			const input: UpdateUserRelationInput = { userTargetid: props.userId }
+			refusefriendrequestmutate({ args: input })
+			.then((res) => {
+				relationStatus.value = res?.data?.refuseFriendRequest.type
+			})
+			.catch((Error) => {
+				ElMessage.error(Error.message)
+			})
+		}
 	}
 
 	const removeFriend = () => {
-		const input: UpdateUserRelationInput = { userTargetid: props.userId }
-		removefriendmutate({ args: input })
-		.then((res) => {
-			console.log(res)
-			relationStatus.value = res?.data?.removeFriend.type
-		})
-		.catch((Error) => {
-			ElMessage.error(Error.message)
-		})
+		if (props.userId) {
+			const input: UpdateUserRelationInput = { userTargetid: props.userId }
+			removefriendmutate({ args: input })
+			.then((res) => {
+				console.log(res)
+				relationStatus.value = res?.data?.removeFriend.type
+			})
+			.catch((Error) => {
+				ElMessage.error(Error.message)
+			})
+		}
 	}
 
 	const presenceStatus = ref('disconnected')

@@ -22,8 +22,8 @@
 
 <script lang="ts">
 import { ElMessage } from 'element-plus'
-import { computed, ref, watch } from 'vue'
-import { useBlockRelationMutation , type EUserRealtionType, useUnblockRelationMutation  } from '@/graphql/graphql-operations'
+import {  ref, watch } from 'vue'
+import { useBlockRelationMutation , useUnblockRelationMutation  } from '@/graphql/graphql-operations'
 
 
 export default {
@@ -36,8 +36,8 @@ export default {
   },
   setup(props) {
 
-	const { mutate:blockrelationmutation, onError:blockrelationmutationonerror } = useBlockRelationMutation()
-	const { mutate:unblockrelationmutation, onError:unblockrelationmutationonerror } = useUnblockRelationMutation()
+	const { mutate:blockrelationmutation } = useBlockRelationMutation()
+	const { mutate:unblockrelationmutation } = useUnblockRelationMutation()
 
 	const relationType = ref(props.relationStatus)
 	const isHovered = ref(false)
@@ -62,7 +62,8 @@ export default {
     }
 	
 	const unblockUser = () => {
-		unblockrelationmutation({ userTargetId: props.userId })
+		if (props.userId) {
+			unblockrelationmutation({ userTargetId: props.userId })
 		.then ((res) => {
 			if (!res?.errors && res?.data?.unblockRelation)
 			{
@@ -72,6 +73,7 @@ export default {
 		.catch((Error) => {
 				ElMessage.error(Error.message)
 			})
+		}
 	}
 
 	const blockUser = () => {

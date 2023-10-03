@@ -21,11 +21,7 @@
 	  </el-aside>
       <el-container>
         <el-header class="debug-header">
-					<el-row :gutter="16">
-						<statisticCard :statNumber="userGeneralStats?.gamesCount" :indicator="`nombres de parties`" :toolTipValue="`nombre total de parties jouées`" />
-						<statisticCard :statNumber="userGeneralStats?.allTimeRatio" :indicator="`ratio général`" :toolTipValue="`ratio correpondant à l'ensemble des parties jouées`" />
-						<statisticCard :statNumber="userGeneralStats?.MeanPoints" :indicator="`points moyen par partie`" :toolTipValue="`moyenne des points marqués par partie`"/>
-					</el-row>
+			<statsComponent style="z-index: 12;" :meanPoints="userGeneralStats?.MeanPoints" :globalRation="userGeneralStats?.allTimeRatio" :evolution="2" :played-games="userGeneralStats?.gamesCount"/>
 		</el-header>
 
 
@@ -36,7 +32,7 @@
 				</div>
 				<el-scrollbar height="400px;" style="margin-top: 35px;">
     				<div v-for="item in userGameStats" :key="item.id">
-						<lastGameItem :id-player1="user?.id" :id-player2="item.opponentId" :score1="item.userScore" :score2="item.opponentScore"/>
+						<newLastGameItem :id-player1="user?.id" :id-player2="item.opponentId" :score1="item.userScore" :score2="item.opponentScore"/>
 					</div>
   				</el-scrollbar>
 			</el-container>
@@ -61,9 +57,9 @@ import { useFindUserQuery,
 	useRemoveFriendMutation,
 EUserRealtionType
 } from '@/graphql/graphql-operations'
-import lastGameItem from "../profile/components/lastGameItem.vue"
-import statisticCard from "../profile/components/statisticCard.vue"
+import newLastGameItem from "../profile/components/newLastGameItem.vue"
 import gameHistoryGraph from "../profile/components/game-history-graph.vue"
+import statsComponentVue from "../profile/components/statsComponent.vue"
 
 
 const urlParams = new URLSearchParams(window.location.search)
