@@ -56,11 +56,12 @@ export class AuthService {
     if (await this.usersService.findOneByEmail(email)) {
       throw new BadRequestException(`Cannot register with '${email}'`)
     }
+    const hashedPassword = await AuthHelper.hash(password)
     const qrObject = await this.generateTwoFactorAuthenticationSecret(email)
     const qrCodeBase64 = await this.generateQrCodeDataURL(qrObject.otpauthUrl)
     const user = await this.usersService.create({
       username: username,
-      password: await AuthHelper.hash(password),
+      password: hashedPassword,
       email: email,
       twoFactorAuthSecret: qrObject.secret,
       googleAuthenticatorQrCode: qrCodeBase64,

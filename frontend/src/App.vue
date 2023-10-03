@@ -174,7 +174,6 @@ queryMatchmakersOnRes((res) => {
   if (loggedInUser.value && res.data.findAllGameMatchmakingMemberl.find((member) => member.userId == loggedInUser.value.id))
   {
     openMatchMakingNotification()
-
   }
 })
 
