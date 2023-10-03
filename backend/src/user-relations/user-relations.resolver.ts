@@ -108,10 +108,24 @@ export class UserRelationsResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.UpdateUserRelationInput,
   ) {
-    return await this.userRelationsService.blockRelation(
+    const targetResult = await this.userRelationsService.findOne(
+      args.userTargetid,
+      user.id,
+    )
+    const result = await this.userRelationsService.blockRelation(
       user.id,
       args.userTargetid,
     )
+    if (targetResult) {
+      targetResult.type = EUserRelationType.Terminated
+      await this.pubSub.publish(`userRelationsChanged:${result.userTargetId}`, {
+        userRelationsChanged: { ...targetResult, userId: result.userTargetId },
+      })
+    }
+    await this.pubSub.publish(`userRelationsChanged:${user.id}`, {
+      userRelationsChanged: { ...result, userId: user.id },
+    })
+    return result
   }
 
   @Mutation(() => UserRelation)

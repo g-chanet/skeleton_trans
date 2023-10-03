@@ -83,6 +83,7 @@ const localUserRelations = ref<UserRelation[]>([])
 onResultRelationsQuery((res) => {
   console.log('entered relation result')
   let ret:UserRelation[] = res.data.findAllRelationsForMyUser
+  console.log(ret)
   localUserRelations.value = ret
 })
 

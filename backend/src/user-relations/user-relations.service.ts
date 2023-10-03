@@ -157,7 +157,7 @@ export class UserRelationsService {
     if (res) {
       return res
     }
-    throw new BadRequestException(`cet utilisateur n'était pas bloqué`)
+    throw new BadRequestException(`this user was not blocked`)
   }
 
   async removeFriend(userOwnerId: string, userTargetId: string) {

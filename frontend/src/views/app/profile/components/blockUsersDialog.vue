@@ -1,89 +1,98 @@
 <template>
-	<el-dialog v-model="relationsDialog" width="30%" style="display:flex; justify-content: center;">
-		<el-input
-			class="w-50 m-2"
-			placeholder="Rechercher un utilisateur"
-			:prefix-icon="Search"
-			v-model="searchValue"
-			style="width:100%"
-		></el-input>
-		<el-scrollbar style="height : 500px; justify-content: center; align-items: center; display:flex; margin-top: 40px;">
-			<div v-for="item in filteredUsers" :key="item.id">
-				<blockUserCard 
-					:userId="item.id" 
-					:avatarUrl="item.avatarUrl" 
-					:username="item.username" 
-					:relationStatus="item.relationStatus"
-				/>
-			</div>
-		</el-scrollbar>
+	<el-dialog v-model="DialogVisible" width="25%">
+		<div class="container">
+			<el-input
+				class="input"
+				placeholder="Rechercher un utilisateur"
+				:prefix-icon="Search"
+				v-model="searchValue"
+				style="width:100%"
+			></el-input>
+			<el-scrollbar>
+				<div>
+					<p v-for="item in filtered" :key="item.id">
+						<blockUserCard 
+							:userId="item.id" 
+							:avatarUrl="item.avatarUrl" 
+							:username="item.username" 
+							:relationStatus="gestUserRelation(item.id)?.type"
+						/>
+					</p>
+				</div>
+			</el-scrollbar>
+		</div>
 	</el-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, inject, watch, computed, type Ref } from 'vue'
+import {  useFindPublicUsersListQuery , type UserRelation, type UserPublic, type User } from '@/graphql/graphql-operations'
 import blockUserCard from './blockUserCard.vue'
-import { useFindPublicUsersListQuery, 
-	useFindAllRelationsForMyUserQuery, 
-	useFindMyUserQuery,
-	EUserRealtionType,
-	useOnUserRelationsChangedSubscription
- } from '@/graphql/graphql-operations'
-import { Search } from '@element-plus/icons-vue'
 
-const { result:resultForUsers } = useFindPublicUsersListQuery()
-const usersPublic = computed(() => resultForUsers.value?.findPublicUsersList)
+const { onResult, refetch } = useFindPublicUsersListQuery()
+const DialogVisible = ref(false)
+const userRelations = inject<Ref<UserRelation[]>>('userRelations')
+const users = ref<UserPublic[]>([])
+const searched = ref('')
+const loggedInUser = inject<Ref<User>>('loggedInUser')
 
-const { result:resultForMyRelations } = useFindAllRelationsForMyUserQuery()
-const { result:resultforMyUser } = useFindMyUserQuery()
-const loggedInUser = computed(() => resultforMyUser.value?.findMyUser)
+onResult((res) => {
+	console.log("resluts !")
+	console.log(res)
+	if (res.data.findPublicUsersList) {
+		const usrs = res.data.findPublicUsersList
+		if (usrs) {
+			users.value = usrs
+		}
+		console.log(users.value)
+	}
+})
 
-const { result: userRelationsSubRes, stop: userRelationsSubStop} = useOnUserRelationsChangedSubscription({userId: loggedInUser.value?.id})
-const userRelationsSub = computed(() => userRelationsSubRes.value?.userRelationsChanged)
-
-const userRelations = computed(() => {
-  if (userRelationsSubRes.value?.userRelationsChanged) {
-	console.log(`updated rel: `, userRelationsSubRes.value.userRelationsChanged)
-    let newRelationsList = [...(resultForMyRelations.value?.findAllRelationsForMyUser || [])]
-    const changedRelation = userRelationsSubRes.value.userRelationsChanged
-    const existingIndex = newRelationsList.findIndex(rel => rel.createdAt === changedRelation.createdAt)
-    
-    if (existingIndex !== -1) {
-      newRelationsList[existingIndex] = changedRelation
-    } else {
-      newRelationsList.push(changedRelation)
+watch(DialogVisible, () => {
+    if (DialogVisible.value) {
+        refetch()
     }
-    return newRelationsList
-  }
-  return resultForMyRelations.value?.findAllRelationsForMyUser
 })
 
-const searchValue = ref(``)
-
-const getRelationStatus = (userId: string) => {
-	const relation = userRelations.value?.find(rel => rel.userTargetId === userId)
-	return relation ? relation.type : null
+const gestUserRelation = (userId: string) => {
+	if (userRelations) {
+		return userRelations.value.find(rel => rel.userTargetId === userId)
+	}
 }
 
-const filteredUsers = computed(() => {
-	if (!searchValue.value) return usersPublic.value?.map(user => ({ ...user, relationStatus: getRelationStatus(user.id) }))
-		.filter(user => !user.id.includes(loggedInUser.value.id))
-
-	return usersPublic.value?.filter(user => 
-		!user.id.includes(loggedInUser.value.id) && 
-		user.username.toLowerCase().includes(searchValue.value.toLowerCase())
-	)
-	.map(user => ({ ...user, relationStatus: getRelationStatus(user.id) }))
+const filtered = computed(() => {
+  return users.value.filter(user => {
+    if (user.id === loggedInUser?.value.id) {
+      return false
+    }
+    if (searched.value && !user.username.toLowerCase().includes(searched.value.toLowerCase())) {
+      return false
+    }
+    return true
+  })
 })
 
-const relationsDialog = ref(false)
+
+
 const changeDialogVisibility = () => {
-	relationsDialog.value = true
-}
-
+    DialogVisible.value ? DialogVisible.value = false : DialogVisible.value = true
+  }
 defineExpose({ changeDialogVisibility })
 </script>
 
-<style scoped lang="scss">
+<style scoped lang="sass">
+
+.container
+	width: 100%
+	height: 40vh
+	display: flex
+	flex-direction: column
+	justify-content: center
+	align-items: center
+	background: #111115
+	font-family: "roboto"
+	.input
+		margin: 20px
+		width: 80%
 
 </style>
