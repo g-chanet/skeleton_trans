@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { EChannelType, Prisma } from '@prisma/client'
+import { EChannelMemberType, EChannelType, Prisma } from '@prisma/client'
 import { compare } from 'bcrypt'
 import { AuthHelper } from 'src/auth/auth.helper'
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -41,43 +41,62 @@ export class ChannelsService {
   }
 
   async findAllForUser(userId: string) {
-    return await this.prisma.channel.findMany({
+    const channels = await this.prisma.channel.findMany({
       where: {
         channelMembers: {
           some: {
             userId: {
               equals: userId,
             },
+            NOT: {
+              type: EChannelMemberType.Banned,
+            },
           },
         },
       },
+      include: {
+        channelMembers: { include: { user: true } },
+      },
     })
+    channels.forEach((channel) => {
+      if (channel.channelType === EChannelType.Direct) {
+        const otherMember = channel.channelMembers
+          .filter((member) => member.userId !== userId)
+          .pop()
+        channel.name = otherMember.user.username
+        channel.avatarUrl = otherMember.user.avatarUrl
+      }
+    })
+    return channels
   }
 
-  async findAllPublic(userId: string) {
+  async findAllVisible() {
     return await this.prisma.channel.findMany({
       where: {
-        channelType: EChannelType.Public,
+        NOT: {
+          channelType: EChannelType.Private,
+        },
+        AND: { NOT: { channelType: EChannelType.Direct } },
       },
     })
   }
 
-  async findAllProtected(userId: string) {
-    return await this.prisma.channel.findMany({
-      where: {
-        channelType: EChannelType.Protected,
-      },
-    })
-  }
-
-  async findOne(id: string) {
-    return await this.prisma.channel.findFirst({
+  async findOne(id: string, userId: string) {
+    const channel = await this.prisma.channel.findFirst({
       where: { id },
       include: {
         channelMembers: { include: { user: true } },
         channelMessages: true,
       },
     })
+    if (channel.channelType === EChannelType.Direct) {
+      const otherMember = channel.channelMembers
+        .filter((member) => member.userId !== userId)
+        .pop()
+      channel.name = otherMember.user.username
+      channel.avatarUrl = otherMember.user.avatarUrl
+    }
+    return channel
   }
 
   async checkChannelName(name: string) {
@@ -98,5 +117,24 @@ export class ChannelsService {
     })
     if (channel.channelType !== EChannelType.Protected) return true
     return await compare(password, channel.password)
+  }
+
+  async findDirectChannelForUsers(userId: string, otherUserId: string) {
+    const channel = await this.prisma.channel.findFirst({
+      where: {
+        channelType: EChannelType.Direct,
+        channelMembers: { some: { userId: userId } },
+        AND: { channelMembers: { some: { userId: otherUserId } } },
+      },
+      include: { channelMembers: { include: { user: true } } },
+    })
+    if (channel !== null && channel.channelType === EChannelType.Direct) {
+      const otherMember = channel.channelMembers
+        .filter((member) => member.userId !== userId)
+        .pop()
+      channel.name = otherMember.user.username
+      channel.avatarUrl = otherMember.user.avatarUrl
+    }
+    return channel
   }
 }

@@ -8,6 +8,7 @@ import {
   Args,
 } from '@nestjs/graphql'
 import { GameMatchmakingMembersService } from './game-matchmaking-members.service'
+import { GamesService } from 'src/games/games.service'
 import { GameMatchmakingMember } from './entities/game-matchmaking-member.entity'
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard'
 import { UseGuards, BadRequestException } from '@nestjs/common'
@@ -21,6 +22,7 @@ export class GameMatchmakingMembersResolver {
   constructor(
     private readonly gameMatchmakingMembersService: GameMatchmakingMembersService,
     private readonly pubSub: PubSub,
+    private readonly gamseService: GamesService,
   ) { }
 
   //**************************************************//
@@ -34,6 +36,10 @@ export class GameMatchmakingMembersResolver {
     @Args(`message`, { nullable: true }) message?: string,
     @Args(`userTargetId`, { nullable: true }) userTargetId?: string,
   ) {
+    const activeGame = await this.gamseService.findGameByUserId(user.id)
+    if (activeGame) {
+      await this.gamseService.playerLeave(activeGame.id, user)
+    }
     const newMember = await this.gameMatchmakingMembersService.create({
       userId: user.id,
       targetUserId: userTargetId,

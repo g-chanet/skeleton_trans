@@ -93,5 +93,64 @@ subscription OnDeleteChannelMemberForChannelId($args: OnChannelMemberChannelInpu
     muted
     createdAt
     updatedAt
+    user {
+      id
+      username
+      avatarUrl
+    }
+  }
+}
+
+subscription OnNewChannelMemberForUserId($args: OnChannelMemberUserInput!) {
+  onNewChannelMemberForUserId(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
+    channel {
+      id
+      name
+      avatarUrl
+      channelType
+      createdAt
+    }
+  }
+}
+
+subscription OnUpdateChannelMemberForUserlId($args: OnChannelMemberUserInput!) {
+  onUpdateChannelMemberForUserlId(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
+    channel {
+      id
+      name
+      avatarUrl
+      channelType
+      createdAt
+    }
+  }
+}
+
+subscription OnDeleteChannelMemberForUserlId($args: OnChannelMemberUserInput!) {
+  onDeleteChannelMemberForUserlId(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
+    channel {
+      id
+      name
+      avatarUrl
+      channelType
+      createdAt
+    }
   }
 }

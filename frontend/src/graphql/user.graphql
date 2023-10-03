@@ -23,8 +23,7 @@ query FindUserTwoFaSettings {
 }
 
 mutation UpdateMyUser($args: UpdateMyUserInput!) {
-  updateMyUser(args: $args)
-  {
+  updateMyUser(args: $args) {
     id
     doubleAuth
     avatarUrl
@@ -33,8 +32,7 @@ mutation UpdateMyUser($args: UpdateMyUserInput!) {
   }
 }
 
-mutation UpdateMyPassword($args: UpdateMyPasswordInput!)
-{
+mutation UpdateMyPassword($args: UpdateMyPasswordInput!) {
   updateMyPassword(args: $args)
 }
 
@@ -43,7 +41,7 @@ mutation IsGoogleAuthCodeValid($args: GoogleAuthCodeValidatorInput!) {
 }
 
 query findDailyGameRatios {
-  findDailyGameRatios{
+  findDailyGameRatios {
     date
     wins
     losses
@@ -52,7 +50,7 @@ query findDailyGameRatios {
 }
 
 query findPublicDailyGameRatios($userid: String!) {
-  findPublicDailyGameRatios(userid: $userid){
+  findPublicDailyGameRatios(userid: $userid) {
     date
     wins
     losses
@@ -60,7 +58,7 @@ query findPublicDailyGameRatios($userid: String!) {
   }
 }
 
-query findGeneralGameStatsForUser{
+query findGeneralGameStatsForUser {
   findGeneralGameStatsForUser {
     gamesCount
     allTimeRatio
@@ -69,17 +67,17 @@ query findGeneralGameStatsForUser{
 }
 
 query FindAllGameStatsForUser {
-    findAllGameStatsForUser {
-        id
-        opponentId
-        isWinner
-        userScore
-        opponentScore
-        createdAt
-    }
+  findAllGameStatsForUser {
+    id
+    opponentId
+    isWinner
+    userScore
+    opponentScore
+    createdAt
+  }
 }
 
-query findPublicGeneralGameStatsForUser($userid: String!){
+query findPublicGeneralGameStatsForUser($userid: String!) {
   findPublicGeneralGameStatsForUser(userid: $userid) {
     gamesCount
     allTimeRatio
@@ -88,38 +86,30 @@ query findPublicGeneralGameStatsForUser($userid: String!){
 }
 
 query FindAllPublicGameStatsForUser($userid: String!) {
-    findAllPublicGameStatsForUser(userid: $userid) {
-        id
-        opponentId
-        isWinner
-        userScore
-        opponentScore
-        createdAt
-    }
+  findAllPublicGameStatsForUser(userid: $userid) {
+    id
+    opponentId
+    isWinner
+    userScore
+    opponentScore
+    createdAt
+  }
 }
 
 query FindUser($args: FindUserInput!) {
-    findUser(args: $args) {
-        id
-        username
-        avatarUrl
-    }
-}
-
-mutation InjectFalseGameStatData {
-    injectFalseGameStatData
-}
-
-mutation removeFalseGameStatData {
-    removeFalseGameStatData
+  findUser(args: $args) {
+    id
+    username
+    avatarUrl
+  }
 }
 
 query FindPublicUsersList {
-    findPublicUsersList {
-        id
-        username
-        avatarUrl
-    }
+  findPublicUsersList {
+    id
+    username
+    avatarUrl
+  }
 }
 
 query CheckPseudo($args: CheckPseudoInput!) {

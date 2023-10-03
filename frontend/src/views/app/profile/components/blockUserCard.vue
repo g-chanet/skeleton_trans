@@ -1,8 +1,11 @@
 <template>
-    <div class="search-friend-card-item">
-        <el-avatar :src="avatarUrl"/>
-        <text>{{username}}</text>
-        <el-button @click="handleButtonClick()"
+    <div class="user-item-component">
+		<div class="avatar-username-wrapper">
+			<el-avatar class="avatar" :src="avatarUrl"/>
+			<text>{{truncateStr(username, 8)}}</text>
+		</div>
+        <el-button class="add-btn"
+					@click="handleButtonClick()"
                    @mouseenter="handleMouseEnter()" 
                    @mouseleave="handleMouseLeave()">
             <el-icon v-if="relationType != 'Blocked'">
@@ -18,10 +21,9 @@
 </template>
 
 <script lang="ts">
-import { CirclePlus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { computed, ref, watch } from 'vue'
-import { useBlockRelationMutation , type EUserRealtionType, useUnblockRelationMutation  } from '@/graphql/graphql-operations'
+import {  ref, watch } from 'vue'
+import { useBlockRelationMutation , useUnblockRelationMutation  } from '@/graphql/graphql-operations'
 
 
 export default {
@@ -34,8 +36,8 @@ export default {
   },
   setup(props) {
 
-	const { mutate:blockrelationmutation, onError:blockrelationmutationonerror } = useBlockRelationMutation()
-	const { mutate:unblockrelationmutation, onError:unblockrelationmutationonerror } = useUnblockRelationMutation()
+	const { mutate:blockrelationmutation } = useBlockRelationMutation()
+	const { mutate:unblockrelationmutation } = useUnblockRelationMutation()
 
 	const relationType = ref(props.relationStatus)
 	const isHovered = ref(false)
@@ -60,7 +62,8 @@ export default {
     }
 	
 	const unblockUser = () => {
-		unblockrelationmutation({ userTargetId: props.userId })
+		if (props.userId) {
+			unblockrelationmutation({ userTargetId: props.userId })
 		.then ((res) => {
 			if (!res?.errors && res?.data?.unblockRelation)
 			{
@@ -70,6 +73,7 @@ export default {
 		.catch((Error) => {
 				ElMessage.error(Error.message)
 			})
+		}
 	}
 
 	const blockUser = () => {
@@ -87,22 +91,52 @@ export default {
 			})
 		}
 	}
-		return {props, relationType, handleMouseLeave, handleMouseEnter, handleButtonClick, isHovered}
+
+	const truncateStr = (str:string | undefined, limit: number) => {
+		if (str) {
+			if (str.length < limit) {
+			return str
+			}
+			else {
+				return str.slice(0, limit) + "..."
+			}
+		} else {
+			return '...'
+		}
 	}
+
+		return {props, relationType, handleMouseLeave, handleMouseEnter, handleButtonClick, isHovered, truncateStr}
+	}
+
+	
 }
 
 </script>
 
 <style scoped lang="sass">
 
-.search-friend-card-item
-	width: 400px
-	height: 60px
-	margin-top : 20px
-	display: flex
-	background: rgb(26,35,50)
-	color: var(--el-color-primary)
-	justify-content: space-evenly
-	align-items: center
+.user-item-component
+		width: 17vw
+		height: 100%
+		background: #151519
+		display: flex
+		justify-content: space-between
+		align-items: center
+		border-radius: 8px
+		.avatar-username-wrapper
+			display: flex
+			justify-content: flex-start
+			align-items: center
+			.avatar
+				margin-right: 10px
+				border-radius: 3px
+				margin: 10px
+		.add-btn
+			width: 6vw
+			height: 100%
+			border-radius: 3px
+			background: rgba(217, 217, 217, 0.18)
+			margin: 10px
+
 
 </style>

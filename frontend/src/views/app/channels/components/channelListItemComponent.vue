@@ -12,11 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import { useFindMyChannelMemberForChannelQuery, type Channel, EChannelMemberType, useFindMyUserQuery, useOnDeleteChannelSubscription, useFindAllChannelsForUserQuery, useOnUpdateChannelSubscription } from '@/graphql/graphql-operations'
+import { type Channel, useOnDeleteChannelSubscription, useFindAllChannelsForUserQuery, useOnUpdateChannelSubscription } from '@/graphql/graphql-operations'
 import { router } from '@/router'
 import { cacheDelete, cacheUpsert } from '@/utils/cacheUtils'
 import { ElNotification } from 'element-plus'
-import { computed, h } from 'vue'
+import { h } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -24,13 +24,6 @@ const route = useRoute()
 const props = defineProps<{
   channel: Channel
 }>()
-
-const { result: myUser } = useFindMyUserQuery({})
-
-const query = useFindMyChannelMemberForChannelQuery({ args: { channelId: props.channel.id } }).onResult(({ data }) => {
-  if (data.findMyChannelMemberForChannel.type === EChannelMemberType.Banned || data.findMyChannelMemberForChannel.type === EChannelMemberType.Invited)
-    cacheDelete(props.channel)
-})
 
 const queryChannels = useFindAllChannelsForUserQuery({})
 

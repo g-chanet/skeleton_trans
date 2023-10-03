@@ -66,6 +66,7 @@ type GameMember {
   gameId: String!
   userId: String!
   userGameInfos: UserPublicGameInfos!
+  score: Float!
 }
 
 type Game {
@@ -118,17 +119,18 @@ enum EChannelType {
   Public
   Protected
   Private
+  Direct
 }
 
 type ChannelMember {
   channelId: ID!
   userId: String!
   type: EChannelMemberType!
-  muted: DateTime!
+  muted: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
-  channel: Channel
-  user: UserPublic
+  channel: Channel!
+  user: UserPublic!
 }
 
 enum EChannelMemberType {
@@ -140,7 +142,6 @@ enum EChannelMemberType {
 }
 
 type UserRelation {
-  id: ID!
   userOwnerId: String!
   userTargetId: String!
   type: EUserRealtionType!
@@ -174,8 +175,7 @@ type Query {
   findAllRelationsForMyUser: [UserRelation!]!
   findChannel(args: FindChannelInput!): Channel!
   findAllChannels: [Channel!]!
-  findAllPublicChannels: [Channel!]!
-  findAllProtectedChannels: [Channel!]!
+  findAllVisibleChannels: [Channel!]!
   findAllChannelsForUser: [Channel!]!
   checkChannelName(args: CheckChannelInput!): Boolean!
   findMyChannelMemberForChannel(args: FindMyChannelMemberForChannelInput!): ChannelMember!
@@ -234,6 +234,7 @@ type Mutation {
   createChannel(args: CreateChannelInput!): Channel!
   updateChannel(args: UpdateChannelInput!): Channel!
   deleteChannel(args: DeleteChannelInput!): Channel!
+  sendDirectMessage(args: SendDirectMessageInput!): Channel!
   createMemberForChannel(args: CreateMemberForChannelInput!): ChannelMember!
   updateMemberForChannel(args: UpdateMyMemberForChannelInput!): ChannelMember!
   deleteMemberForChannel(args: DeleteMemberForChannelInput!): ChannelMember!
@@ -302,6 +303,10 @@ input DeleteChannelInput {
   id: String!
 }
 
+input SendDirectMessageInput {
+  otherUserId: String!
+}
+
 input CreateMemberForChannelInput {
   channelId: String!
   channelPassword: String
@@ -311,7 +316,7 @@ input CreateMemberForChannelInput {
 input UpdateMyMemberForChannelInput {
   channelId: String!
   userId: String!
-  mute: DateTime
+  muted: Boolean
   type: EChannelMemberType
 }
 
@@ -383,6 +388,9 @@ type Subscription {
   onNewChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!
   onUpdateChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!
   onDeleteChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!
+  onNewChannelMemberForUserId(args: OnChannelMemberUserInput!): ChannelMember!
+  onUpdateChannelMemberForUserlId(args: OnChannelMemberUserInput!): ChannelMember!
+  onDeleteChannelMemberForUserlId(args: OnChannelMemberUserInput!): ChannelMember!
   onNewChannelMessageForChannelId(args: OnNewChannelMessageForChannelIdInput!): ChannelMessage!
   onDeleteChannelMessageForChannel(args: OnDeleteChannelMessageForChannel!): ChannelMessage!
   matchmakingMembersChanged: GameMatchmakingMember!
@@ -397,6 +405,10 @@ input OnChannelInput {
 
 input OnChannelMemberChannelInput {
   channelId: String!
+}
+
+input OnChannelMemberUserInput {
+  userId: String!
 }
 
 input OnNewChannelMessageForChannelIdInput {

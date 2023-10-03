@@ -5,16 +5,8 @@
       <div class="channels">
         <h1 class="dialog-header">Public channels:</h1>
         <el-scrollbar class="list-channel" max-height="300px">
-          <ItemChannel v-for="channel in publicChannels" :key="channel.id" :channel="channel"
+          <ItemChannel v-for="channel in visibleChannels" :key="channel.id" :channel="channel"
             @click="onSelectChannel(channel, '')" />
-        </el-scrollbar>
-      </div>
-      <el-divider direction="vertical" style="height: auto;"></el-divider>
-      <div class="channels">
-        <h1 class="dialog-header">Protected channels:</h1>
-        <el-scrollbar class="list-channel" max-height="300px">
-          <ItemChannel v-for="channel in protectedChannels" :key="channel.id" :channel="channel"
-            @click="openPasswordInput(channel)" />
         </el-scrollbar>
       </div>
     </div>
@@ -22,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { useCreateMemberForChannelMutation, useFindAllPublicChannelsQuery, useFindAllProtectedChannelsQuery, type Channel, useFindAllChannelsForUserQuery, useFindMyUserQuery, useOnCreateChannelSubscription } from '@/graphql/graphql-operations'
+import { useCreateMemberForChannelMutation, useFindAllVisibleChannelsQuery, type Channel, useFindAllChannelsForUserQuery, useFindMyUserQuery, useOnCreateChannelSubscription, useFindChannelQuery } from '@/graphql/graphql-operations'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -43,7 +35,6 @@ const dialog = computed({
 })
 
 const router = useRouter()
-const { result: myUser } = useFindMyUserQuery()
 const query = useFindAllChannelsForUserQuery({})
 
 const excludeChannels = computed(() => {
@@ -54,22 +45,15 @@ const excludeChannels = computed(() => {
   return array
 })
 
-const publicQuery = useFindAllPublicChannelsQuery()
-const protectedQuery = useFindAllProtectedChannelsQuery()
-const { mutate: mutateChannelMember, onError: createMemberError } = useCreateMemberForChannelMutation({})
+const visibleQuery = useFindAllVisibleChannelsQuery()
+const { mutate: mutateChannelMember, onDone: memberCreated, onError: createMemberError } = useCreateMemberForChannelMutation({})
 
 useOnCreateChannelSubscription({}).onResult(({ data }) => {
-  if (data?.onCreateChannel.channelType === EChannelType.Public)
-    cacheUpsert(publicQuery, data.onCreateChannel)
-  else
-    cacheUpsert(protectedQuery, data?.onCreateChannel)
+  cacheUpsert(visibleQuery, data?.onCreateChannel)
 })
 
-const publicChannels = computed(() => {
-  return publicQuery.result.value?.findAllPublicChannels.filter(checkChannelId)
-})
-const protectedChannels = computed(() => {
-  return protectedQuery.result.value?.findAllProtectedChannels.filter(checkChannelId)
+const visibleChannels = computed(() => {
+  return visibleQuery.result.value?.findAllVisibleChannels.filter(checkChannelId)
 })
 
 function checkChannelId(channel: Channel) {
@@ -77,23 +61,20 @@ function checkChannelId(channel: Channel) {
 }
 
 const onSelectChannel = (channel: Channel, password: string) => {
-  mutateChannelMember({
-    args: {
-      channelId: channel.id,
-      channelPassword: password,
-    }
-  }).then((args) => {
-    router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId } })
-  })
+  if (channel.channelType === EChannelType.Protected) {
+    openPasswordInput(channel)
+  }
+  else {
+    mutateChannelMember({
+      args: {
+        channelId: channel.id,
+        channelPassword: password,
+      }
+    }).then((args) => {
+      router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId } })
+    })
+  }
 }
-
-createMemberError((e) => {
-  ElMessage({
-    showClose: true,
-    message: e.message,
-    type: `error`
-  })
-})
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const openPasswordInput = (channel: Channel) => {
@@ -114,6 +95,15 @@ const openPasswordInput = (channel: Channel) => {
       })
     })
 }
+
+createMemberError((e) => {
+  ElMessage({
+    showClose: true,
+    message: e.message,
+    type: `error`
+  })
+})
+
 
 const handleClose = (() => {
   dialog.value = false

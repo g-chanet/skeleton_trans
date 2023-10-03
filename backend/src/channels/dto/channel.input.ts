@@ -78,3 +78,13 @@ export class OnChannelInput {
   @Field(() => String)
   id: string
 }
+
+//**************************************************//
+//  OTHER4
+//**************************************************//
+
+@InputType()
+export class SendDirectMessageInput {
+  @Field(() => String)
+  otherUserId: string
+}

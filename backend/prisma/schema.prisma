@@ -89,7 +89,7 @@ model ChannelMember {
   user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId          String
   type            EChannelMemberType @default(Default)
-  muted           DateTime           @default(now())
+  muted           Boolean            @default(false)
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   channelMessages ChannelMessage[]
@@ -190,6 +190,7 @@ enum EChannelType {
   Public
   Protected
   Private
+  Direct
 }
 
 enum EChannelMemberType {

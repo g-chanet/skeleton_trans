@@ -30,13 +30,13 @@ export type Channel = {
 
 export type ChannelMember = {
   __typename?: 'ChannelMember';
-  channel?: Maybe<Channel>;
+  channel: Channel;
   channelId: Scalars['ID'];
   createdAt: Scalars['DateTime'];
-  muted: Scalars['DateTime'];
+  muted: Scalars['Boolean'];
   type: EChannelMemberType;
   updatedAt: Scalars['DateTime'];
-  user?: Maybe<UserPublic>;
+  user: UserPublic;
   userId: Scalars['String'];
 };
 
@@ -52,10 +52,6 @@ export type ChannelMessage = {
 
 export type CheckChannelInput = {
   channelName: Scalars['String'];
-};
-
-export type CheckPseudoInput = {
-  pseudo: Scalars['String'];
 };
 
 export type CreateChannelInput = {
@@ -114,6 +110,7 @@ export enum EChannelMemberType {
 }
 
 export enum EChannelType {
+  Direct = 'Direct',
   Private = 'Private',
   Protected = 'Protected',
   Public = 'Public'
@@ -188,6 +185,7 @@ export type GameMatchmakingMember = {
 export type GameMember = {
   __typename?: 'GameMember';
   gameId: Scalars['String'];
+  score: Scalars['Float'];
   userGameInfos: UserPublicGameInfos;
   userId: Scalars['String'];
 };
@@ -248,6 +246,7 @@ export type Mutation = {
   refusePrivateGameInvitation: Scalars['Boolean'];
   removeFalseGameStatData: Scalars['Boolean'];
   removeFriend: UserRelation;
+  sendDirectMessage: Channel;
   signIn42: Scalars['Boolean'];
   signInDiscord: Scalars['Boolean'];
   signInGithub: Scalars['Boolean'];
@@ -367,6 +366,11 @@ export type MutationRemoveFriendArgs = {
 };
 
 
+export type MutationSendDirectMessageArgs = {
+  args: SendDirectMessageInput;
+};
+
+
 export type MutationSignInLocalArgs = {
   args: SignInLocalInput;
 };
@@ -424,6 +428,10 @@ export type OnChannelMemberChannelInput = {
   channelId: Scalars['String'];
 };
 
+export type OnChannelMemberUserInput = {
+  userId: Scalars['String'];
+};
+
 export type OnDeleteChannelMessageForChannel = {
   channelId: Scalars['String'];
 };
@@ -435,12 +443,12 @@ export type OnNewChannelMessageForChannelIdInput = {
 export type Query = {
   __typename?: 'Query';
   checkChannelName: Scalars['Boolean'];
-  checkPseudo: Scalars['Boolean'];
   findAllChannelMembersForChannel: Array<ChannelMember>;
   findAllChannelMessagesForChannel: Array<ChannelMessage>;
   findAllChannels: Array<Channel>;
   findAllChannelsForUser: Array<Channel>;
   findAllGameMatchmakingMemberl: Array<GameMatchmakingMember>;
+  findAllVisibleChannels: Array<Channel>;
   findAllGameStatsForUser: Array<GameStat>;
   findAllGameStatsSoftLimit: Array<GameStat>;
   findAllGames: Array<Game>;
@@ -468,11 +476,6 @@ export type Query = {
 
 export type QueryCheckChannelNameArgs = {
   args: CheckChannelInput;
-};
-
-
-export type QueryCheckPseudoArgs = {
-  args: CheckPseudoInput;
 };
 
 
@@ -525,6 +528,9 @@ export type QueryFindUserForChannelMessageArgs = {
   args: FindUserForChannelMessageInput;
 };
 
+export type SendDirectMessageInput = {
+  otherUserId: Scalars['String'];
+}
 
 export type QueryFindUserPresencesArgs = {
   args: FindUserPresencesInput;
@@ -551,11 +557,14 @@ export type Subscription = {
   onCreateChannel: Channel;
   onDeleteChannel: Channel;
   onDeleteChannelMemberForChannelId: ChannelMember;
+  onDeleteChannelMemberForUserlId: ChannelMember;
   onDeleteChannelMessageForChannel: ChannelMessage;
   onNewChannelMemberForChannelId: ChannelMember;
+  onNewChannelMemberForUserId: ChannelMember;
   onNewChannelMessageForChannelId: ChannelMessage;
   onUpdateChannel: Channel;
   onUpdateChannelMemberForChannelId: ChannelMember;
+  onUpdateChannelMemberForUserlId: ChannelMember;
   userRelationsChanged: UserRelation;
   usersPresenceUpdated: UserPresence;
 };
@@ -576,6 +585,11 @@ export type SubscriptionOnDeleteChannelMemberForChannelIdArgs = {
 };
 
 
+export type SubscriptionOnDeleteChannelMemberForUserlIdArgs = {
+  args: OnChannelMemberUserInput;
+};
+
+
 export type SubscriptionOnDeleteChannelMessageForChannelArgs = {
   args: OnDeleteChannelMessageForChannel;
 };
@@ -583,6 +597,11 @@ export type SubscriptionOnDeleteChannelMessageForChannelArgs = {
 
 export type SubscriptionOnNewChannelMemberForChannelIdArgs = {
   args: OnChannelMemberChannelInput;
+};
+
+
+export type SubscriptionOnNewChannelMemberForUserIdArgs = {
+  args: OnChannelMemberUserInput;
 };
 
 
@@ -601,6 +620,9 @@ export type SubscriptionOnUpdateChannelMemberForChannelIdArgs = {
 };
 
 
+export type SubscriptionOnUpdateChannelMemberForUserlIdArgs = {
+  args: OnChannelMemberUserInput;
+}
 export type SubscriptionUserRelationsChangedArgs = {
   userId: Scalars['String'];
 };
@@ -628,7 +650,7 @@ export type UpdateGameMemberInput = {
 
 export type UpdateMyMemberForChannelInput = {
   channelId: Scalars['String'];
-  mute?: InputMaybe<Scalars['DateTime']>;
+  muted?: InputMaybe<Scalars['Boolean']>;
   type?: InputMaybe<EChannelMemberType>;
   userId: Scalars['String'];
 };
@@ -689,7 +711,6 @@ export type UserRelation = {
   __typename?: 'UserRelation';
   createdAt: Scalars['DateTime'];
   friendInfos: UserPublicGameInfos;
-  id: Scalars['ID'];
   type: EUserRealtionType;
   updatedAt: Scalars['DateTime'];
   userOwnerId: Scalars['String'];
@@ -748,15 +769,10 @@ export type DeleteChannelMutationVariables = Exact<{
 
 export type DeleteChannelMutation = { __typename?: 'Mutation', deleteChannel: { __typename?: 'Channel', id: string } };
 
-export type FindAllPublicChannelsQueryVariables = Exact<{ [key: string]: never; }>;
+export type FindAllVisibleChannelsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllPublicChannelsQuery = { __typename?: 'Query', findAllPublicChannels: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any }> };
-
-export type FindAllProtectedChannelsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type FindAllProtectedChannelsQuery = { __typename?: 'Query', findAllProtectedChannels: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any }> };
+export type FindAllVisibleChannelsQuery = { __typename?: 'Query', findAllVisibleChannels: Array<{ __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any }> };
 
 export type FindAllChannelsForUserQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -796,6 +812,13 @@ export type OnDeleteChannelSubscriptionVariables = Exact<{
 
 export type OnDeleteChannelSubscription = { __typename?: 'Subscription', onDeleteChannel: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } };
 
+export type SendDirectMessageMutationVariables = Exact<{
+  args: SendDirectMessageInput;
+}>;
+
+
+export type SendDirectMessageMutation = { __typename?: 'Mutation', sendDirectMessage: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } };
+
 export type CreateMemberForChannelMutationVariables = Exact<{
   args: CreateMemberForChannelInput;
 }>;
@@ -829,35 +852,56 @@ export type FindAllChannelMembersForChannelQueryVariables = Exact<{
 }>;
 
 
-export type FindAllChannelMembersForChannelQuery = { __typename?: 'Query', findAllChannelMembersForChannel: Array<{ __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any, user?: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } | null }> };
+export type FindAllChannelMembersForChannelQuery = { __typename?: 'Query', findAllChannelMembersForChannel: Array<{ __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: boolean, createdAt: any, updatedAt: any, user: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } }> };
 
 export type FindMyChannelMemberForChannelQueryVariables = Exact<{
   args: FindMyChannelMemberForChannelInput;
 }>;
 
 
-export type FindMyChannelMemberForChannelQuery = { __typename?: 'Query', findMyChannelMemberForChannel: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any } };
+export type FindMyChannelMemberForChannelQuery = { __typename?: 'Query', findMyChannelMemberForChannel: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: boolean, createdAt: any, updatedAt: any } };
 
 export type OnNewChannelMemberForChannelIdSubscriptionVariables = Exact<{
   args: OnChannelMemberChannelInput;
 }>;
 
 
-export type OnNewChannelMemberForChannelIdSubscription = { __typename?: 'Subscription', onNewChannelMemberForChannelId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any, user?: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } | null } };
+export type OnNewChannelMemberForChannelIdSubscription = { __typename?: 'Subscription', onNewChannelMemberForChannelId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: boolean, createdAt: any, updatedAt: any, user: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } } };
 
 export type OnUpdateChannelMemberForChannelIdSubscriptionVariables = Exact<{
   args: OnChannelMemberChannelInput;
 }>;
 
 
-export type OnUpdateChannelMemberForChannelIdSubscription = { __typename?: 'Subscription', onUpdateChannelMemberForChannelId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any, user?: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } | null } };
+export type OnUpdateChannelMemberForChannelIdSubscription = { __typename?: 'Subscription', onUpdateChannelMemberForChannelId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: boolean, createdAt: any, updatedAt: any, user: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } } };
 
 export type OnDeleteChannelMemberForChannelIdSubscriptionVariables = Exact<{
   args: OnChannelMemberChannelInput;
 }>;
 
 
-export type OnDeleteChannelMemberForChannelIdSubscription = { __typename?: 'Subscription', onDeleteChannelMemberForChannelId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: any, createdAt: any, updatedAt: any } };
+export type OnDeleteChannelMemberForChannelIdSubscription = { __typename?: 'Subscription', onDeleteChannelMemberForChannelId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: boolean, createdAt: any, updatedAt: any, user: { __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null } } };
+
+export type OnNewChannelMemberForUserIdSubscriptionVariables = Exact<{
+  args: OnChannelMemberUserInput;
+}>;
+
+
+export type OnNewChannelMemberForUserIdSubscription = { __typename?: 'Subscription', onNewChannelMemberForUserId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: boolean, createdAt: any, updatedAt: any, channel: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } } };
+
+export type OnUpdateChannelMemberForUserlIdSubscriptionVariables = Exact<{
+  args: OnChannelMemberUserInput;
+}>;
+
+
+export type OnUpdateChannelMemberForUserlIdSubscription = { __typename?: 'Subscription', onUpdateChannelMemberForUserlId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: boolean, createdAt: any, updatedAt: any, channel: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } } };
+
+export type OnDeleteChannelMemberForUserlIdSubscriptionVariables = Exact<{
+  args: OnChannelMemberUserInput;
+}>;
+
+
+export type OnDeleteChannelMemberForUserlIdSubscription = { __typename?: 'Subscription', onDeleteChannelMemberForUserlId: { __typename?: 'ChannelMember', channelId: string, userId: string, type: EChannelMemberType, muted: boolean, createdAt: any, updatedAt: any, channel: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } } };
 
 export type ChannelMessageFragment = { __typename?: 'ChannelMessage', id: string, message: string, channelId: string, userId: string, createdAt: any, updatedAt: any };
 
@@ -906,12 +950,12 @@ export type OnDeleteChannelMessageForChannelSubscription = { __typename?: 'Subsc
 export type AllGamesUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllGamesUpdatedSubscription = { __typename?: 'Subscription', allGamesUpdated?: { __typename?: 'Game', id: string, message: string, isDeleted: boolean, createdAt: any, targetUserId?: string | null, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null } | null };
+export type AllGamesUpdatedSubscription = { __typename?: 'Subscription', allGamesUpdated?: { __typename?: 'Game', id: string, message: string, isDeleted: boolean, createdAt: any, targetUserId?: string | null, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, score: number, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null } | null };
 
 export type FindAllGamesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllGamesQuery = { __typename?: 'Query', findAllGames: Array<{ __typename?: 'Game', id: string, message: string, isDeleted: boolean, createdAt: any, targetUserId?: string | null, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null }> };
+export type FindAllGamesQuery = { __typename?: 'Query', findAllGames: Array<{ __typename?: 'Game', id: string, message: string, isDeleted: boolean, createdAt: any, targetUserId?: string | null, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, score: number, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null }> };
 
 export type CreateGameMutationVariables = Exact<{
   message?: InputMaybe<Scalars['String']>;
@@ -980,7 +1024,7 @@ export type RefuseMatchMakingInviteMutation = { __typename?: 'Mutation', refuseM
 export type AllGamesStatsUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllGamesStatsUpdatedSubscription = { __typename?: 'Subscription', allGamesStatsUpdated?: { __typename?: 'GameStat', id?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null } | null };
+export type AllGamesStatsUpdatedSubscription = { __typename?: 'Subscription', allGamesStatsUpdated?: { __typename?: 'GameStat', id?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null, isDeleted: boolean } | null };
 
 export type AllGamesStatsUpdatedForUserSubscriptionVariables = Exact<{
   userId: Scalars['String'];
@@ -992,7 +1036,7 @@ export type AllGamesStatsUpdatedForUserSubscription = { __typename?: 'Subscripti
 export type FindAllGameStatsSoftLimitQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FindAllGameStatsSoftLimitQuery = { __typename?: 'Query', findAllGameStatsSoftLimit: Array<{ __typename?: 'GameStat', id?: string | null, userId?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null }> };
+export type FindAllGameStatsSoftLimitQuery = { __typename?: 'Query', findAllGameStatsSoftLimit: Array<{ __typename?: 'GameStat', id?: string | null, userId?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null, isDeleted: boolean }> };
 
 export type FindLeaderboardUserListQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1087,13 +1131,6 @@ export type FindPublicUsersListQueryVariables = Exact<{ [key: string]: never; }>
 
 
 export type FindPublicUsersListQuery = { __typename?: 'Query', findPublicUsersList: Array<{ __typename?: 'UserPublic', id: string, username: string, avatarUrl?: string | null }> };
-
-export type CheckPseudoQueryVariables = Exact<{
-  args: CheckPseudoInput;
-}>;
-
-
-export type CheckPseudoQuery = { __typename?: 'Query', checkPseudo: boolean };
 
 export type UsersPresenceUpdatedSubscriptionVariables = Exact<{
   args: FindUserPresencesInput;
@@ -1347,9 +1384,9 @@ export function useDeleteChannelMutation(options: VueApolloComposable.UseMutatio
   return VueApolloComposable.useMutation<DeleteChannelMutation, DeleteChannelMutationVariables>(DeleteChannelDocument, options);
 }
 export type DeleteChannelMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DeleteChannelMutation, DeleteChannelMutationVariables>;
-export const FindAllPublicChannelsDocument = gql`
-    query FindAllPublicChannels {
-  findAllPublicChannels {
+export const FindAllVisibleChannelsDocument = gql`
+    query FindAllVisibleChannels {
+  findAllVisibleChannels {
     id
     name
     avatarUrl
@@ -1360,55 +1397,24 @@ export const FindAllPublicChannelsDocument = gql`
     `;
 
 /**
- * __useFindAllPublicChannelsQuery__
+ * __useFindAllVisibleChannelsQuery__
  *
- * To run a query within a Vue component, call `useFindAllPublicChannelsQuery` and pass it any options that fit your needs.
- * When your component renders, `useFindAllPublicChannelsQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * To run a query within a Vue component, call `useFindAllVisibleChannelsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindAllVisibleChannelsQuery` returns an object from Apollo Client that contains result, loading and error properties
  * you can use to render your UI.
  *
  * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
  *
  * @example
- * const { result, loading, error } = useFindAllPublicChannelsQuery();
+ * const { result, loading, error } = useFindAllVisibleChannelsQuery();
  */
-export function useFindAllPublicChannelsQuery(options: VueApolloComposable.UseQueryOptions<FindAllPublicChannelsQuery, FindAllPublicChannelsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllPublicChannelsQuery, FindAllPublicChannelsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllPublicChannelsQuery, FindAllPublicChannelsQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<FindAllPublicChannelsQuery, FindAllPublicChannelsQueryVariables>(FindAllPublicChannelsDocument, {}, options);
+export function useFindAllVisibleChannelsQuery(options: VueApolloComposable.UseQueryOptions<FindAllVisibleChannelsQuery, FindAllVisibleChannelsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllVisibleChannelsQuery, FindAllVisibleChannelsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllVisibleChannelsQuery, FindAllVisibleChannelsQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<FindAllVisibleChannelsQuery, FindAllVisibleChannelsQueryVariables>(FindAllVisibleChannelsDocument, {}, options);
 }
-export function useFindAllPublicChannelsLazyQuery(options: VueApolloComposable.UseQueryOptions<FindAllPublicChannelsQuery, FindAllPublicChannelsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllPublicChannelsQuery, FindAllPublicChannelsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllPublicChannelsQuery, FindAllPublicChannelsQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<FindAllPublicChannelsQuery, FindAllPublicChannelsQueryVariables>(FindAllPublicChannelsDocument, {}, options);
+export function useFindAllVisibleChannelsLazyQuery(options: VueApolloComposable.UseQueryOptions<FindAllVisibleChannelsQuery, FindAllVisibleChannelsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllVisibleChannelsQuery, FindAllVisibleChannelsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllVisibleChannelsQuery, FindAllVisibleChannelsQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<FindAllVisibleChannelsQuery, FindAllVisibleChannelsQueryVariables>(FindAllVisibleChannelsDocument, {}, options);
 }
-export type FindAllPublicChannelsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllPublicChannelsQuery, FindAllPublicChannelsQueryVariables>;
-export const FindAllProtectedChannelsDocument = gql`
-    query FindAllProtectedChannels {
-  findAllProtectedChannels {
-    id
-    name
-    avatarUrl
-    channelType
-    createdAt
-  }
-}
-    `;
-
-/**
- * __useFindAllProtectedChannelsQuery__
- *
- * To run a query within a Vue component, call `useFindAllProtectedChannelsQuery` and pass it any options that fit your needs.
- * When your component renders, `useFindAllProtectedChannelsQuery` returns an object from Apollo Client that contains result, loading and error properties
- * you can use to render your UI.
- *
- * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
- *
- * @example
- * const { result, loading, error } = useFindAllProtectedChannelsQuery();
- */
-export function useFindAllProtectedChannelsQuery(options: VueApolloComposable.UseQueryOptions<FindAllProtectedChannelsQuery, FindAllProtectedChannelsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllProtectedChannelsQuery, FindAllProtectedChannelsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllProtectedChannelsQuery, FindAllProtectedChannelsQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<FindAllProtectedChannelsQuery, FindAllProtectedChannelsQueryVariables>(FindAllProtectedChannelsDocument, {}, options);
-}
-export function useFindAllProtectedChannelsLazyQuery(options: VueApolloComposable.UseQueryOptions<FindAllProtectedChannelsQuery, FindAllProtectedChannelsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<FindAllProtectedChannelsQuery, FindAllProtectedChannelsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<FindAllProtectedChannelsQuery, FindAllProtectedChannelsQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<FindAllProtectedChannelsQuery, FindAllProtectedChannelsQueryVariables>(FindAllProtectedChannelsDocument, {}, options);
-}
-export type FindAllProtectedChannelsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllProtectedChannelsQuery, FindAllProtectedChannelsQueryVariables>;
+export type FindAllVisibleChannelsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllVisibleChannelsQuery, FindAllVisibleChannelsQueryVariables>;
 export const FindAllChannelsForUserDocument = gql`
     query FindAllChannelsForUser {
   findAllChannelsForUser {
@@ -1592,6 +1598,39 @@ export function useOnDeleteChannelSubscription(variables: OnDeleteChannelSubscri
   return VueApolloComposable.useSubscription<OnDeleteChannelSubscription, OnDeleteChannelSubscriptionVariables>(OnDeleteChannelDocument, variables, options);
 }
 export type OnDeleteChannelSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<OnDeleteChannelSubscription, OnDeleteChannelSubscriptionVariables>;
+export const SendDirectMessageDocument = gql`
+    mutation SendDirectMessage($args: SendDirectMessageInput!) {
+  sendDirectMessage(args: $args) {
+    id
+    name
+    avatarUrl
+    channelType
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useSendDirectMessageMutation__
+ *
+ * To run a mutation, you first call `useSendDirectMessageMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useSendDirectMessageMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useSendDirectMessageMutation({
+ *   variables: {
+ *     args: // value for 'args'
+ *   },
+ * });
+ */
+export function useSendDirectMessageMutation(options: VueApolloComposable.UseMutationOptions<SendDirectMessageMutation, SendDirectMessageMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<SendDirectMessageMutation, SendDirectMessageMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<SendDirectMessageMutation, SendDirectMessageMutationVariables>(SendDirectMessageDocument, options);
+}
+export type SendDirectMessageMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<SendDirectMessageMutation, SendDirectMessageMutationVariables>;
 export const CreateMemberForChannelDocument = gql`
     mutation CreateMemberForChannel($args: CreateMemberForChannelInput!) {
   createMemberForChannel(args: $args) {
@@ -1870,6 +1909,11 @@ export const OnDeleteChannelMemberForChannelIdDocument = gql`
     muted
     createdAt
     updatedAt
+    user {
+      id
+      username
+      avatarUrl
+    }
   }
 }
     `;
@@ -1893,6 +1937,123 @@ export function useOnDeleteChannelMemberForChannelIdSubscription(variables: OnDe
   return VueApolloComposable.useSubscription<OnDeleteChannelMemberForChannelIdSubscription, OnDeleteChannelMemberForChannelIdSubscriptionVariables>(OnDeleteChannelMemberForChannelIdDocument, variables, options);
 }
 export type OnDeleteChannelMemberForChannelIdSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<OnDeleteChannelMemberForChannelIdSubscription, OnDeleteChannelMemberForChannelIdSubscriptionVariables>;
+export const OnNewChannelMemberForUserIdDocument = gql`
+    subscription OnNewChannelMemberForUserId($args: OnChannelMemberUserInput!) {
+  onNewChannelMemberForUserId(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
+    channel {
+      id
+      name
+      avatarUrl
+      channelType
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useOnNewChannelMemberForUserIdSubscription__
+ *
+ * To run a query within a Vue component, call `useOnNewChannelMemberForUserIdSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnNewChannelMemberForUserIdSubscription` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the subscription
+ * @param options that will be passed into the subscription, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/subscription.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useOnNewChannelMemberForUserIdSubscription({
+ *   args: // value for 'args'
+ * });
+ */
+export function useOnNewChannelMemberForUserIdSubscription(variables: OnNewChannelMemberForUserIdSubscriptionVariables | VueCompositionApi.Ref<OnNewChannelMemberForUserIdSubscriptionVariables> | ReactiveFunction<OnNewChannelMemberForUserIdSubscriptionVariables>, options: VueApolloComposable.UseSubscriptionOptions<OnNewChannelMemberForUserIdSubscription, OnNewChannelMemberForUserIdSubscriptionVariables> | VueCompositionApi.Ref<VueApolloComposable.UseSubscriptionOptions<OnNewChannelMemberForUserIdSubscription, OnNewChannelMemberForUserIdSubscriptionVariables>> | ReactiveFunction<VueApolloComposable.UseSubscriptionOptions<OnNewChannelMemberForUserIdSubscription, OnNewChannelMemberForUserIdSubscriptionVariables>> = {}) {
+  return VueApolloComposable.useSubscription<OnNewChannelMemberForUserIdSubscription, OnNewChannelMemberForUserIdSubscriptionVariables>(OnNewChannelMemberForUserIdDocument, variables, options);
+}
+export type OnNewChannelMemberForUserIdSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<OnNewChannelMemberForUserIdSubscription, OnNewChannelMemberForUserIdSubscriptionVariables>;
+export const OnUpdateChannelMemberForUserlIdDocument = gql`
+    subscription OnUpdateChannelMemberForUserlId($args: OnChannelMemberUserInput!) {
+  onUpdateChannelMemberForUserlId(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
+    channel {
+      id
+      name
+      avatarUrl
+      channelType
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useOnUpdateChannelMemberForUserlIdSubscription__
+ *
+ * To run a query within a Vue component, call `useOnUpdateChannelMemberForUserlIdSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnUpdateChannelMemberForUserlIdSubscription` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the subscription
+ * @param options that will be passed into the subscription, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/subscription.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useOnUpdateChannelMemberForUserlIdSubscription({
+ *   args: // value for 'args'
+ * });
+ */
+export function useOnUpdateChannelMemberForUserlIdSubscription(variables: OnUpdateChannelMemberForUserlIdSubscriptionVariables | VueCompositionApi.Ref<OnUpdateChannelMemberForUserlIdSubscriptionVariables> | ReactiveFunction<OnUpdateChannelMemberForUserlIdSubscriptionVariables>, options: VueApolloComposable.UseSubscriptionOptions<OnUpdateChannelMemberForUserlIdSubscription, OnUpdateChannelMemberForUserlIdSubscriptionVariables> | VueCompositionApi.Ref<VueApolloComposable.UseSubscriptionOptions<OnUpdateChannelMemberForUserlIdSubscription, OnUpdateChannelMemberForUserlIdSubscriptionVariables>> | ReactiveFunction<VueApolloComposable.UseSubscriptionOptions<OnUpdateChannelMemberForUserlIdSubscription, OnUpdateChannelMemberForUserlIdSubscriptionVariables>> = {}) {
+  return VueApolloComposable.useSubscription<OnUpdateChannelMemberForUserlIdSubscription, OnUpdateChannelMemberForUserlIdSubscriptionVariables>(OnUpdateChannelMemberForUserlIdDocument, variables, options);
+}
+export type OnUpdateChannelMemberForUserlIdSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<OnUpdateChannelMemberForUserlIdSubscription, OnUpdateChannelMemberForUserlIdSubscriptionVariables>;
+export const OnDeleteChannelMemberForUserlIdDocument = gql`
+    subscription OnDeleteChannelMemberForUserlId($args: OnChannelMemberUserInput!) {
+  onDeleteChannelMemberForUserlId(args: $args) {
+    channelId
+    userId
+    type
+    muted
+    createdAt
+    updatedAt
+    channel {
+      id
+      name
+      avatarUrl
+      channelType
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useOnDeleteChannelMemberForUserlIdSubscription__
+ *
+ * To run a query within a Vue component, call `useOnDeleteChannelMemberForUserlIdSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnDeleteChannelMemberForUserlIdSubscription` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the subscription
+ * @param options that will be passed into the subscription, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/subscription.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useOnDeleteChannelMemberForUserlIdSubscription({
+ *   args: // value for 'args'
+ * });
+ */
+export function useOnDeleteChannelMemberForUserlIdSubscription(variables: OnDeleteChannelMemberForUserlIdSubscriptionVariables | VueCompositionApi.Ref<OnDeleteChannelMemberForUserlIdSubscriptionVariables> | ReactiveFunction<OnDeleteChannelMemberForUserlIdSubscriptionVariables>, options: VueApolloComposable.UseSubscriptionOptions<OnDeleteChannelMemberForUserlIdSubscription, OnDeleteChannelMemberForUserlIdSubscriptionVariables> | VueCompositionApi.Ref<VueApolloComposable.UseSubscriptionOptions<OnDeleteChannelMemberForUserlIdSubscription, OnDeleteChannelMemberForUserlIdSubscriptionVariables>> | ReactiveFunction<VueApolloComposable.UseSubscriptionOptions<OnDeleteChannelMemberForUserlIdSubscription, OnDeleteChannelMemberForUserlIdSubscriptionVariables>> = {}) {
+  return VueApolloComposable.useSubscription<OnDeleteChannelMemberForUserlIdSubscription, OnDeleteChannelMemberForUserlIdSubscriptionVariables>(OnDeleteChannelMemberForUserlIdDocument, variables, options);
+}
+export type OnDeleteChannelMemberForUserlIdSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<OnDeleteChannelMemberForUserlIdSubscription, OnDeleteChannelMemberForUserlIdSubscriptionVariables>;
 export const CreateMessageForChannelDocument = gql`
     mutation CreateMessageForChannel($args: CreateMessageForChannelInput!) {
   createMessageForChannel(args: $args) {
@@ -2078,6 +2239,7 @@ export const AllGamesUpdatedDocument = gql`
     gameMembers {
       gameId
       userId
+      score
       userGameInfos {
         username
         avatarUrl
@@ -2115,6 +2277,7 @@ export const FindAllGamesDocument = gql`
     gameMembers {
       gameId
       userId
+      score
       userGameInfos {
         username
         avatarUrl
@@ -2484,6 +2647,7 @@ export const AllGamesStatsUpdatedDocument = gql`
     userScore
     opponentScore
     createdAt
+    isDeleted
   }
 }
     `;
@@ -2548,6 +2712,7 @@ export const FindAllGameStatsSoftLimitDocument = gql`
     userScore
     opponentScore
     createdAt
+    isDeleted
   }
 }
     `;
@@ -3043,34 +3208,6 @@ export function useFindPublicUsersListLazyQuery(options: VueApolloComposable.Use
   return VueApolloComposable.useLazyQuery<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>(FindPublicUsersListDocument, {}, options);
 }
 export type FindPublicUsersListQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindPublicUsersListQuery, FindPublicUsersListQueryVariables>;
-export const CheckPseudoDocument = gql`
-    query CheckPseudo($args: CheckPseudoInput!) {
-  checkPseudo(args: $args)
-}
-    `;
-
-/**
- * __useCheckPseudoQuery__
- *
- * To run a query within a Vue component, call `useCheckPseudoQuery` and pass it any options that fit your needs.
- * When your component renders, `useCheckPseudoQuery` returns an object from Apollo Client that contains result, loading and error properties
- * you can use to render your UI.
- *
- * @param variables that will be passed into the query
- * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
- *
- * @example
- * const { result, loading, error } = useCheckPseudoQuery({
- *   args: // value for 'args'
- * });
- */
-export function useCheckPseudoQuery(variables: CheckPseudoQueryVariables | VueCompositionApi.Ref<CheckPseudoQueryVariables> | ReactiveFunction<CheckPseudoQueryVariables>, options: VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<CheckPseudoQuery, CheckPseudoQueryVariables>(CheckPseudoDocument, variables, options);
-}
-export function useCheckPseudoLazyQuery(variables: CheckPseudoQueryVariables | VueCompositionApi.Ref<CheckPseudoQueryVariables> | ReactiveFunction<CheckPseudoQueryVariables>, options: VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<CheckPseudoQuery, CheckPseudoQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<CheckPseudoQuery, CheckPseudoQueryVariables>(CheckPseudoDocument, variables, options);
-}
-export type CheckPseudoQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<CheckPseudoQuery, CheckPseudoQueryVariables>;
 export const UsersPresenceUpdatedDocument = gql`
     subscription UsersPresenceUpdated($args: FindUserPresencesInput!) {
   usersPresenceUpdated(args: $args) {

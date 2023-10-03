@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/prisma/prisma.service'
-import { Prisma } from '@prisma/client'
+import { EChannelMemberType, Prisma } from '@prisma/client'
 
 @Injectable()
 export class ChannelMembersService {
@@ -15,6 +15,7 @@ export class ChannelMembersService {
       data,
       include: {
         user: true,
+        channel: true,
       },
     })
   }
@@ -29,6 +30,7 @@ export class ChannelMembersService {
       data,
       include: {
         user: true,
+        channel: true,
       },
     })
   }
@@ -36,6 +38,9 @@ export class ChannelMembersService {
   async delete(userId: string, channelId: string) {
     return await this.prisma.channelMember.delete({
       where: { channelId_userId: { userId, channelId } },
+      include: {
+        channel: true,
+      },
     })
   }
 
@@ -60,6 +65,30 @@ export class ChannelMembersService {
           userId,
         },
       },
+    })
+  }
+
+  async findOldestAdminForChannel(channelId: string) {
+    return await this.prisma.channelMember.findFirst({
+      where: {
+        channelId,
+        AND: {
+          type: EChannelMemberType.Admin,
+        },
+      },
+      orderBy: { createdAt: `asc` },
+    })
+  }
+
+  async findOldestMemberForChannel(channelId: string) {
+    return await this.prisma.channelMember.findFirst({
+      where: {
+        channelId,
+        AND: {
+          type: EChannelMemberType.Default,
+        },
+      },
+      orderBy: { createdAt: `asc` },
     })
   }
 }

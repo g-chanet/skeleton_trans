@@ -1,5 +1,5 @@
 <template>
-    <el-table v-loading="queryMembers.loading" :data="members" height="250" style="width: 100%">
+    <el-table :data="members" height="250" style="width: 100%">
         <el-table-column prop="name" label="Name" width="200" />
         <el-table-column prop="type" label="Type" width="100" />
         <el-table-column prop="muted" label="Muted" width="180" />
@@ -8,25 +8,32 @@
         <el-table-column label="Actions" fixed="right" width="200" :loading="loadingUpdate || loadingKick">
             <template #default="scope">
                 <el-tooltip effect="dark" content="Promote" placement="top"
-                    v-if="scope.row.type === EChannelMemberType.Default">
+                    v-if="scope.row.type === EChannelMemberType.Default && scope.row.type !== EChannelMemberType.Banned">
                     <el-button size="small" circle @click="promote(scope.$index, scope.row)"><font-awesome-icon
                             icon="angles-up" /></el-button>
                 </el-tooltip>
                 <el-tooltip effect="dark" content="Demote" placement="top"
-                    v-if="scope.row.type === EChannelMemberType.Admin">
+                    v-if="scope.row.type === EChannelMemberType.Admin && scope.row.type !== EChannelMemberType.Banned">
                     <el-button size="small" circle @click="demote(scope.$index, scope.row)"><font-awesome-icon
                             icon="angles-down" /></el-button>
                 </el-tooltip>
-                <el-tooltip effect="dark" content="Mute" placement="top" v-if="scope.row.type !== EChannelMemberType.Owner">
+                <el-tooltip effect="dark" content="Mute" placement="top"
+                    v-if="!scope.row.muted && scope.row.type !== EChannelMemberType.Owner && scope.row.type !== EChannelMemberType.Banned">
                     <el-button size="small" circle @click="mute(scope.$index, scope.row)"><font-awesome-icon
                             icon="comment-slash" /></el-button>
+                </el-tooltip>
+                <el-tooltip effect="dark" content="Unmute" placement="top"
+                    v-if="scope.row.muted && scope.row.type !== EChannelMemberType.Owner && scope.row.type !== EChannelMemberType.Banned">
+                    <el-button size="small" circle @click="unmute(scope.$index, scope.row)"><font-awesome-icon
+                            icon="comment" /></el-button>
                 </el-tooltip>
                 <el-tooltip effect="dark" content="Kick" placement="top" v-if="scope.row.type !== EChannelMemberType.Owner">
                     <el-button size="small" type="warning" circle @click="kick(scope.$index, scope.row)"><el-icon>
                             <CloseBold />
                         </el-icon></el-button>
                 </el-tooltip>
-                <el-tooltip effect="dark" content="Ban" placement="top" v-if="scope.row.type !== EChannelMemberType.Owner">
+                <el-tooltip effect="dark" content="Ban" placement="top"
+                    v-if="scope.row.type !== EChannelMemberType.Owner && scope.row.type !== EChannelMemberType.Banned">
                     <el-button size="small" type="danger" circle @click="ban(scope.$index, scope.row)"><font-awesome-icon
                             icon="ban" /></el-button>
                 </el-tooltip>
@@ -36,8 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { EChannelMemberType, useFindAllChannelMembersForChannelQuery, type Channel, type ChannelMember, useUpdateMemberForChannelMutation, useDeleteMemberForChannelMutation, useOnDeleteChannelMemberForChannelIdSubscription, useOnNewChannelMemberForChannelIdSubscription, useOnUpdateChannelMemberForChannelIdSubscription } from '@/graphql/graphql-operations'
-import { cacheUpsert, cacheDelete } from '@/utils/cacheUtils'
+import { EChannelMemberType, useFindAllChannelMembersForChannelQuery, type Channel, useUpdateMemberForChannelMutation, useDeleteMemberForChannelMutation } from '@/graphql/graphql-operations'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
 import { computed } from 'vue'
@@ -51,7 +57,7 @@ interface MemberForTable {
     id: string
     name: string
     type: EChannelMemberType
-    muted: string
+    muted: boolean
     createdAt: string
     updatedAt: string
 }
@@ -72,7 +78,7 @@ const members = computed(() => {
             id: member.user!.id,
             name: member.user!.username,
             type: member.type,
-            muted: moment(member.muted).fromNow(),
+            muted: member.muted,
             createdAt: moment(member.createdAt).fromNow(),
             updatedAt: moment(member.updatedAt).fromNow(),
         })
@@ -105,7 +111,17 @@ const mute = (index: number, row: MemberForTable) => {
         args: {
             channelId: props.channel.id,
             userId: row.id,
-            //mute:
+            muted: true
+        }
+    })
+}
+
+const unmute = (index: number, row: MemberForTable) => {
+    update({
+        args: {
+            channelId: props.channel.id,
+            userId: row.id,
+            muted: false
         }
     })
 }
@@ -150,6 +166,11 @@ onKickDone(() => {
         showClose: true,
         message: `Kick complete`,
         type: `success`
+    })
+    queryMembers.refetch({
+        args: {
+            channelId: props.channel.id
+        }
     })
 })
 

@@ -5,6 +5,7 @@ import { Channel } from './entities/channel.entity'
 import { PubSub } from 'graphql-subscriptions'
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard'
 import {
+  BadRequestException,
   Inject,
   UnauthorizedException,
   UseGuards,
@@ -18,6 +19,9 @@ import { ChannelMembersService } from 'src/channel-members/channel-members.servi
 const PUB_INSERT_CHANNEL = `onInsertChannel`
 const PUB_UPDATE_CHANNEL = `onUpdateChannel`
 const PUB_DELETE_CHANNEL = `onDeleteChannel`
+
+const PUB_INSERT_CHANNEL_MEMBER = `onInsertChannelMemberForChannelId`
+const PUB_INSERT_MY_CHANNEL_MEMBER = `onInsertMyChannelMemberForUserId`
 
 @Resolver(Channel)
 export class ChannelsResolver {
@@ -78,8 +82,17 @@ export class ChannelsResolver {
   //**************************************************//
 
   @Query(() => Channel)
-  async findChannel(@Args(`args`) args: DTO.FindChannelInput) {
-    return await this.channelsService.findOne(args.id)
+  async findChannel(
+    @CtxUser() user: User,
+    @Args(`args`) args: DTO.FindChannelInput,
+  ) {
+    const member = await this.channelMembersService.findOne(args.id, user.id)
+    if (member === null || member.type === EChannelMemberType.Banned) {
+      throw new BadRequestException(
+        `Unable to load the channel, you may not be a member of this channel or you are banned`,
+      )
+    }
+    return await this.channelsService.findOne(args.id, user.id)
   }
 
   @Query(() => [Channel])
@@ -88,13 +101,8 @@ export class ChannelsResolver {
   }
 
   @Query(() => [Channel])
-  async findAllPublicChannels(@CtxUser() user: User) {
-    return await this.channelsService.findAllPublic(user.id)
-  }
-
-  @Query(() => [Channel])
-  async findAllProtectedChannels(@CtxUser() user: User) {
-    return await this.channelsService.findAllProtected(user.id)
+  async findAllVisibleChannels(@CtxUser() user: User) {
+    return await this.channelsService.findAllVisible()
   }
 
   @Query(() => [Channel])
@@ -139,5 +147,43 @@ export class ChannelsResolver {
   })
   onDeleteChannel(@Args(`args`) args: DTO.OnChannelInput) {
     return this.pubSub.asyncIterator(PUB_DELETE_CHANNEL)
+  }
+
+  //**************************************************//
+  //  OTHER
+  //**************************************************//
+
+  @Mutation(() => Channel)
+  @UseGuards(GqlAuthGuard)
+  async sendDirectMessage(
+    @CtxUser() user: User,
+    @Args(`args`) args: DTO.SendDirectMessageInput,
+  ) {
+    const channel = await this.channelsService.findDirectChannelForUsers(
+      user.id,
+      args.otherUserId,
+    )
+    if (channel !== null) return channel
+    else {
+      const newChannel = await this.channelsService.create({
+        name: ``,
+        channelType: EChannelType.Direct,
+      })
+      const myMember = await this.channelMembersService.create({
+        channelId: newChannel.id,
+        userId: user.id,
+      })
+      const otherMember = await this.channelMembersService.create({
+        channelId: newChannel.id,
+        userId: args.otherUserId,
+      })
+      myMember.channel.name = otherMember.user.username
+      myMember.channel.avatarUrl = otherMember.user.avatarUrl
+      otherMember.channel.name = myMember.user.username
+      otherMember.channel.avatarUrl = myMember.user.avatarUrl
+      await this.pubSub.publish(PUB_INSERT_MY_CHANNEL_MEMBER, otherMember)
+      await this.pubSub.publish(PUB_INSERT_MY_CHANNEL_MEMBER, myMember)
+      return newChannel
+    }
   }
 }
