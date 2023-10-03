@@ -66,6 +66,7 @@ const ownGameIsCancelled = ref(false)
 const acceptedGameId = ref<string>('')
 const createdGameId = ref<string>('')
 const isNotificationOnAutoClose = ref(false)
+const isMatchmakingNotificationOpen = ref(false)
 const localMatchmakings = ref<GameMatchmakingMember[]>([])
 const localGames = ref<Game[]>([])
 
@@ -76,13 +77,16 @@ onMounted(async () => {
 })
 
 const openMatchMakingNotification = () => {
-  ElNotification({
+  if (!isMatchmakingNotificationOpen.value) {
+    ElNotification({
       position: 'bottom-right',
       title: `En recherche de partie`,
       message: 'Vous recherchez actuellement une partie, fermez cette notification pour annuler',
       onClose: onClosedSearchGameNotif,
       duration: 0
     })
+    isMatchmakingNotificationOpen.value = true
+  }
 }
 
 const openHostedPrivateGameNotification = () => {
@@ -174,6 +178,7 @@ gamesOnRes((res) => {
 
 //result for matchmaker query
 queryMatchmakersOnRes((res) => {
+  console.log('result for matchmakers called')
   let ret:GameMatchmakingMember[] = res.data.findAllGameMatchmakingMemberl
   localMatchmakings.value = ret
   if (loggedInUser.value && res.data.findAllGameMatchmakingMemberl.find((member) => member.userId == loggedInUser.value.id))
@@ -184,7 +189,6 @@ queryMatchmakersOnRes((res) => {
 
 //result for matchmaker subscription
 onResultsMatchMaker((res) => {
-  console.log('result for matchmakers called')
   const member = res.data?.matchmakingMembersChanged
   const tmp = [...localMatchmakings.value]
 
@@ -239,6 +243,7 @@ const onClosedSearchGameNotif = () => {
     .catch(() => {})
     ElMessage.success('vous avez quitté le matchmaking')
   }
+  isMatchmakingNotificationOpen.value = false
   isNotificationOnAutoClose.value = false
 }
 
@@ -282,11 +287,14 @@ onError(() => {
 onResult(async (res) => {
   console.log('result for loggedInUser!')
   if (await res.data.findMyUser.id) {
+    console.log('loggedInUser is present')
     loggedInUser.value = res.data.findMyUser
     if(loggedInUser.value) {
       provide('loggedInUser', loggedInUser)
       refetchGames()
-      refetchMahMakers()
+      if (!localMatchmakings.value.length) {
+        refetchMahMakers()
+      }
       setTimeout(() => {
       if (!route.fullPath.startsWith(`/app`))
         router.replace(`/app/home`)
