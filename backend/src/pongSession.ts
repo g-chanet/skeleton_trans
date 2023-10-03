@@ -184,7 +184,7 @@ export class PongSession {
       this._pongData.paddleA.y = newY
     if (this.findMyPlayerWitSocketId(socket.id) === this._pongData.playerB)
       this._pongData.paddleB.y = newY
-    throw new Error()
+    return
   }
 
   public setPlayerReady(socket: Socket) {

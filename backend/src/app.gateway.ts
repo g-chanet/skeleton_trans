@@ -70,6 +70,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const { roomId } = socket.data
     const pongSession = this.pongSessions.get(roomId)
     pongSession.setPlayerPosition(socket, position)
+    console.log(`SetPlayerPos`)
     this.server.to(roomId).emit(`updatePongData`, pongSession.pongData)
   }
 

@@ -966,7 +966,7 @@ export class Pong {
       const buttonText = new Konva.Text({
         x: buttonX + buttonWidth / 2,
         y: buttonY + buttonHeight / 2,
-        text: `REMATCH`,
+        text: `HOME`,
         fontSize: 20,
         fontFamily: `BaseRetroWave`,
         fill: `white`,
@@ -1200,7 +1200,7 @@ export class Pong {
       const buttonText = new Konva.Text({
         x: buttonX + buttonWidth / 2,
         y: buttonY + buttonHeight / 2,
-        text: `REMATCH`,
+        text: `HOME`,
         fontSize: 20,
         fontFamily: `BaseRetroWave`,
         fill: `white`,
