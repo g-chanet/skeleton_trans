@@ -52,17 +52,15 @@
 
 <script setup lang="ts">
 
-import { computed, onMounted, onUnmounted, inject, ref, provide } from "vue"
-import { useFindMyUserQuery,
-	useFindDailyGameRatiosQuery,
+import { computed, onMounted, onUnmounted, inject, ref, provide, type Ref } from "vue"
+import {
 	useFindGeneralGameStatsForUserQuery,
 	useFindAllGameStatsForUserQuery,
 	useFindAllRelationsForMyUserQuery,
 	EUserRealtionType,
 	useOnUserRelationsChangedSubscription,
-	type GameStat,
-	type GeneralUserGameStats,
 	type UserRelation,
+	type User
 } from '@/graphql/graphql-operations'
 import gameHistoryGraph from "./components/game-history-graph.vue"
 import newLastGameItem from "./components/newLastGameItem.vue"
@@ -74,8 +72,8 @@ import addFriendDialog from "./components/addFriendDialog.vue"
 const { result:resultForGeneralGameStat } = useFindGeneralGameStatsForUserQuery()
 const { result:resultForUserGameStatsQuery } = useFindAllGameStatsForUserQuery()
 const { onResult:onResultRelationsQuery, refetch:refetchRelations } = useFindAllRelationsForMyUserQuery()
-const loggedInUser = inject('loggedInUser')
-const { onResult: onResultRelationsSubscription, stop: userRelationsSubStop} = useOnUserRelationsChangedSubscription({userId: loggedInUser.value?.id})
+const loggedInUser = inject<Ref<User>>('loggedInUser')
+const { onResult: onResultRelationsSubscription} = useOnUserRelationsChangedSubscription({userId: loggedInUser.value?.id})
 const userGeneralStats = computed(() => resultForGeneralGameStat.value?.findGeneralGameStatsForUser)
 const userGameStats = computed(() => resultForUserGameStatsQuery.value?.findAllGameStatsForUser)
 const localUserRelations = ref<UserRelation[]>([])
