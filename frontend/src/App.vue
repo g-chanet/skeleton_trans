@@ -18,7 +18,7 @@
       <el-button @click="onAcceptedGame">Lancer la partie !</el-button>
       <el-button>Quitter la partie</el-button>
     </el-dialog>
-    <Background />
+    <!-- <Background /> -->
     <router-view class='app-body' v-if="!onConnectQuery" />
   </div>
 </template>
@@ -48,8 +48,8 @@ const acceptedGame = ref<Game>()
 const onConnectQuery = ref(true)
 const gameLaunched = ref(false)
 const { onResult, onError, loading, refetch: refetchLoggedInUser } = useFindMyUserQuery()
-const { onResult: queryGamesOnRes } = useFindAllGamesQuery()
-const { onResult: queryMatchmakersOnRes } = useFindAllGameMatchmakingMemberlQuery()
+const { onResult: queryGamesOnRes, refetch: refetchGames } = useFindAllGamesQuery()
+const { onResult: queryMatchmakersOnRes, refetch: refetchMahMakers } = useFindAllGameMatchmakingMemberlQuery()
 const { onResult:gamesOnRes } = useAllGamesUpdatedSubscription()
 const { mutate:joinGameMutate } = useJoinGameMutation()
 const { mutate:leaveGameMutate } = useLeaveGameMutation()
@@ -71,8 +71,7 @@ const localGames = ref<Game[]>([])
 
 onMounted(async () => {
   console.log("app.vue is mounted")
-  console.log(loggedInUser.value)
-  await refetchLoggedInUser()
+  //await refetchLoggedInUser()
   console.log(loggedInUser.value)
 })
 
@@ -185,6 +184,7 @@ queryMatchmakersOnRes((res) => {
 
 //result for matchmaker subscription
 onResultsMatchMaker((res) => {
+  console.log('result for matchmakers called')
   const member = res.data?.matchmakingMembersChanged
   const tmp = [...localMatchmakings.value]
 
@@ -280,14 +280,19 @@ onError(() => {
 
 
 onResult(async (res) => {
-  console.log('result !')
+  console.log('result for loggedInUser!')
   if (await res.data.findMyUser.id) {
     loggedInUser.value = res.data.findMyUser
-    setTimeout(() => {
-    if (!route.fullPath.startsWith(`/app`))
-      router.replace(`/app/home`)
-    onConnectQuery.value = false
+    if(loggedInUser.value) {
+      provide('loggedInUser', loggedInUser)
+      refetchGames()
+      refetchMahMakers()
+      setTimeout(() => {
+      if (!route.fullPath.startsWith(`/app`))
+        router.replace(`/app/home`)
+      onConnectQuery.value = false
   }, 500)
+    }
 }
 else {
   router.replace(`/login`)
@@ -307,11 +312,12 @@ const onAcceptedGame = () => {
   showAcceptedGameDialog.value = false
   router.replace(`/app/game/online/${acceptedGame.value?.id}`)
 }
+provide('loggedInUser', loggedInUser)
 provide('matchmakingsSub', usersOnmatchmaking)
 provide('localMatchmakings', localMatchmakings)
 provide('localGames', localGames)
-provide('loggedInUser', loggedInUser)
 provide('mustDiplayMatchmakingDialog', mustDiplayMatchmakingDialog)
+provide('refetchUser', refetchLoggedInUser as () => void)
 
 </script>
 

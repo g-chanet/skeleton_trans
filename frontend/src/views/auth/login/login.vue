@@ -37,13 +37,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { useSignInLocalMutation } from '@/graphql/graphql-operations'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { useFindMyUserQuery } from '@/graphql/graphql-operations'
 
+const refetchLoggedInUser = inject<() => void>('refetchUser')
 const router = useRouter()
 const { mutate, onDone, onError } = useSignInLocalMutation()
+
 
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)
@@ -97,10 +100,15 @@ const onSubmitForm = () => {
   mutate({ args: form.value }).then((res) => {
     if (res && res.data && res.data.signInLocal.id) {
       console.log('response ok')
-      router.push(`/app/home`)
     }
     if (res)
     {
+      if (res.data?.signInLocal.id) {
+        console.log("received id after connection")
+        if (refetchLoggedInUser) {
+          refetchLoggedInUser()
+        }
+      }
       console.log('response !')
       console.log(res)
     }

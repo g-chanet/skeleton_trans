@@ -90,6 +90,7 @@ export class GameMatchmakingMembersResolver {
   //**************************************************//
 
   @Query(() => [GameMatchmakingMember])
+  @UseGuards(GqlAuthGuard)
   async findAllGameMatchmakingMemberl() {
     return await this.gameMatchmakingMembersService.findAll()
   }

@@ -173,17 +173,20 @@ export class GamesResolver {
   //**************************************************//
 
   @Query(() => [GameStat])
+  @UseGuards(GqlAuthGuard)
   async findAllGameStatsSoftLimit() {
     const gameStats = await this.gamesService.findManyGameStatsSoftLimit(20)
     return gameStats
   }
 
   @Query(() => [Game])
+  @UseGuards(GqlAuthGuard)
   async findAllGames() {
     return await this.gamesService.findAll()
   }
 
   @Query(() => Game)
+  @UseGuards(GqlAuthGuard)
   async findGame(gameId) {
     return await this.gamesService.findOne(gameId)
   }
