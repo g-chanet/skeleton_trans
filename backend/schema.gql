@@ -141,8 +141,8 @@ enum EChannelMemberType {
 }
 
 type UserRelation {
-  id: ID!
-  userOwnerId: String!
+  userOwnerId: ID!
+  userTarget: UserPublic!
   userTargetId: String!
   type: EUserRealtionType!
   createdAt: DateTime!
@@ -173,6 +173,7 @@ type Query {
   findPublicGameInfosForUser(userid: String!): UserPublicGameInfos!
   findUserPresences(args: FindUserPresencesInput!): [UserPresence!]!
   findAllRelationsForMyUser: [UserRelation!]!
+  findAllFriendsForUser: [UserRelation!]!
   findChannel(args: FindChannelInput!): Channel!
   findAllChannels: [Channel!]!
   findAllVisibleChannels: [Channel!]!
@@ -235,6 +236,7 @@ type Mutation {
   updateChannel(args: UpdateChannelInput!): Channel!
   deleteChannel(args: DeleteChannelInput!): Channel!
   sendDirectMessage(args: SendDirectMessageInput!): Channel!
+  createMyMemberForChannel(args: CreateMyMemberForChannelInput!): ChannelMember!
   createMemberForChannel(args: CreateMemberForChannelInput!): ChannelMember!
   updateMemberForChannel(args: UpdateMyMemberForChannelInput!): ChannelMember!
   deleteMemberForChannel(args: DeleteMemberForChannelInput!): ChannelMember!
@@ -307,10 +309,15 @@ input SendDirectMessageInput {
   otherUserId: String!
 }
 
-input CreateMemberForChannelInput {
+input CreateMyMemberForChannelInput {
   channelId: String!
   channelPassword: String
   type: EChannelMemberType
+}
+
+input CreateMemberForChannelInput {
+  channelId: String!
+  userId: String!
 }
 
 input UpdateMyMemberForChannelInput {

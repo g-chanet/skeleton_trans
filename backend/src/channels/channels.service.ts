@@ -78,6 +78,9 @@ export class ChannelsService {
         },
         AND: { NOT: { channelType: EChannelType.Direct } },
       },
+      include: {
+        channelMembers: { include: { user: true } },
+      },
     })
   }
 
@@ -101,7 +104,7 @@ export class ChannelsService {
 
   async checkChannelName(name: string) {
     const found = await this.prisma.channel.findFirst({ where: { name } })
-    return found === null
+    return found !== null
   }
 
   //**************************************************//

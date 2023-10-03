@@ -5,7 +5,7 @@ import { PubSub } from 'graphql-subscriptions'
 
 @Injectable()
 export class UserPresencesService {
-  constructor(private prisma: PrismaService, private readonly pubSub: PubSub) { }
+  constructor(private prisma: PrismaService, private readonly pubSub: PubSub) {}
   //**************************************************//
   //  MUTATION
   //**************************************************//

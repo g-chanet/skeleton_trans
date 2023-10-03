@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, ref } from 'vue'
+import { computed, h, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { router } from '@/router'
 import {
@@ -56,6 +56,10 @@ const visibleQuery = useFindAllVisibleChannelsQuery()
 
 const createDialog = ref(false)
 const joinDialog = ref(false)
+
+onMounted(() => {
+    query.refetch({})
+})
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const onSelectChannelInList = ({ id }: Channel, _value: string) => {

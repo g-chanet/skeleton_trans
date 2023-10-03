@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { useCreateMemberForChannelMutation, useFindAllVisibleChannelsQuery, type Channel, useFindAllChannelsForUserQuery, useFindMyUserQuery, useOnCreateChannelSubscription, useFindChannelQuery } from '@/graphql/graphql-operations'
+import { useCreateMyMemberForChannelMutation, useFindAllVisibleChannelsQuery, type Channel, useFindAllChannelsForUserQuery, useFindMyUserQuery, useOnCreateChannelSubscription, useFindChannelQuery } from '@/graphql/graphql-operations'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -46,7 +46,7 @@ const excludeChannels = computed(() => {
 })
 
 const visibleQuery = useFindAllVisibleChannelsQuery()
-const { mutate: mutateChannelMember, onDone: memberCreated, onError: createMemberError } = useCreateMemberForChannelMutation({})
+const { mutate: mutateChannelMember, onDone: memberCreated, onError: createMemberError } = useCreateMyMemberForChannelMutation({})
 
 useOnCreateChannelSubscription({}).onResult(({ data }) => {
   cacheUpsert(visibleQuery, data?.onCreateChannel)
@@ -71,7 +71,7 @@ const onSelectChannel = (channel: Channel, password: string) => {
         channelPassword: password,
       }
     }).then((args) => {
-      router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId } })
+      router.replace({ query: { channelId: args?.data?.createMyMemberForChannel.channelId } })
     })
   }
 }

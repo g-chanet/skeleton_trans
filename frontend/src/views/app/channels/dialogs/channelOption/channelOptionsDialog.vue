@@ -11,6 +11,9 @@
             <el-tab-pane label="Manage members" name="third">
                 <TabMembers v-if="channel" :channel="channel" />
             </el-tab-pane>
+            <el-tab-pane label="Add members" name="fourth">
+                <TabAdd v-if="channel" :channel="channel" />
+            </el-tab-pane>
         </el-tabs>
     </el-dialog>
 </template>
@@ -22,6 +25,7 @@ import { useFindChannelQuery } from '@/graphql/graphql-operations'
 import TabDetails from './channelOptionsDialog_Details.vue'
 import TabVisibility from './channelOptionsDialog_Visibility.vue'
 import TabMembers from './channelOptionsDialog_Members.vue'
+import TabAdd from './channelOptionsDialog_Add.vue'
 
 const props = defineProps<{
     modelValue: boolean

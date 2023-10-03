@@ -1,22 +1,29 @@
 <template>
   <div class="channel-item-container">
-    <el-image style="width: 42px; height: 100%;  border-radius: 100%; margin-right: 2%;"
-      :src="props.channel.avatarUrl"></el-image>
-    <div class="channel-description">
-      <div class="channel-name">
-        {{ channel.name }}
+    <div style="display: flex; flex-direction: row; align-items: center;">
+      <el-avatar :src="props.channel.avatarUrl"></el-avatar>
+      <div class=" channel-description">
+        <div class="channel-name">
+          {{ channel.name }}
+        </div>
+        {{ channel.channelType }}
       </div>
-      {{ channel.channelType }}
+    </div>
+    <div>
+      {{ queryMembers.result.value?.findAllChannelMembersForChannel.length }}
+      <el-icon>
+        <User />
+      </el-icon>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { type Channel, useOnDeleteChannelSubscription, useFindAllChannelsForUserQuery, useOnUpdateChannelSubscription } from '@/graphql/graphql-operations'
+import { type Channel, useOnDeleteChannelSubscription, useFindAllChannelsForUserQuery, useOnUpdateChannelSubscription, useFindAllChannelMembersForChannelQuery } from '@/graphql/graphql-operations'
 import { router } from '@/router'
 import { cacheDelete, cacheUpsert } from '@/utils/cacheUtils'
 import { ElNotification } from 'element-plus'
-import { h } from 'vue'
+import { computed, h, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -48,6 +55,12 @@ useOnUpdateChannelSubscription(({ args: { id: props.channel.id } })).onResult(({
   })
 })
 
+const queryMembers = useFindAllChannelMembersForChannelQuery({
+  args: {
+    channelId: props.channel.id
+  }
+})
+
 </script>
 
 <style scoped lang="sass">
@@ -55,6 +68,7 @@ useOnUpdateChannelSubscription(({ args: { id: props.channel.id } })).onResult(({
   padding: 10px
   height: 42px
   display: flex
+  justify-content: space-between
   align-items: center
   margin: 10px
   border-radius: var(--el-border-radius-base)

@@ -1,14 +1,11 @@
-import { Module } from '@nestjs/common'
+import { Module, forwardRef } from '@nestjs/common'
 import { UserRelationsService } from './user-relations.service'
 import { UserRelationsResolver } from './user-relations.resolver'
-import { UserPresencesService } from 'src/user-presences/user-presences.service'
+import { ChannelsModule } from 'src/channels/channels.module'
 
 @Module({
-  providers: [
-    UserRelationsResolver,
-    UserRelationsService,
-    UserPresencesService,
-  ],
-  imports: [],
+  providers: [UserRelationsResolver, UserRelationsService],
+  exports: [UserRelationsService],
+  imports: [forwardRef(() => ChannelsModule)],
 })
-export class UserRelationsModule { }
+export class UserRelationsModule {}

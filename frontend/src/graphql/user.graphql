@@ -111,7 +111,3 @@ query FindPublicUsersList {
     avatarUrl
   }
 }
-
-query CheckPseudo($args: CheckPseudoInput!) {
-  checkPseudo(args: $args)
-}

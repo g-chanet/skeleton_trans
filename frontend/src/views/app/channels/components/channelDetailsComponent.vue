@@ -21,7 +21,7 @@
             class="members-scroll">
             <div style="display: flex; flex-direction: column; justify-content: space-evenly;">
               <div>
-                {{ item.user.username }}
+                {{ item.user?.username }}
               </div>
               <div style="color: white; font-size: small;">
                 {{ item.type.toString() }}
@@ -62,7 +62,7 @@ import { computed, h, ref } from 'vue'
 import moment from "moment"
 import { useRouter } from 'vue-router'
 import { cacheDelete, cacheUpsert } from '@/utils/cacheUtils'
-import { ElNotification } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 
 const router = useRouter()
 const { result: myUser } = useFindMyUserQuery()
@@ -163,7 +163,7 @@ interface MemberForTable {
 const isOwner = computed(() => queryMyMemberForChannel.result.value?.findMyChannelMemberForChannel.type === EChannelMemberType.Owner)
 const isAdmin = computed(() => queryMyMemberForChannel.result.value?.findMyChannelMemberForChannel.type === EChannelMemberType.Admin)
 
-const { mutate: sendDirectMessage } = useSendDirectMessageMutation({})
+const { mutate: sendDirectMessage, onError: onErrorSendingDirectMessage } = useSendDirectMessageMutation({})
 
 const directMessage = (userId: string) => {
   sendDirectMessage({
@@ -174,6 +174,13 @@ const directMessage = (userId: string) => {
     router.replace({ query: { channelId: args?.data?.sendDirectMessage.id } })
   })
 }
+
+onErrorSendingDirectMessage((e) => {
+  ElMessage({
+    message: e.message,
+    type: 'warning',
+  })
+})
 
 const pushPublicProfile = (userId: string) => {
   router.push(`/app/publicprofile`).then(() =>

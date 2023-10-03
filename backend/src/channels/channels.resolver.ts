@@ -13,8 +13,13 @@ import {
 } from '@nestjs/common'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User } from 'src/users/entities/user.entity'
-import { EChannelMemberType, EChannelType } from '@prisma/client'
+import {
+  EChannelMemberType,
+  EChannelType,
+  EUserRelationType,
+} from '@prisma/client'
 import { ChannelMembersService } from 'src/channel-members/channel-members.service'
+import { UserRelationsService } from 'src/user-relations/user-relations.service'
 
 const PUB_INSERT_CHANNEL = `onInsertChannel`
 const PUB_UPDATE_CHANNEL = `onUpdateChannel`
@@ -29,6 +34,8 @@ export class ChannelsResolver {
     private readonly channelsService: ChannelsService,
     @Inject(forwardRef(() => ChannelMembersService))
     private readonly channelMembersService: ChannelMembersService,
+    @Inject(forwardRef(() => UserRelationsService))
+    private readonly userRelationsService: UserRelationsService,
     private readonly pubSub: PubSub,
   ) {}
 
@@ -82,6 +89,7 @@ export class ChannelsResolver {
   //**************************************************//
 
   @Query(() => Channel)
+  @UseGuards(GqlAuthGuard)
   async findChannel(
     @CtxUser() user: User,
     @Args(`args`) args: DTO.FindChannelInput,
@@ -96,21 +104,25 @@ export class ChannelsResolver {
   }
 
   @Query(() => [Channel])
+  @UseGuards(GqlAuthGuard)
   async findAllChannels() {
     return await this.channelsService.findAll()
   }
 
   @Query(() => [Channel])
+  @UseGuards(GqlAuthGuard)
   async findAllVisibleChannels(@CtxUser() user: User) {
     return await this.channelsService.findAllVisible()
   }
 
   @Query(() => [Channel])
+  @UseGuards(GqlAuthGuard)
   async findAllChannelsForUser(@CtxUser() user: User) {
     return await this.channelsService.findAllForUser(user.id)
   }
 
   @Query(() => Boolean)
+  @UseGuards(GqlAuthGuard)
   async checkChannelName(@Args(`args`) args: DTO.CheckChannelInput) {
     return await this.channelsService.checkChannelName(args.channelName)
   }
@@ -159,6 +171,24 @@ export class ChannelsResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.SendDirectMessageInput,
   ) {
+    const targetedRelation = await this.userRelationsService.findOne(
+      args.otherUserId,
+      user.id,
+    )
+    if (
+      targetedRelation !== null &&
+      targetedRelation.type === EUserRelationType.Blocked
+    )
+      throw new UnauthorizedException(`This user blocked you`)
+    const ownedRelation = await this.userRelationsService.findOne(
+      user.id,
+      args.otherUserId,
+    )
+    if (
+      ownedRelation !== null &&
+      ownedRelation.type === EUserRelationType.Blocked
+    )
+      throw new UnauthorizedException(`You blocked this user`)
     const channel = await this.channelsService.findDirectChannelForUsers(
       user.id,
       args.otherUserId,

@@ -34,7 +34,8 @@ import {
 	EChannelType,
 	useCheckChannelNameQuery,
 	useCreateChannelMutation,
-	useCreateMemberForChannelMutation
+	useCreateMyMemberForChannelMutation,
+	useFindAllChannelsForUserQuery
 } from '@/graphql/graphql-operations'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -53,8 +54,10 @@ const dialog = computed({
 	}
 })
 
+const query = useFindAllChannelsForUserQuery({})
+
 const { mutate: mutateChannel, onError: createChannelError } = useCreateChannelMutation({})
-const { mutate: mutateChannelMember } = useCreateMemberForChannelMutation({})
+const { mutate: mutateChannelMember } = useCreateMyMemberForChannelMutation({})
 
 const router = useRouter()
 
@@ -154,7 +157,7 @@ const onCreateChannel = () => {
 				})
 			)
 			.then((args) => {
-				router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId } })
+				router.replace({ query: { channelId: args?.data?.createMyMemberForChannel.channelId } })
 			})
 	}
 	//Public & Private
@@ -174,9 +177,10 @@ const onCreateChannel = () => {
 				})
 			)
 			.then((args) => {
-				router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId } })
+				router.replace({ query: { channelId: args?.data?.createMyMemberForChannel.channelId } })
 			})
 	}
+	query.refetch()
 	dialog.value = false
 }
 

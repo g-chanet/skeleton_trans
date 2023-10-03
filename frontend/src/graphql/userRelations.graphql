@@ -1,89 +1,109 @@
 query FindAllRelationsForMyUser {
-    findAllRelationsForMyUser {
-        userOwnerId
-        userTargetId
-        type
-        createdAt
-        updatedAt
-        friendInfos {
-            username
-            avatarUrl
-            ratio
-        }
+  findAllRelationsForMyUser {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+    friendInfos {
+      username
+      avatarUrl
+      ratio
     }
+  }
 }
 
-mutation CreateRequestFriend($args: CreateRequestFriendInput! ) {
-    createRequestFriend(args: $args) {
-        userOwnerId
-        userTargetId
-        type
-        createdAt
-        updatedAt
-    }
+mutation CreateRequestFriend($args: CreateRequestFriendInput!) {
+  createRequestFriend(args: $args) {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
 }
 
 mutation AcceptFriendRequest($args: UpdateUserRelationInput!) {
-    acceptFriendRequest(args: $args) {
-        userOwnerId
-        userTargetId
-        type
-        createdAt
-        updatedAt
-    }
+  acceptFriendRequest(args: $args) {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
 }
 
 mutation RefuseFriendRequest($args: UpdateUserRelationInput!) {
-    refuseFriendRequest(args: $args) {
-        userOwnerId
-        userTargetId
-        type
-        createdAt
-        updatedAt
-    }
+  refuseFriendRequest(args: $args) {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
 }
 
 mutation RemoveFriend($args: UpdateUserRelationInput!) {
-    removeFriend(args: $args) {
-        userOwnerId
-        userTargetId
-        type
-        createdAt
-        updatedAt
-    }
+  removeFriend(args: $args) {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
 }
 
 mutation BlockRelation($userTargetId: String!) {
-    blockRelation(args: {userTargetid: $userTargetId}) {
-        userOwnerId
-        userTargetId
-        type
-        createdAt
-        updatedAt
-    }
+  blockRelation(args: { userTargetid: $userTargetId }) {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
 }
 
 mutation UnblockRelation($userTargetId: String!) {
-    unblockRelation(args: {userTargetid: $userTargetId}) {
-        userOwnerId
-        userTargetId
-        type
-        createdAt
-        updatedAt
-    }
+  unblockRelation(args: { userTargetid: $userTargetId }) {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+  }
 }
 
 subscription onUserRelationsChanged($userId: String!) {
   userRelationsChanged(userId: $userId) {
-   		userOwnerId
-        userTargetId
-        type
-        createdAt
-        updatedAt
-        friendInfos {
-            username
-            avatarUrl
-            ratio
-        }
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+    friendInfos {
+      username
+      avatarUrl
+      ratio
+    }
+  }
+}
+
+query FindAllFriendsForUser {
+  findAllFriendsForUser {
+    userOwnerId
+    userTargetId
+    type
+    createdAt
+    updatedAt
+    userTarget {
+      id
+      username
+      avatarUrl
+    }
+    friendInfos {
+      username
+      avatarUrl
+      ratio
+    }
   }
 }

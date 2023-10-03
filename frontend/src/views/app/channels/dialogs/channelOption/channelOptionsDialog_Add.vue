@@ -1,0 +1,89 @@
+<template>
+    <el-scrollbar height="250">
+        <ItemFriend v-for="user in visibleUsers" :key="user.userTargetId" :user="user.userTarget"
+            :onAddMember="onAddMember" />
+    </el-scrollbar>
+</template>
+
+<script setup lang="ts">
+import { useFindAllFriendsForUserQuery, type Channel, useFindAllChannelMembersForChannelQuery, type UserRelation, useCreateMemberForChannelMutation, useOnUserRelationsChangedSubscription, useFindMyUserQuery, type UserPublic, useOnUpdateChannelMemberForChannelIdSubscription, useOnDeleteChannelMemberForChannelIdSubscription, useOnNewChannelMemberForChannelIdSubscription } from '@/graphql/graphql-operations'
+import { ElMessage } from 'element-plus'
+import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import ItemFriend from './addMemberListItemComponent.vue'
+
+const props = defineProps<{
+    channel: Channel,
+}>()
+
+const router = useRouter()
+const { result: myUser } = useFindMyUserQuery({})
+const queryMembers = useFindAllChannelMembersForChannelQuery({
+    args: {
+        channelId: props.channel.id
+    }
+})
+
+const excludeUsers = computed(() => {
+    const array: string[] = []
+    queryMembers.result.value?.findAllChannelMembersForChannel.forEach((element) => {
+        array.push(element.userId)
+    })
+    return array
+})
+
+const { result: visibleQuery, refetch, onResult, onError } = useFindAllFriendsForUserQuery({})
+
+const { mutate: mutateChannelMember, onDone: memberCreated, onError: createMemberError } = useCreateMemberForChannelMutation({})
+
+useOnUserRelationsChangedSubscription(({ userId: myUser.value!.findMyUser.id })).onResult(() => {
+    refetch()
+})
+
+const visibleUsers = computed(() => {
+    console.log(visibleQuery.value?.findAllFriendsForUser)
+    return visibleQuery.value?.findAllFriendsForUser.filter(checkUserId)
+})
+
+function checkUserId(userRelation: UserRelation) {
+    return !excludeUsers.value.includes(userRelation.userTarget.id)
+}
+
+const onAddMember = (user: UserPublic) => {
+    mutateChannelMember({
+        args: {
+            channelId: props.channel.id,
+            userId: user.id
+        }
+    })
+}
+
+createMemberError((e) => {
+    ElMessage({
+        showClose: true,
+        message: e.message,
+        type: `error`
+    })
+})
+
+
+</script>
+
+<style scoped lang="sass">
+
+.dialog-header
+  display: flex
+  align-items: center
+  justify-content: center
+
+.dialog-body
+  display: flex
+  flex-direction: row
+
+.channels
+  display: flex
+  flex-direction: column
+  width: 100%
+
+
+</style>

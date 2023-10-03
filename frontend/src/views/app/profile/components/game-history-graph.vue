@@ -1,11 +1,11 @@
 <template>
-	<div style="display: flex; width:100%">
-    <el-empty v-if="!loading && !error &&!gameRatios.length" style="display: flex; width:100%" description="il n'y a rien à voir ici">
-      <el-button v-if="loggedInUser && userIdProp === loggedInUser.id" @click="generateFakeGameStats()" type="primary">Simuler des données</el-button>
+  <div style="display: flex; width:100%">
+    <el-empty v-if="!loading && !error && !gameRatios.length" style="display: flex; width:100%"
+      description="il n'y a rien à voir ici">
+      <el-button v-if="loggedInUser && userIdProp === loggedInUser.id" type="primary">Simuler des données</el-button>
     </el-empty>
-		<div v-if="loading">Loading...</div>
-    <Line v-if="!loading && !error && gameRatios.length" :data="chartDataComputed" :options="options"/>
-	</div>
+    <div v-if="loading">Loading...</div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -23,7 +23,7 @@ import {
   TimeScale
 } from 'chart.js'
 import 'chartjs-adapter-moment'
-import { useFindPublicDailyGameRatiosQuery,type DailyGameRatios, useFindMyUserQuery, useInjectFalseGameStatDataMutation } from '@/graphql/graphql-operations'
+import { useFindPublicDailyGameRatiosQuery, type DailyGameRatios, useFindMyUserQuery } from '@/graphql/graphql-operations'
 import { Line } from "vue-chartjs"
 
 const props = defineProps({
@@ -36,16 +36,8 @@ const userIdProp = toRef(props, 'userId')
 const gameRatios = ref<DailyGameRatios[]>([])
 
 const { result, loading, error, refetch } = useFindPublicDailyGameRatiosQuery({ userid: userIdProp.value })
-const { result:resultformyuser } = useFindMyUserQuery()
+const { result: resultformyuser } = useFindMyUserQuery()
 const loggedInUser = computed(() => resultformyuser.value?.findMyUser)
-const { mutate:generateFakeGameStatsmutate } = useInjectFalseGameStatDataMutation()
-
-const generateFakeGameStats = async () => {
-	await generateFakeGameStatsmutate().then(() => {
-		ElMessage.success(`De fausses données de jeu ont bien été générées`)
-		return true
-	})
-}
 
 watch(result, newResult => {
   console.log("Result Value:", newResult)
@@ -122,6 +114,4 @@ const options = {
 </script>
 
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>
