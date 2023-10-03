@@ -102,7 +102,6 @@ const openInvitedPrivateGameNotification = () => {
   })
 }
 
-
 const onAcceptedGameInvitation = () => {
   router.replace(`/app/home`)
   ElNotification.closeAll()
@@ -175,7 +174,6 @@ queryMatchmakersOnRes((res) => {
   localMatchmakings.value = ret
   if (loggedInUser.value && res.data.findAllGameMatchmakingMemberl.find((member) => member.userId == loggedInUser.value.id)) {
     openMatchMakingNotification()
-
   }
 })
 

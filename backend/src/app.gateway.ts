@@ -44,6 +44,25 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`disconnection socket App`, socket.id, args)
   }
 
+  @SubscribeMessage(`changedPage`)
+  userChangedPageDisconnect(socket: Socket, ...args: any[]) {
+    const { roomId } = socket.data
+    if (roomId === undefined) return
+    const pongSession = this.pongSessions.get(roomId)
+    if (pongSession) {
+      pongSession.playerLeave(socket)
+      if (pongSession.gameIsEmpty) this.pongSessions.delete(roomId)
+      socket.leave(roomId)
+      socket.data.roomID = undefined
+      pongSession.gameOverDisconnect()
+      this.server.to(roomId).emit(`updatePongData`, pongSession.pongData)
+    }
+    console.log(
+      `A user changed page and is no longer in game, has been disconnected`,
+      args,
+    )
+  }
+
   /*------------  GAME ACTIONS ------------*/
 
   @SubscribeMessage(`setPlayerPosition`)

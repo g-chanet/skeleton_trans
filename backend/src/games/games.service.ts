@@ -9,7 +9,7 @@ import { randomInt } from 'crypto'
 
 @Injectable()
 export class GamesService {
-  constructor(private prisma: PrismaService, private readonly pubSub: PubSub) { }
+  constructor(private prisma: PrismaService, private readonly pubSub: PubSub) {}
 
   //**************************************************//
   //  GAME DATA

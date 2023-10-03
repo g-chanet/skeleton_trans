@@ -70,4 +70,12 @@ const router = createRouter({
   routes,
 })
 
+// GameDisconnect event on router proc --- Trouver comment socket.emit si route != gameOnline
+// router.beforeEach((to, from, next) => {
+//   if (from.name === 'gameOnline') {
+//   }
+
+//   next()
+// })
+
 export { router }

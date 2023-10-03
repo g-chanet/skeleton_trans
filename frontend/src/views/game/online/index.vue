@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { io } from 'socket.io-client'
-import { onMounted, ref, onUnmounted } from 'vue'
+import { onMounted, ref, onUnmounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import PongDisplay from "./game.vue"
 import { ElMessage } from 'element-plus'
@@ -21,6 +21,20 @@ onMounted(() => {
 
 onUnmounted(() => {
   socket.emit(`leaveRoom`)
+})
+
+onBeforeUnmount(() => {
+  socket.emit('changedPage')
+}),
+
+window.addEventListener('beforeUnmount', (event) => {
+  socket.emit('changedPage')
+  console.log(event)
+})
+
+window.addEventListener('dismount', (event) => {
+  // Emit a socket event to inform the server that the user is unloading the page
+  socket.emit('changedPage')
 })
 
 socket.on(`joinRoomSuccess`, (data: PongData) => {

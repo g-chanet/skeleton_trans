@@ -70,15 +70,32 @@ const resetForm = (formEl: FormInstance | undefined) => {
 }
 
 const validatePass = (rule: any, value: any, callback: any) => {
+  const MIN_LENGTH = /^.{8,}$/
+  const MAX_LENGTH = /^.{0,256}$/
+  const HAVE_UPPER = /(?=.*[A-Z]*)/
+  const HAVE_LOWER = /(?=.*[a-z]*)/
+  const HAVE_DIGIT = /(?=.*\d*)/
   if (value === '') {
-    callback(new Error('Enter your password'))
+    callback(new Error('Enter your password.'))
   } else {
-    if (signupForm.retypePassword !== '') {
-      if (!signupFormRef.value) return
-      signupFormRef.value.validateField('checkPass', () => null)
+    if (!MIN_LENGTH.test(value)) {
+      callback(new Error('Password needs to be atleast 8 characters long.'))
+    }
+    if (!MAX_LENGTH.test(value)) {
+      callback(new Error('Password cannot exceed 256 characters.'))
+    }
+    if (!HAVE_UPPER.test(value)) {
+      callback(new Error('Password must contain at least one uppercase character.'))
+    }
+    if (!HAVE_LOWER.test(value)) {
+      callback(new Error('Password must contain at least one lowercase character.'))
+    }
+    if (!HAVE_DIGIT.test(value)) {
+      callback(new Error('Password must contain at least one digit.'))
     }
     callback()
   }
+  //fix
 }
 
 const validatePass2 = (rule: any, value: any, callback: any) => {
@@ -129,7 +146,7 @@ const rules = reactive<FormRules<ruleForm>>({
   ],
   password: [
     { required: true },
-    { min: 6, max: 15, message: 'Your password must be between 6 and 15 characters long!', trigger: 'blur' },
+    // { min: 6, max: 15, message: 'Your password must be between 8 and 16 characters long!', trigger: 'blur' },
     { validator: validatePass, trigger: 'blur' }
   ],
   retypePassword: [
@@ -138,6 +155,7 @@ const rules = reactive<FormRules<ruleForm>>({
   ]
 })
 
+//ne pas redirect si form !validate
 const submitForm = async () => {
 	if (!signupFormRef.value) return
 	await signupFormRef.value.validate((valid) => {
@@ -145,6 +163,10 @@ const submitForm = async () => {
 			mutate({args: {email: signupForm.email, username: signupForm.pseudo, password: signupForm.password}})
       .then((res) => {
         console.log(res?.data)
+        pushLogin()
+      })
+      .catch((error) => {
+        ElMessage.error(error.message)
       })
 		} else {
 			ElMessage({

@@ -67,7 +67,7 @@
   <style scoped lang="sass">
 
 .dialog
-	display:flex
+	display: flex
 	justify-content: center
 	align-items: center
 .loading-image
@@ -79,7 +79,6 @@
 .photo-container
 	display: flex
 	justify-content: center
-	font
 
 .title
 	display: flex

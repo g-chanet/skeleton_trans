@@ -6,6 +6,7 @@ export type DeepReadonlyObject<T> = {
   readonly [P in keyof T]: DeepReadonly<T[P]>
 }
 /* Imports de totor */
+// try/catch NEST 12220 ERROR (sockets)
 
 export interface PongPlayer {
   socketId: string
@@ -134,6 +135,7 @@ export class PongSession {
   }
 
   public async setGameFinishedAbrubtly(): Promise<void> {
+    // proc aussi quand user quitte la page -> Dashboard
     this._pongData.gameDone = true
     try {
       await this.gameService.endGameOnFailure(this.roomId)
@@ -373,7 +375,7 @@ export class PongSession {
       this.updateScore()
     } else if (
       this._pongData.ball.position.x + this._pongData.ball.radius >=
-      this._pongData.stageWidth &&
+        this._pongData.stageWidth &&
       this._pongData.playerA
     ) {
       const playerAId = this._pongData.playerA.socketId
@@ -411,6 +413,7 @@ export class PongSession {
       this.setGameFinishedAbrubtly()
       this.server.to(this.roomId).emit(`gameOverDisconnect`)
     }
+    // Proc sur changement routeur à implémenter
   }
 
   /*------------  UTILS ------------*/

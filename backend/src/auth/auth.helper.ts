@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common'
 import { compare, genSalt, hash } from 'bcrypt'
 
 const SALT_OR_ROUNDS = 10
@@ -21,22 +22,29 @@ export class AuthHelper {
 
   static verifyPassword(password: string) {
     if (password === ``) {
-      throw new Error(`Mot de passe non défini`)
+      throw new Error(`Password is undefined`)
     }
     if (!MIN_LENGTH.test(password)) {
-      throw new Error(`Le mot de passe fait moins 8 caractères.`)
+      throw new BadRequestException(
+        `Password needs to be atleast 8 characters long`,
+      )
     }
     if (!MAX_LENGTH.test(password)) {
-      throw new Error(`Le mot de passe ne doit pas dépasser 256 caractères.`)
+      throw new BadRequestException(`Password cannot exceed 256 characters`)
     }
-    if (!HAVE_UPPER.test(password)) {
-      throw new Error(`Le mot de passe doit contenir au moins une majuscule.`)
+    if (HAVE_UPPER.test(password)) {
+      throw new BadRequestException(
+        `Password must contain at least one uppercase character`,
+      )
+      console.log(`haveUpper`)
     }
-    if (!HAVE_LOWER.test(password)) {
-      throw new Error(`Le mot de passe doit contenir au moins une minuscule.`)
+    if (HAVE_LOWER.test(password)) {
+      throw new BadRequestException(
+        `Password must contain at least one lowercase character`,
+      )
     }
-    if (!HAVE_DIGIT.test(password)) {
-      throw new Error(`Le mot de passe doit contenir au moins un nombre.`)
+    if (HAVE_DIGIT.test(password)) {
+      throw new BadRequestException(`Password must contain at least one number`)
     }
   }
 }

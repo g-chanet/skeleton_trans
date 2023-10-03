@@ -50,4 +50,4 @@ import { GamesService } from './games/games.service'
   providers: [AppGateway, UserPresencesService, GamesService],
   //controllers: [AppController],
 })
-export class AppModule { }
+export class AppModule {}
