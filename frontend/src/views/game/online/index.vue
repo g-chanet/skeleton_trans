@@ -9,6 +9,7 @@ import { useRoute } from 'vue-router'
 import PongDisplay from "./game.vue"
 import { ElMessage } from 'element-plus'
 import type { PongData } from './index'
+import { router } from '@/router'
 
 const route = useRoute()
 const socket = io(`http://localhost:5173`)
@@ -36,6 +37,10 @@ window.addEventListener('dismount', (event) => {
   // Emit a socket event to inform the server that the user is unloading the page
   socket.emit('changedPage')
 })
+
+// socket.on(`redirectDashboard`, (data: any) => {
+//   router.push()
+// }
 
 socket.on(`joinRoomSuccess`, (data: PongData) => {
   pongData.value = data

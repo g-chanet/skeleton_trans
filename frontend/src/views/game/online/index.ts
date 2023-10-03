@@ -1,5 +1,6 @@
 import Konva from 'konva'
 import type { Socket } from 'socket.io-client'
+import { router } from '../../../router/index'
 
 export interface PongPlayer {
   socketId: string
@@ -1009,8 +1010,8 @@ export class Pong {
       })
 
       buttonRect.on(`click`, () => {
-        // Delete room
-        // retour à la logique matchmaking
+        console.log('redirect')
+        router.push('/app/home')
       })
     
       this.victoryScreenLayer.add(buttonRect)
@@ -1243,8 +1244,8 @@ export class Pong {
       })
 
       buttonRect.on(`click`, () => {
-        // Delete room
-        // retour à la logique matchmaking
+        console.log('redirect')
+        router.push('/app/home')
       })
     
       this.victoryScreenLayer.add(buttonRect)
