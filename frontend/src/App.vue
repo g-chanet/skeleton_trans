@@ -36,7 +36,7 @@ import { useFindMyUserQuery,
   type User, type Game,
   type GameMatchmakingMember
 } from '@/graphql/graphql-operations'
-import { ElMessage, ElNotification } from 'element-plus'
+import { ElMessage, ElNotification, type NotificationHandle } from 'element-plus'
 import { ref, provide, inject, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Background from './views/BackgroundRetroWave.vue'
@@ -69,6 +69,9 @@ const isNotificationOnAutoClose = ref(false)
 const isMatchmakingNotificationOpen = ref(false)
 const localMatchmakings = ref<GameMatchmakingMember[]>([])
 const localGames = ref<Game[]>([])
+const OpenMatchmakingNotifInstance = ref<NotificationHandle>()
+const HostedGameNotifInstance = ref<NotificationHandle>()
+const InvitedToGameNotifInstance = ref<NotificationHandle>()
 
 onMounted(async () => {
   console.log("app.vue is mounted")
@@ -78,7 +81,7 @@ onMounted(async () => {
 
 const openMatchMakingNotification = () => {
   if (!isMatchmakingNotificationOpen.value) {
-    ElNotification({
+    OpenMatchmakingNotifInstance.value = ElNotification({
       position: 'bottom-right',
       title: `En recherche de partie`,
       message: 'Vous recherchez actuellement une partie, fermez cette notification pour annuler',
@@ -90,7 +93,7 @@ const openMatchMakingNotification = () => {
 }
 
 const openHostedPrivateGameNotification = () => {
-  ElNotification({
+  HostedGameNotifInstance.value = ElNotification({
       position: 'bottom-right',
       title: `Player Invited !`,
       message: 'You invited a player to a game, we are waiting for his approval... Click this notification to cancel',
@@ -101,7 +104,7 @@ const openHostedPrivateGameNotification = () => {
 }
 
 const openInvitedPrivateGameNotification = () => {
-  ElNotification({
+  InvitedToGameNotifInstance.value = ElNotification({
       position: 'bottom-right',
       title: `You're Invited !`,
       message: 'A player invited you to a game, click to navigate to your dashboard and play !',
@@ -214,6 +217,10 @@ onResultsMatchMaker((res) => {
 
       if (!member.targetUserId) {
         mustDiplayMatchmakingDialog.value = false
+        if (OpenMatchmakingNotifInstance.value) {
+          isNotificationOnAutoClose.value = true
+          OpenMatchmakingNotifInstance.value?.close()
+        }
         openMatchMakingNotification()
       }
       if (member.targetUserId) {
@@ -238,43 +245,16 @@ onResultsMatchMaker((res) => {
 })
 
 const onClosedSearchGameNotif = () => {
+  console.log('before notif unmount')
   if (!isNotificationOnAutoClose.value) {
+    console.log('matchmaking has been leaved, notfication not on autoclose')
     leaveMatchMakingMutate()
     .catch(() => {})
     ElMessage.success('vous avez quitté le matchmaking')
   }
+  console.log('after notif unmount')
   isMatchmakingNotificationOpen.value = false
   isNotificationOnAutoClose.value = false
-}
-
-const onClosedHostedGameInvite = () => {
-  // leaveMatchMakingMutate()
-  if (!isNotificationOnAutoClose.value) {
-    leaveGameMutate()
-    .catch(() => {}) //on some flows we're not in the game
-    console.log('have leaved game')
-  }
-  console.log('autoclose: ', isNotificationOnAutoClose.value)
-  ownGameIsCancelled.value = false
-  isNotificationOnAutoClose.value = false
-  createdGameId.value = ''
-  ElMessage.success('your invitation is canceled because, you or your friend canceled it')
-}
-
-const onClosedInvitedGameInvite = () => {
-  // handle for the other player
-  if (!invitationAccepted.value && !invitationReceivedHaveBeenCanceled.value) {
-    refuseGameInvitationMutate({ gameId : acceptedGameId.value })
-    .catch((error) => {
-      ElMessage.error(error)
-    })
-    acceptedGameId.value = ''
-    ElMessage.success('you refused the invitation')
-  }
-  else if (invitationReceivedHaveBeenCanceled.value) {
-    ElMessage.warning('I think you just lost a friend (the game invitaion you received have been canceled)')
-    invitationReceivedHaveBeenCanceled.value = false
-  }
 }
 
 onError(() => {

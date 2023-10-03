@@ -18,7 +18,7 @@ export type DeepReadonlyObject<T> = {
 
 @WebSocketGateway()
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private readonly gameService: GamesService) {}
+  constructor(private readonly gameService: GamesService) { }
   @WebSocketServer()
   server: Server
 
