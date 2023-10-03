@@ -269,7 +269,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.leave(pongSession.roomId)
       socket.data.roomId = undefined
       socket.emit(`leaveRoomSuccess`)
-      //envoyer gameData
 
       if (pongSession.gameIsEmpty) {
         this.pongSessions.delete(pongSession.roomId)
@@ -290,11 +289,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       leaveSessionError(`emit player pongSession not exist`)
     }
     const pongSession = this.pongSessions.get(roomId)
-    pongSession.playerLeave(socket)
-
-    if (pongSession.gameIsEmpty) {
-      this.pongSessions.delete(roomId)
+    if (pongSession) {
+      pongSession.playerLeave(socket)
+      if (pongSession.gameIsEmpty) {
+        this.pongSessions.delete(roomId)
+      }
+      leaveSessionSuccess(pongSession)
     }
-    leaveSessionSuccess(pongSession)
   }
 }
