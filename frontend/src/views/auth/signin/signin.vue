@@ -70,32 +70,25 @@ const resetForm = (formEl: FormInstance | undefined) => {
 }
 
 const validatePass = (rule: any, value: any, callback: any) => {
-  const MIN_LENGTH = /^.{8,}$/
-  const MAX_LENGTH = /^.{0,256}$/
-  const HAVE_UPPER = /(?=.*[A-Z]*)/
-  const HAVE_LOWER = /(?=.*[a-z]*)/
-  const HAVE_DIGIT = /(?=.*\d*)/
+  const hasUppercase = /[A-Z]/.test(value)
+  const hasLowercase = /[a-z]/.test(value)
+  const hasDigit = /[0-9]/.test(value)
+  const hasSpecialChars = /[^a-zA-Z0-9]/.test(value)
   if (value === '') {
     callback(new Error('Enter your password.'))
-  } else {
-    if (!MIN_LENGTH.test(value)) {
-      callback(new Error('Password needs to be atleast 8 characters long.'))
-    }
-    if (!MAX_LENGTH.test(value)) {
-      callback(new Error('Password cannot exceed 256 characters.'))
-    }
-    if (!HAVE_UPPER.test(value)) {
-      callback(new Error('Password must contain at least one uppercase character.'))
-    }
-    if (!HAVE_LOWER.test(value)) {
-      callback(new Error('Password must contain at least one lowercase character.'))
-    }
-    if (!HAVE_DIGIT.test(value)) {
-      callback(new Error('Password must contain at least one digit.'))
+  }
+  if (!hasUppercase) callback(new Error('Password must contain an uppercase character.'))
+  else if (!hasLowercase) callback(new Error('Password must contain a lowercase character.'))
+  else if (!hasDigit) callback(new Error('Password must contain a digit.'))
+  else if (hasSpecialChars) callback(new Error('Password must contain no special characters.'))
+  else {
+    if (signupForm.retypePassword !== '') {
+      if (!signupFormRef.value) return
+      signupFormRef.value.validateField('checkPass', () => null)
+      console.log('checkPass')
     }
     callback()
   }
-  //fix
 }
 
 const validatePass2 = (rule: any, value: any, callback: any) => {
@@ -146,7 +139,7 @@ const rules = reactive<FormRules<ruleForm>>({
   ],
   password: [
     { required: true },
-    // { min: 6, max: 15, message: 'Your password must be between 8 and 16 characters long!', trigger: 'blur' },
+    { min: 6, max: 15, message: 'Your password must be between 8 and 16 characters long!', trigger: 'blur' },
     { validator: validatePass, trigger: 'blur' }
   ],
   retypePassword: [
