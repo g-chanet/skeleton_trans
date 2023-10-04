@@ -1,23 +1,24 @@
 <template>
 	<el-dialog v-model="DialogVisible" width="25%">
 		<div class="container">
-			<el-input class="input" v-model="searched"/>
+			<el-input class="input" v-model="searched" />
 			<el-scrollbar>
-					<div>
+				<div>
 					<p v-for="user in filtered" :key="user.id">
-						<searchFriendCard :avatar-url="user.avatarUrl || ''" :username="user.username" :user-id="user.id" :relation-status="gestUserRelation(user.id)?.type"/>
+						<searchFriendCard :avatar-url="user.avatarUrl || ''" :username="user.username" :user-id="user.id"
+							:relation-status="gestUserRelation(user.id)?.type" />
 					</p>
 				</div>
 			</el-scrollbar>
 
 		</div>
-	  
+
 	</el-dialog>
-  </template>
+</template>
   
 <script setup lang="ts">
 import { ref, inject, watch, computed, type Ref } from 'vue'
-import {  useFindPublicUsersListQuery , type UserRelation, type UserPublic, type User } from '@/graphql/graphql-operations'
+import { useFindPublicUsersListQuery, type UserRelation, type UserPublic, type User } from '@/graphql/graphql-operations'
 import searchFriendCard from './searchFriendCard.vue'
 
 const { onResult, refetch } = useFindPublicUsersListQuery()
@@ -40,9 +41,9 @@ onResult((res) => {
 })
 
 watch(DialogVisible, () => {
-    if (DialogVisible.value) {
-        refetch()
-    }
+	if (DialogVisible.value) {
+		refetch()
+	}
 })
 
 const gestUserRelation = (userId: string) => {
@@ -52,27 +53,27 @@ const gestUserRelation = (userId: string) => {
 }
 
 const filtered = computed(() => {
-  return users.value.filter(user => {
-    if (user.id === loggedInUser?.value.id) {
-      return false
-    }
-    const relation = gestUserRelation(user.id)
-    if (relation && (relation.type === 'Friend' || relation.type === 'WaitingAccept')) {
-      return false
-    }
-    if (searched.value && !user.username.toLowerCase().includes(searched.value.toLowerCase())) {
-      return false
-    }
+	return users.value.filter(user => {
+		if (user.id === loggedInUser?.value.id) {
+			return false
+		}
+		const relation = gestUserRelation(user.id)
+		if (relation && (relation.type === 'Friend' || relation.type === 'WaitingAccept')) {
+			return false
+		}
+		if (searched.value && !user.username.toLowerCase().includes(searched.value.toLowerCase())) {
+			return false
+		}
 
-    return true
-  })
+		return true
+	})
 })
 
 
 
 const changeDialogVisibility = () => {
-    DialogVisible.value ? DialogVisible.value = false : DialogVisible.value = true
-  }
+	DialogVisible.value ? DialogVisible.value = false : DialogVisible.value = true
+}
 defineExpose({ changeDialogVisibility })
 </script>
 
@@ -85,7 +86,6 @@ defineExpose({ changeDialogVisibility })
 	flex-direction: column
 	justify-content: center
 	align-items: center
-	background: #111115
 	font-family: "roboto"
 	.input
 		margin: 20px

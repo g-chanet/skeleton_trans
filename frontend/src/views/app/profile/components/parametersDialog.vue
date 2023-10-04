@@ -30,8 +30,7 @@
 								v-model="form.username">Submit</el-button>
 						</el-form-item>
 						<el-form-item label="Password" class="form-item">
-							<el-alert v-if="loggedInUser?.isOauth"
-								title="OAuth " type="warning" show-icon
+							<el-alert v-if="loggedInUser?.isOauth" title="OAuth " type="warning" show-icon
 								:closable="false" />
 							<div v-if="!loggedInUser?.isOauth">
 								<span v-if="!showPasswordInput">XXXXXXXX</span>
@@ -48,13 +47,12 @@
 					</el-form>
 				</el-tab-pane>
 				<el-tab-pane label="2fa" name="second">
-					<el-alert v-if="loggedInUser?.isOauth"
-						title="This account is OAuth, it cannot register to 2FA." type="info" show-icon
-						:closable="false" />
+					<el-alert v-if="loggedInUser?.isOauth" title="This account is OAuth, it cannot register to 2FA."
+						type="info" show-icon :closable="false" />
 					<div v-if="!loggedInUser?.isOauth">
 						<el-alert v-if="activateTwoFactorInput"
-							title="Scan the QR-code and enter the code given by Google Authenticator:"
-							type="warning" :closable="false" />
+							title="Scan the QR-code and enter the code given by Google Authenticator:" type="warning"
+							:closable="false" />
 						<el-form label-width="60%" :label-position="`left`" status-icon>
 							<el-form-item label="Activate two-factor authentication" class="form-item">
 								<el-switch v-model="activateTwoFactorInput" @click="disabledoubleAuthOrNot()"></el-switch>
@@ -72,11 +70,7 @@
 					</div>
 				</el-tab-pane>
 				<el-tab-pane label="Blocklist" name="third">
-					<el-form label-width="30%" :label-position="`left`" status-icon>
-						<el-form-item label="Manage blocklist" class="form-item">
-							<el-button @click="refBlockDialog.changeDialogVisibility()">Blocked Users</el-button>
-						</el-form-item>
-					</el-form>
+					<blockUsersDialog />
 				</el-tab-pane>
 				<el-tab-pane label="Misc." name="fourth">
 					<el-form label-width="30%" :label-position="`left`" status-icon>
@@ -94,7 +88,6 @@
 			</el-tabs>
 		</el-dialog>
 	</div>
-	<blockUsersDialog ref="refBlockDialog" />
 </template>
   
 <script setup lang="ts">
@@ -139,8 +132,8 @@ const changeDialogVisibility = () => {
 }
 
 const openDiscordNitroLink = () => {
-  const link = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-  window.open(link, '_blank')
+	const link = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+	window.open(link, '_blank')
 }
 
 const handleAvatarSuccess = (response) => {
