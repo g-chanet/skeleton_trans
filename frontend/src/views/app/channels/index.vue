@@ -121,18 +121,13 @@ useOnDeleteChannelMemberForUserlIdSubscription({ args: { userId: myUser.value!.f
 
 
 .top
-    z-index: 2
-    left: 15%
-    position: relative
+    font-size: 2.1em
+    top: 45px
     font-family: "Vaporfuturism", "Helvetica", sans-serif
-    letter-spacing: -3px
-    transform: rotate(0deg) skew(-3deg) translateX(-50%) scaleX(1.4)
-    background: linear-gradient(to bottom, #18191a 32%, #157be6 40%, #ffffff 52%, #18191a 56%, #157be6 85%, #ffffff, rgba(222,0,255,1) 0%, rgba(94,214,249,1) 100%)
-    -webkit-background-clip: text
-    -webkit-text-fill-color: transparent
-    -webkit-text-stroke-width: 0.1px
-    -webkit-text-stroke-color: #FFF
-    font-size: 2em
+    color: #FA26F7
+    text-transform: uppercase
+    letter-spacing: -2px
+    margin: 20px
 
 .el-aside
     border-start-start-radius: var(--el-border-radius-base)

@@ -10,7 +10,11 @@
 		</div>
 		<div class="stat-component">
 			<div class="player-stat">
-			<p class="header-text"><el-icon><Switch /></el-icon> Global ratio</p>
+				<el-tooltip content="This is the tooltip content" effect="dark">
+  					<div class="header-text">
+    					<el-icon><Switch /></el-icon> Global Ratio ⓘ
+  					</div>
+				</el-tooltip>
 			<div class="progress-wrapper">
 				<div class="progress-element" :class="{'inactive-progress': globalRation <= 0.25}"></div>
 				<div class="progress-element" :class="{'inactive-progress': globalRation <= 0.5 }"></div>
@@ -21,7 +25,9 @@
 		</div>
 		<div class="stat-component">
 			<div class="player-stat">
-			<p class="header-text"><el-icon><SwitchFilled /></el-icon> Mean Points</p>
+			<el-tooltip content="This is the tooltip content" effect="dark">
+				<p class="header-text"><el-icon><SwitchFilled /></el-icon> Mean Points ⓘ </p>
+			</el-tooltip>
 			<div class="progress-wrapper">
 				<div class="progress-element" :class="{'inactive-progress': meanPoints <= 2.75}"></div>
 				<div class="progress-element" :class="{'inactive-progress': meanPoints <= 5.5 }"></div>
@@ -32,7 +38,9 @@
 		</div>
 		<div class="stat-component">
 			<div class="player-stat">
-			<p class="header-text"><el-icon><Sort /></el-icon> Evolution</p>
+			<el-tooltip content="This is the tooltip content" effect="dark">
+				<p class="header-text"><el-icon><Sort /></el-icon> Progress ⓘ </p>
+			</el-tooltip>
 			<div class="progress-wrapper">
 				<div class="progress-element" :class="{'inactive-progress': evolution <= 0.25}"></div>
 				<div class="progress-element" :class="{'inactive-progress': evolution <= 0.5}"></div>
@@ -54,6 +62,7 @@
 
 <script lang="ts">
 
+import { ElTooltip } from 'element-plus'
 
 export default {
   name: 'friend-card-item',

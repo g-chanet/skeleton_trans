@@ -2,7 +2,7 @@
   <div class="full-app" v-loading.fullscreen.lock="onConnectQuery">
     <el-dialog v-model="showAcceptedGameDialog" class="dialog" @close="onClosedDialog()" width="45%">
       <div class="title">
-        Votre Partie est prête à être lancée !
+        Your Game is ready to start!
       </div>
       <div style="height: 400px; display: flex; flex-direction: row;">
         <div v-if="acceptedGame && acceptedGame?.gameMembers && acceptedGame?.gameMembers[0]">
@@ -15,8 +15,8 @@
           <el-avatar :src="acceptedGame?.gameMembers[1].userGameInfos.avatarUrl"></el-avatar>
         </div>
       </div>
-      <el-button @click="onAcceptedGame">Lancer la partie !</el-button>
-      <el-button>Quitter la partie</el-button>
+      <el-button @click="onAcceptedGame">Start Game</el-button>
+      <el-button>Leave Lobby</el-button>
     </el-dialog>
     <Background />
     <router-view class='app-body' v-if="!onConnectQuery" />
@@ -80,10 +80,10 @@ onMounted(async () => {
 const onClosedSearchGameNotif = () => {
   console.log('before notif unmount')
   if (!isNotificationOnAutoClose.value) {
-    console.log('matchmaking has been leaved, notfication not on autoclose')
+    console.log('matchmaking has been left, notfication not on autoclose')
     leaveMatchMakingMutate()
       .catch(() => { })
-    ElMessage.info('you leaved matchmaking')
+    ElMessage.info('You left Matchmaking.')
   }
   console.log('after notif unmount')
   isMatchmakingNotificationOpen.value = false
@@ -96,7 +96,7 @@ const onClosedHostedGameNotif = () => {
     console.log('private game hosting has been leaved, notfication not on autoclose')
     leaveMatchMakingMutate()
       .catch(() => { })
-    ElMessage.info('you just canceled your Game Invitation')
+    ElMessage.info('You cancelled your Game Invitation.')
   }
   console.log('after notif unmount')
   isMatchmakingNotificationOpen.value = false
@@ -107,8 +107,8 @@ const openMatchMakingNotification = () => {
   if (!isMatchmakingNotificationOpen.value) {
     OpenMatchmakingNotifInstance.value = ElNotification({
       position: 'bottom-right',
-      title: `En recherche de partie`,
-      message: 'Vous recherchez actuellement une partie, fermez cette notification pour annuler',
+      title: `Looking for live games`,
+      message: 'You currently are in Matchmaking. Close this panel to cancel the queue.',
       onClose: onClosedSearchGameNotif,
       duration: 0
     })
@@ -120,7 +120,7 @@ const openHostedPrivateGameNotification = () => {
   HostedGameNotifInstance.value = ElNotification({
     position: 'bottom-right',
     title: `Player Invited !`,
-    message: 'You invited a player to a game, we are waiting for his approval... Click this notification to cancel',
+    message: 'You invited a player to a game, waiting for his approval... Close this panel to cancel',
     onClose: onClosedHostedGameNotif,
     showClose: true,
     duration: 0
@@ -130,8 +130,8 @@ const openHostedPrivateGameNotification = () => {
 const openInvitedPrivateGameNotification = () => {
   InvitedToGameNotifInstance.value = ElNotification({
     position: 'bottom-right',
-    title: `You're Invited !`,
-    message: 'A player invited you to a game, click to navigate to your dashboard and play !',
+    title: `You received a game invite !`,
+    message: 'Someone wants to challenge you, check your Dashboard !',
     onClick: onAcceptedGameInvitation,
     duration: 30000
   })
@@ -145,7 +145,6 @@ const onAcceptedGameInvitation = () => {
 queryGamesOnRes((res) => {
   let ret: Game[] = res.data.findAllGames
   localGames.value = ret
-  // maybe add a logic to show game dialog on refresh
 })
 
 gamesOnRes((res) => {
@@ -172,7 +171,7 @@ gamesOnRes((res) => {
   }
   if (loggedInUser.value) {
     if (gameMembers && gameMembers.length === 1 && gameMembers[0].userId === loggedInUser.value.id && showAcceptedGameDialog.value == true) {
-      ElMessage.error("votre adversaire a quitté la partie")
+      ElMessage.error("Your opponent left the Game.")
       onClosedDialog()
     }
     if (gameMembers && gameMembers.length === 1 && gameMembers[0].userId === loggedInUser.value.id && showAcceptedGameDialog.value == false && acceptedGame.value?.targetUserId?.length) {
@@ -258,7 +257,7 @@ onResultsMatchMaker((res) => {
       openInvitedPrivateGameNotification()
     }
     else if (member.isDeleted && !member.isLaunched && !showAcceptedGameDialog.value) {
-      ElMessage.info('I think you just lost a friend (the game invitaion you received have been canceled)')
+      ElMessage.info('Your game invite has been refused. Maybe play versus our Bot if you are desperate.')
       ElNotification.closeAll()
     }
   }

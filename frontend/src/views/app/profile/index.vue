@@ -12,7 +12,7 @@
 				<el-row justify="center">
 					<div style="margin-top: 20px; display:flex; justify-content: center;">
 						<el-button class="left-styled-btn"
-							@click="testRefParams.changeDialogVisibility()">Parameters</el-button>
+							@click="testRefParams.changeDialogVisibility()">Settings</el-button>
 						<el-button class="right-styled-btn" @click="testRefFriend.changeDialogVisibility()">Add
 							Friends</el-button>
 					</div>
