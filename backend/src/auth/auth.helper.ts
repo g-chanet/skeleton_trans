@@ -3,13 +3,6 @@ import { compare, genSalt, hash } from 'bcrypt'
 
 const SALT_OR_ROUNDS = 10
 
-const MIN_LENGTH = /^.{8,}$/
-const MAX_LENGTH = /^.{0,256}$/
-const HAVE_UPPER = /(?=.*[A-Z]*)/
-const HAVE_LOWER = /(?=.*[a-z]*)/
-const HAVE_DIGIT = /(?=.*\d*)/
-const HAVE_SPECIAL_CHAR = /(?=.*[@$:;!%*#?&])/
-
 export class AuthHelper {
   static async validate(password: string, hash: string) {
     return await compare(password, hash)
