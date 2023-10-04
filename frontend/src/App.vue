@@ -37,7 +37,7 @@ import {
   type GameMatchmakingMember
 } from '@/graphql/graphql-operations'
 import { ElMessage, ElNotification, type NotificationHandle } from 'element-plus'
-import { ref, provide, inject, watch, onMounted } from 'vue'
+import { ref, provide, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Background from './views/BackgroundRetroWave.vue'
 
@@ -48,7 +48,16 @@ const loggedInUser = ref<User>()
 const acceptedGame = ref<Game>()
 const onConnectQuery = ref(true)
 const gameLaunched = ref(false)
-const { onResult, onError, loading, refetch: refetchLoggedInUser } = useFindMyUserQuery()
+const usersOnmatchmaking = ref<GameMatchmakingMember>(null)
+const mustDiplayMatchmakingDialog = ref(false)
+const isNotificationOnAutoClose = ref(false)
+const isMatchmakingNotificationOpen = ref(false)
+const localMatchmakings = ref<GameMatchmakingMember[]>([])
+const localGames = ref<Game[]>([])
+const OpenMatchmakingNotifInstance = ref<NotificationHandle>()
+const HostedGameNotifInstance = ref<NotificationHandle>()
+const InvitedToGameNotifInstance = ref<NotificationHandle>()
+const { onResult, onError, refetch: refetchLoggedInUser } = useFindMyUserQuery()
 const { onResult: queryGamesOnRes, refetch: refetchGames } = useFindAllGamesQuery()
 const { onResult: queryMatchmakersOnRes, refetch: refetchMahMakers } = useFindAllGameMatchmakingMemberlQuery()
 const { onResult: gamesOnRes } = useAllGamesUpdatedSubscription()
@@ -57,24 +66,8 @@ const { mutate: leaveMatchMakingMutate } = useLeaveGameMatchmakingMemberMutation
 const { onResult: onResultsMatchMaker } = useMatchmakingMembersChangedSubscription()
 const { variables: UserGameUpdatedVariables , onResult: onResultUserGame } = useUserGameUpdatedSubscription()
 
-const usersOnmatchmaking = ref<GameMatchmakingMember>(null)
-const mustDiplayMatchmakingDialog = ref(false)
-const invitationReceivedHaveBeenCanceled = ref(false)
-const ownGameIsCancelled = ref(false)
-const acceptedGameId = ref<string>('')
-const createdGameId = ref<string>('')
-const isNotificationOnAutoClose = ref(false)
-const isMatchmakingNotificationOpen = ref(false)
-const localMatchmakings = ref<GameMatchmakingMember[]>([])
-const localGames = ref<Game[]>([])
-const OpenMatchmakingNotifInstance = ref<NotificationHandle>()
-const HostedGameNotifInstance = ref<NotificationHandle>()
-const InvitedToGameNotifInstance = ref<NotificationHandle>()
-
 onMounted(async () => {
   console.log("app.vue is mounted")
-  //await refetchLoggedInUser()
-  console.log(loggedInUser.value)
 })
 
 const onClosedSearchGameNotif = () => {
@@ -139,17 +132,18 @@ const openInvitedPrivateGameNotification = () => {
 
 const onAcceptedGameInvitation = () => {
   router.replace(`/app/home`)
-  ElNotification.closeAll()
+  InvitedToGameNotifInstance.value?.close()
 }
 
+//query for displayed active games
 queryGamesOnRes((res) => {
   let ret: Game[] = res.data.findAllGames
   localGames.value = ret
 })
 
+//subscription for displayed active games in dashboard
 gamesOnRes((res) => {
   const game = res.data?.allGamesUpdated
-
   if (game) {
     console.log('!!! GAME RECEIVED VIA SUBSCRIPTION : ', game)
     const tmp = [...localGames.value]
@@ -168,30 +162,24 @@ gamesOnRes((res) => {
       localGames.value = tmp
     }
   }
-  if (game?.gameMembers?.length && loggedInUser.value) {
-    // if (game.gameMembers.length === 1 && game.gameMembers.at(0).userId === loggedInUser.value.id && showAcceptedGameDialog.value == true) {
-    //   ElMessage.error("votre adversaire a quitté la partie")
-    //   onClosedDialog()
-    // }
-    // if (game.gameMembers && game.gameMembers.length === 2 && game.gameMembers.some(gm => gm.userId === loggedInUser.value.id)) {
-    //     acceptedGame.value = game
-    //     showAcceptedGameDialog.value = true
-    // }
-  }
 })
 
+// handle of GameStatus
 onResultUserGame((res) => {
   if (res.data?.UserGameUpdated) {
     console.log('received UserGameUpdated: ', res.data.UserGameUpdated)
     const game: Game = res.data?.UserGameUpdated
     if (game) {
       if (!game.isDeleted) {
+        gameLaunched.value = false
         acceptedGame.value = game
         showAcceptedGameDialog.value = true
       }
       if (game.isDeleted) {
-        ElMessage.error("votre adversaire a quitté la partie")
+        ElMessage.error("your opponenent leaved the game")
         onClosedDialog()
+        if (route.fullPath.startsWith(`/app/game`))
+          router.replace(`/app/home`)
     }
     }
 }
@@ -214,19 +202,19 @@ onResultsMatchMaker((res) => {
 
   if (member) {
     if (member.isDeleted) {
-      console.log(`received deleted :`, member)
-      localMatchmakings.value = tmp.filter(member => member.userId !== member.userId)
-    } else {
-      const existingIndex = tmp.findIndex(member => member.userId === member.userId)
-      if (existingIndex > -1) {
-        tmp[existingIndex] = member
-        console.log(`updated existing :`, member)
+        console.log(`received deleted MatchMaker :`, member)
+        localMatchmakings.value = tmp.filter(tmpmember => tmpmember.userId !== member.userId)
       } else {
-        console.log(`received new :`, member)
-        tmp.unshift(member)
+        const existingIndex = tmp.findIndex(tmpmember => tmpmember.userId === member.userId)
+        if (existingIndex > -1) {
+          tmp[existingIndex] = member
+          console.log(`updated existing :`, member)
+        } else {
+          console.log(`received new :`, member)
+          tmp.unshift(member)
+        }
+        localMatchmakings.value = tmp
       }
-      localMatchmakings.value = tmp
-    }
   }
   if (member && member.userId == loggedInUser.value?.id) {
     if (!member.isDeleted) {
@@ -240,7 +228,6 @@ onResultsMatchMaker((res) => {
     }
     else {
       mustDiplayMatchmakingDialog.value = false
-      //ElNotification.closeAll()
       if (OpenMatchmakingNotifInstance.value) {
         isNotificationOnAutoClose.value = true
         OpenMatchmakingNotifInstance.value?.close()
@@ -251,7 +238,7 @@ onResultsMatchMaker((res) => {
       }
     }
   }
-  if (member && member.targetUserId == loggedInUser.value.id) {
+  if (member && loggedInUser.value && member.targetUserId == loggedInUser.value.id) {
     if (!member.isDeleted) {
       openInvitedPrivateGameNotification()
     }
@@ -262,13 +249,14 @@ onResultsMatchMaker((res) => {
   }
 })
 
+//handling af login error (need rework)
 onError(() => {
   if (!route.fullPath.startsWith(`/login`))
     router.replace(`/login`)
   onConnectQuery.value = false
 })
 
-
+//handling of login
 onResult(async (res) => {
   console.log('result for loggedInUser!')
   if (await res.data.findMyUser.id) {
@@ -312,6 +300,7 @@ const onAcceptedGame = () => {
   showAcceptedGameDialog.value = false
   router.replace(`/app/game/online/${acceptedGame.value?.id}`)
 }
+
 provide('loggedInUser', loggedInUser)
 provide('matchmakingsSub', usersOnmatchmaking)
 provide('localMatchmakings', localMatchmakings)

@@ -41,9 +41,7 @@ export class GameMatchmakingMembersResolver {
       console.log(
         `we re in join GameMatchmaking resolver, an active game have been found`,
       )
-      throw new BadRequestException(`user is already in game`)
-      // await this.gameService.playerLeave(activeGame.id, user)
-      // await this.gameService.endGameOnFailure(activeGame.id) //toTEST
+      throw new BadRequestException(`you're already in game`)
     }
     const newMember = await this.gameMatchmakingMembersService.create({
       userId: user.id,
@@ -82,7 +80,6 @@ export class GameMatchmakingMembersResolver {
       throw new BadRequestException(`you're not invited to this game`)
     }
     if (matchmaker) {
-      matchmaker.isDeleted = true
       await this.gameMatchmakingMembersService.delete(matchmaker.userId)
     } else {
       throw new BadRequestException(`this game did not existed`)
