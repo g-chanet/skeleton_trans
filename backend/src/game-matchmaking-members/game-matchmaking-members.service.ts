@@ -10,7 +10,7 @@ export class GameMatchmakingMembersService {
     private prisma: PrismaService,
     private readonly gameService: GamesService,
     private readonly pubSub: PubSub,
-  ) {}
+  ) { }
   //**************************************************//
   //  MUTATION
   //**************************************************//
@@ -18,19 +18,85 @@ export class GameMatchmakingMembersService {
   async create(data: Prisma.GameMatchmakingMemberUncheckedCreateInput) {
     console.log(`entered create MMmeber function`)
     console.log(data)
+
+    const alreadyPresent = await this.prisma.gameMatchmakingMember.findFirst({
+      where: { userId: data.userId },
+    })
+
+    if (alreadyPresent) {
+      console.log(`already a matchmaking member: `, alreadyPresent)
+      await this.delete(alreadyPresent.userId)
+    }
+    const newMatchmakingMember = await this.prisma.gameMatchmakingMember.create(
+      {
+        data,
+      },
+    )
+    let opponentSearchCriteria
+    if (data.targetUserId) {
+      opponentSearchCriteria = { userId: data.targetUserId, isDeleted: false }
+    } else {
+      opponentSearchCriteria = {
+        targetUserId: null,
+        isDeleted: false,
+        userId: { not: data.userId },
+      }
+    }
+    const opponent = await this.prisma.gameMatchmakingMember.findFirst({
+      where: opponentSearchCriteria,
+    })
+
+    if (opponent) {
+      const newGame = await this.prisma.game.create({
+        data: {
+          gameMembers: {
+            create: [{ userId: data.userId }, { userId: opponent.userId }],
+          },
+        },
+        include: {
+          gameMembers: true,
+        },
+      })
+      console.log(`game has just been created`)
+      console.log(`game: `, newGame)
+      await this.pubSub.publish(`UserGameUpdated:${data.userId}`, {
+        UserGameUpdated: {
+          ...newGame,
+          userId: data.userId,
+        },
+      })
+      await this.pubSub.publish(`UserGameUpdated:${opponent.userId}`, {
+        UserGameUpdated: {
+          ...newGame,
+          userId: opponent.userId,
+        },
+      })
+      console.log(`juste before game publishing`)
+      await this.pubSub.publish(`allGamesUpdated`, {
+        allGamesUpdated: newGame,
+      })
+      console.log(`juste after game publishing`)
+      const ret = await this.delete(data.userId)
+      await this.delete(opponent.userId)
+      return ret
+    } else {
+      await this.pubSub.publish(`matchmakingMembersChanged`, {
+        matchmakingMembersChanged: newMatchmakingMember,
+      })
+      return newMatchmakingMember
+    }
+  }
+
+  async alternativeCreate(
+    data: Prisma.GameMatchmakingMemberUncheckedCreateInput,
+  ) {
+    console.log(`entered create MMmeber function`)
+    console.log(data)
     const alreadyPresent = await this.prisma.gameMatchmakingMember.findFirst({
       where: { userId: data.userId },
     })
     console.log(`alredy a matchmaking member: `, alreadyPresent)
     if (alreadyPresent) {
-      // if (
-      //   data.targetUserId &&
-      //   alreadyPresent.targetUserId &&
-      //   data.targetUserId == alreadyPresent.targetUserId
-      // ) {
-      //   throw new BadRequestException(`Vous avez déjà défié ce joueur !`)
-      // }
-      // throw new BadRequestException(`Vous êtes déjà en recherche de partie !`)
       await this.delete(alreadyPresent.userId)
     }
     let opponent
@@ -55,6 +121,7 @@ export class GameMatchmakingMembersService {
             userId: data.targetUserId,
             targetUserId: data.userId,
           },
+          include: { user: true },
         })
       }
       console.log(`opponent : `, opponent)
@@ -75,43 +142,65 @@ export class GameMatchmakingMembersService {
         },
       })
       if (newGame.gameMembers.length == 2) {
+        console.log(`two game Members`)
         opponent.isDeleted = true
         opponent.isLaunched = true
         ret.isDeleted = true
         ret.isLaunched = true
-        await this.prisma.gameMatchmakingMember.deleteMany({
+        await this.prisma.gameMatchmakingMember.delete({
+          //petage ici
           where: { userId: opponent.userId },
         })
-        await this.prisma.gameMatchmakingMember.deleteMany({
+        await this.prisma.gameMatchmakingMember.delete({
           where: { userId: ret.userId },
         })
-        this.pubSub.publish(`matchmakingMembersChanged`, {
+        console.log(`just before pubSub Publication`)
+        console.log(opponent)
+        console.log(ret)
+        await this.pubSub.publish(`matchmakingMembersChanged`, {
           matchmakingMembersChanged: opponent,
         })
-        this.pubSub.publish(`allGamesUpdated`, {
+        await this.pubSub.publish(`UserGameUpdated:${ret.userId}`, {
+          UserGameUpdated: {
+            ...newGame,
+            userId: ret.userId,
+          },
+        })
+        await this.pubSub.publish(`UserGameUpdated:${opponent.userId}`, {
+          UserGameUpdated: {
+            ...newGame,
+            userId: opponent.userId,
+          },
+        })
+        console.log(`juste before game publishing`)
+        await this.pubSub.publish(`allGamesUpdated`, {
           allGamesUpdated: newGame,
         })
       }
     }
-    this.pubSub.publish(`matchmakingMembersChanged`, {
+    await this.pubSub.publish(`matchmakingMembersChanged`, {
       matchmakingMembersChanged: ret,
     })
     return ret
   }
 
   async delete(userId: string) {
-    const ret = await this.prisma.gameMatchmakingMember.findFirst({
+    console.log(`will try to delete record: `, userId)
+    const ret = await this.prisma.gameMatchmakingMember.findUnique({
       where: { userId: userId },
     })
-    console.log(`ret: `, ret)
+    console.log(`entered MatchMkaing service delete fucntion`)
+    console.log(`ret: `, ret.userId)
     if (ret) {
       ret.isDeleted = true
       await this.prisma.gameMatchmakingMember.delete({
         where: { userId: userId },
       })
-      this.pubSub.publish(`matchmakingMembersChanged`, {
+      await this.pubSub.publish(`matchmakingMembersChanged`, {
         matchmakingMembersChanged: ret,
       })
+      console.log(`record have been found and is deleted`)
+      return ret
     }
   }
 

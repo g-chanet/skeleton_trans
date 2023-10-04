@@ -76,6 +76,7 @@ import { ElMessage } from "element-plus"
 
 
 const RefNewOfflineGameDialog = null
+const isMatchmakingclicked = ref(false)
 const { result: queryData } = useFindAllGameStatsSoftLimitQuery()
 const { result: subscriptionData } = useAllGamesStatsUpdatedSubscription()
 const { mutate: mutateJoinMatchmaking, onError: onErrorJoinMatchmaking } = useJoinGameMatchmakingMemberMutation()
@@ -110,11 +111,16 @@ if (subscriptionData.value?.allGamesStatsUpdated) {
 return ret
 })
 
-const onMatchMackingJoined = () => {
-		mutateJoinMatchmaking()
-		.catch((error) => {
-		ElMessage.error(error.message)
-	})
+const onMatchMackingJoined = async () => {
+		if (!isMatchmakingclicked.value) {
+			isMatchmakingclicked.value = true
+			console.log('join matchmaking button have been pushed')
+			await mutateJoinMatchmaking()
+			.catch((error) => {
+			ElMessage.error(error.message)
+		})
+		isMatchmakingclicked.value = false
+		}
 }
 
 onMounted(() => {

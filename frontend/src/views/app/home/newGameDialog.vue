@@ -99,6 +99,7 @@ const toggleChallengeMode = () => {
     else if (opponentId.value.length == 0){
         // leaveGameMutate()
         // .catch(() => {}) //do nothing, refers to next comment
+        console.log("will join matchmaking from game dialog, no opponentID")
         joinMatchmakingMutate()
         .catch((error) => {
           ElMessage.warning(error)
@@ -107,6 +108,7 @@ const toggleChallengeMode = () => {
     else {
       // leaveMatchmakingMutate()
       // .catch(() => {}) //do nothing, the error is raised to inform that the player was not looking for a game, this is what we want
+      console.log("will join matchmaking from game dialog, opponent is defined")
       joinMatchmakingMutate({ message: specialMessage.value, userTargetId: opponentId.value })
       .catch((error) => {
           ElMessage.warning(error)
