@@ -24,11 +24,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private pongSessions: Map<string, PongSession> = new Map()
 
-  handleConnection(@ConnectedSocket() socket: Socket, ...args: any[]) {
-    console.log(`connection socket App`, socket.id, args)
+  // eslint-disable-next-line unused-imports/no-unused-vars, @typescript-eslint/no-unused-vars
+  handleConnection(@ConnectedSocket() socket: Socket) {
+    //
   }
 
-  handleDisconnect(@ConnectedSocket() socket: Socket, ...args: any[]) {
+  handleDisconnect(@ConnectedSocket() socket: Socket) {
     const { roomId } = socket.data
     if (roomId === undefined) return
     const pongSession = this.pongSessions.get(roomId)
@@ -40,7 +41,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       pongSession.gameOverDisconnect()
       this.server.to(roomId).emit(`updatePongData`, pongSession.pongData)
     }
-    console.log(`disconnection socket App`, socket.id, args)
   }
 
   @SubscribeMessage(`changedPage`)

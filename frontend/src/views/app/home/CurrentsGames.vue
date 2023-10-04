@@ -6,7 +6,7 @@
 			</div>
 			<div style="display:flex; flex-direction: column; margin-left: 10px; justify-content: space-between;">
 				<text class="username-text">{{ publicInfos?.username }}</text>
-					<text class="message-text">t'as défié en partie privé</text>
+					<text class="message-text">Challenged you!</text>
 				<text class="ratio-text">{{ createdAt }}</text>
 			</div>
 			<div>

@@ -2,23 +2,17 @@
 <div class="common-layout">
     <el-container>
       <el-container>
-        <el-header style="height: 3vh">
-			<el-input class="input-base"
-				placeholder="Type something"
-				:prefix-icon="Search"
-			/>
-		</el-header>
         <el-main>
 			<div class="matchmakings-layout">
 				<h1 class="title-header">GAMES</h1>
 				<div class="games-list-and-buttons-container">
 					<div class="games-buttons-container">
-						<div class="instant-matchmaking-btn" @click="onMatchMackingJoined()">
-							<h1>instant matchmaking</h1>
+						<div class="instant-matchmaking-btn" @click="RefNewOfflineGameDialog.changeDialogVisibility()">
+							<h1>Create Custom Game</h1>
 						</div>
-						<div class="create-game-btn" @click="RefNewOfflineGameDialog.changeDialogVisibility()">
-							<el-icon :size="60" style="color: #4422EF;"><Plus /></el-icon>
-							<h1>create a new game</h1>
+						<div class="create-game-btn" @click="onMatchMackingJoined()">
+							<el-icon :size="60" style="color: #f5721b;"><TrophyBase /></el-icon>
+							<h1>Matchmaking</h1>
 						</div>
 					</div>
 					<div class="games-list-container">
@@ -136,11 +130,14 @@ onMounted(() => {
 	width: 15vw
 	margin-left: 15px
 .title-header
-	font-size: 1.2em
-	font-weight: bold
-	font-family: "Roboto"
-	margin : 25px
-	color: #979797
+	font-size: 2em
+	top: 45px
+	font-family: "Vaporfuturism", "Helvetica", sans-serif
+	color: #FA26F7
+	text-transform: uppercase
+	letter-spacing: 0px
+	margin: 25px
+
 .common-layout
 	display: flex
 	width: 100%
@@ -149,6 +146,7 @@ onMounted(() => {
 	.matchmakings-layout
 		display: flex
 		flex-direction: column
+		align-items: center
 		height: 40%
 		background-color: #0E0E10
 		border-radius: 20px
@@ -197,6 +195,7 @@ onMounted(() => {
 			background: #0E0E10
 			display: flex
 			flex-direction: column
+			align-items: center
 			width: 25%
 			height: 95%
 			margin: 10px
@@ -211,6 +210,7 @@ onMounted(() => {
 			background: #0E0E10
 			display: flex
 			flex-direction: column
+			align-items: center
 			width: 75%
 			height: 95%
 			margin: 10px

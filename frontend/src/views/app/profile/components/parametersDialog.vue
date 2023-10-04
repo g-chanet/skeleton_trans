@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<el-dialog v-model="paramDialogVisible" class="dialog" title="Parameters" width="37%">
+		<el-dialog v-model="paramDialogVisible" class="dialog" title="Settings" width="37%">
 			<el-tabs v-model="activeTab" class="demo-tabs">
 				<el-tab-pane label="Account" name="first">
 					<el-form label-width="30%" :label-position="`left`" status-icon>

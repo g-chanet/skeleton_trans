@@ -18,14 +18,14 @@
 				</el-icon>
 			</el-button>
 			<div v-if="isValidated && relationStatus == 'Friend'" class="activityIndicator" :class="{ 'disconnected':presenceStatus ===  'disconnected'}">
-				<p v-if="presenceStatus == 'disconnected'">disconnected</p>
-				<p v-if="presenceStatus == 'connected'">online</p>
+				<p v-if="presenceStatus == 'disconnected'">Offline</p>
+				<p v-if="presenceStatus == 'connected'">Online</p>
 			</div>
 		</div>
 		<div v-if="isSelected && relationStatus=='Friend'" class="interaction-container">
-			<div class="iteration-card" @click="onChallengeClicked()">challenge</div>
-			<div v-if="relationStatus=='Friend'" class="iteration-card" @click="removeFriend()" :class="{error: relationStatus == 'Friend'}">remove</div>
-			<div class="iteration-card">message</div>
+			<div class="iteration-card" @click="onChallengeClicked()">Challenge</div>
+			<div v-if="relationStatus=='Friend'" class="iteration-card" @click="removeFriend()" :class="{error: relationStatus == 'Friend'}">Unfriend</div>
+			<div class="iteration-card">Chat</div>
 		</div>
 	</div>
 </template>

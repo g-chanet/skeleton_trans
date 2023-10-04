@@ -127,7 +127,7 @@ const truncateStr = (str:String, limit:number) => {
 	.username-text
 		font-family: "Roboto"
 		font-weight: 400
-		color: #00FF0A
+		color: #f5721b
 		font-size: 20px
 		-webkit-font-smoothing: antialiased
 		-moz-osx-font-smoothing: grayscale
@@ -137,7 +137,7 @@ const truncateStr = (str:String, limit:number) => {
 		font-family: "Roboto"
 		font-weight: 400
 		font-style: italic
-		color: #00FF0A
+		color: #f5721b
 		font-size: 20px
 		-webkit-font-smoothing: antialiased
 		-moz-osx-font-smoothing: grayscale
