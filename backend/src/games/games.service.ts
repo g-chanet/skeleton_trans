@@ -6,10 +6,15 @@ import { Game } from './entities/game.entity'
 import { Prisma } from '@prisma/client'
 import { PubSub } from 'graphql-subscriptions'
 import { randomInt } from 'crypto'
+import { GameMembersService } from 'src/game-members/game-members.service'
 
 @Injectable()
 export class GamesService {
-  constructor(private prisma: PrismaService, private readonly pubSub: PubSub) { }
+  constructor(
+    private prisma: PrismaService,
+    private readonly pubSub: PubSub,
+    private readonly gameMembersService: GameMembersService,
+  ) { }
 
   //**************************************************//
   //  GAME DATA
@@ -261,30 +266,38 @@ export class GamesService {
     })
     const gameMembers = game.gameMembers
     if (game) {
-      await this.delete(game.id)
-      game.isDeleted
-    }
-    if (gameMembers && gameMembers.length) {
-      if (
-        requesterUserId &&
-        gameMembers.find((gameMember) => gameMember.userId === requesterUserId)
-      ) {
-        await this.pubSub.publish(`UserGameUpdated:${requesterUserId}`, {
-          UserGameUpdated: {
-            ...game,
-            userId: requesterUserId,
-          },
-        })
-      } else {
-        for (const gameMember of gameMembers) {
-          await this.pubSub.publish(`UserGameUpdated:${gameMember.userId}`, {
-            UserGameUpdated: {
-              ...game,
-              userId: gameMember.userId,
-            },
-          })
+      console.log(`[ENDONFAILURE] : game found: `, game)
+      game.isDeleted = true
+      if (gameMembers && gameMembers.length) {
+        if (
+          requesterUserId &&
+          gameMembers.find(
+            (gameMember) => gameMember.userId === requesterUserId,
+          )
+        ) {
+          const otherPlayer =
+            await this.gameMembersService.findOtherPlayerInGame(requesterUserId)
+          if (otherPlayer) {
+            console.log(`otherPlayer found: `, otherPlayer)
+            await this.pubSub.publish(`UserGameUpdated:${otherPlayer.userId}`, {
+              UserGameUpdated: {
+                ...game,
+                userId: otherPlayer.userId,
+              },
+            })
+          }
+        } else {
+          for (const gameMember of gameMembers) {
+            await this.pubSub.publish(`UserGameUpdated:${gameMember.userId}`, {
+              UserGameUpdated: {
+                ...game,
+                userId: gameMember.userId,
+              },
+            })
+          }
         }
       }
+      return await this.delete(game.id)
     }
   }
 

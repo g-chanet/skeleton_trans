@@ -79,23 +79,24 @@ export class GamesResolver {
     if (!userGame) {
       return true
     }
-    const otherPlayer = await this.gameMemberService.findOtherPlayerInGame(
-      user.id,
-    )
-    if (userGame) {
-      await this.gamesService.delete(userGame.id)
-      userGame.isDeleted = true
-    }
-    if (otherPlayer) {
-      console.log(`publishing for other player`)
-      // publishing info to opponent that game have been terminated
-      await this.pubSub.publish(`UserGameUpdated:${otherPlayer.userId}`, {
-        UserGameUpdated: {
-          ...userGame,
-          userId: otherPlayer.userId,
-        },
-      })
-    }
+    await this.gamesService.endGameOnFailure(userGame.id, user.id)
+    // const otherPlayer = await this.gameMemberService.findOtherPlayerInGame(
+    //   user.id,
+    // )
+    // if (userGame) {
+    //   await this.gamesService.delete(userGame.id)
+    //   userGame.isDeleted = true
+    // }
+    // if (otherPlayer) {
+    //   console.log(`publishing for other player`)
+    //   // publishing info to opponent that game have been terminated
+    //   await this.pubSub.publish(`UserGameUpdated:${otherPlayer.userId}`, {
+    //     UserGameUpdated: {
+    //       ...userGame,
+    //       userId: otherPlayer.userId,
+    //     },
+    //   })
+    // }
     return true
   }
 

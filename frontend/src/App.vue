@@ -182,6 +182,7 @@ gamesOnRes((res) => {
 
 onResultUserGame((res) => {
   if (res.data?.UserGameUpdated) {
+    console.log('received UserGameUpdated: ', res.data.UserGameUpdated)
     const game: Game = res.data?.UserGameUpdated
     if (game) {
       if (!game.isDeleted) {
