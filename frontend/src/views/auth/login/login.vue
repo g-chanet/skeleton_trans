@@ -96,7 +96,15 @@ onError((e) => {
 })
 
 const onSubmitForm = () => {
-  console.log('form usbmitted')
+  console.log('form submitted')
+  if (form.value.email === '' || form.value.password === '') {
+    ElMessage({
+      showClose: true,
+      message: 'Please fill in all required fields',
+      type: 'error'
+    })
+    return
+  }
   mutate({ args: form.value }).then((res) => {
     if (res && res.data && res.data.signInLocal.id) {
       console.log('response ok')

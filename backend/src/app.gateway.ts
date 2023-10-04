@@ -18,7 +18,7 @@ export type DeepReadonlyObject<T> = {
 
 @WebSocketGateway()
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private readonly gameService: GamesService) { }
+  constructor(private readonly gameService: GamesService) {}
   @WebSocketServer()
   server: Server
 
@@ -244,7 +244,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const joinSessionError = (message: string, pongSession?: PongSession) => {
       console.log(`joinRoomError`)
-      socket.emit(`joinRoomError`, { message })
+      socket.emit(`joinRoomError`, { message }, pongSession)
     }
 
     if (this.pongSessions.has(roomId)) {

@@ -1,18 +1,18 @@
 <template>
     <div class="last-game-item">
-        <div class="avatar-container" :class="{'winned' : Number(score1) >= Number(score2)}">
+        <div class="avatar-container" :class="{'Won' : Number(score1) >= Number(score2)}">
             <el-avatar :src="userPublic?.avatarUrl"/>
         </div>
         <div class="username">{{ userPublic ? truncateStr(userPublic.username) : 'Loading...' }}</div>
-		<div :class="['status', Number(score1) >= Number(score2) ? 'winned' : 'loosed']">
-    		{{ Number(score1) >= Number(score2) ? 'Winned' : 'Loosed' }}
+		<div :class="['status', Number(score1) >= Number(score2) ? 'Won' : 'Lost']">
+    		{{ Number(score1) >= Number(score2) ? 'Won' : 'Lost' }}
 		</div>
         <div class="score">{{ score1 }} - {{ score2 }}</div>
-        <div :class="['status', Number(score1) < Number(score2) ? 'winned' : 'loosed']">
-    		{{ Number(score1) <= Number(score2) ? 'Winned' : 'Loosed' }}
+        <div :class="['status', Number(score1) < Number(score2) ? 'Won' : 'Lost']">
+    		{{ Number(score1) <= Number(score2) ? 'Won' : 'Lost' }}
 		</div>
         <div class="opponent-name">{{ opponentPublic ? truncateStr(opponentPublic.username) : 'Loading...' }}</div>
-        <div class="avatar-container" :class="{'winned' : Number(score1) <= Number(score2)}">
+        <div class="avatar-container" :class="{'Won' : Number(score1) <= Number(score2)}">
             <el-avatar :src="opponentPublic?.avatarUrl"/>
         </div>
     </div>
@@ -43,7 +43,6 @@ export default {
 	if (props.idPlayer2) {
 		const { result:resultForMyUserOpponent } = useFindUserQuery({ args: {id: props.idPlayer2} })
 		opponentPublic = computed(() => resultForMyUserOpponent.value?.findUser)
-
 	}
 
     const truncateStr = (str:String) => {
@@ -82,7 +81,7 @@ export default {
         padding: 3px
         background: transparent
         border: 3px solid #58595E
-        &.winned
+        &.Won
             border: 3px solid #00FF0A
     .username, .opponent-name
             font-family: "Roboto"
@@ -104,11 +103,11 @@ export default {
         padding: 10px
         border-radius: var(--el-border-radius-base)
 
-        &.winned
+        &.Won
             color: #00FF0A
             background: rgba(0, 255, 10, 0.18)
 
-        &.loosed
+        &.Lost
             color: #FF0404
             background: rgba(255, 4, 4, 0.18)
 

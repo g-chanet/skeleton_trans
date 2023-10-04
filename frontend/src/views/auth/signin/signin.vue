@@ -26,10 +26,10 @@
           <el-input v-model="signupForm.email"></el-input>
         </el-form-item>
         <el-form-item label="Password" prop="password">
-          <el-input v-model="signupForm.password"></el-input>
+          <el-input v-model="signupForm.password" show-password></el-input>
         </el-form-item>
         <el-form-item label="Confirm" prop="retypePassword">
-          <el-input v-model="signupForm.retypePassword"></el-input>
+          <el-input v-model="signupForm.retypePassword" show-password></el-input>
         </el-form-item>
         <el-divider></el-divider>
         <el-form-item>

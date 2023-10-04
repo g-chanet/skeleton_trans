@@ -18,7 +18,7 @@
       <el-button @click="onAcceptedGame">Lancer la partie !</el-button>
       <el-button>Quitter la partie</el-button>
     </el-dialog>
-    <!-- <Background /> -->
+    <Background />
     <router-view class='app-body' v-if="!onConnectQuery" />
   </div>
 </template>
