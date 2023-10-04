@@ -4,7 +4,7 @@
       <el-container>
         <el-main>
 			<div class="matchmakings-layout">
-				<h1 class="title-header">GAMES</h1>
+				<h1 class="title-header">DASHBOARD</h1>
 				<div class="games-list-and-buttons-container">
 					<div class="games-buttons-container">
 						<div class="instant-matchmaking-btn" @click="RefNewOfflineGameDialog.changeDialogVisibility()">
@@ -137,6 +137,8 @@ onMounted(() => {
 	text-transform: uppercase
 	letter-spacing: 0px
 	margin: 25px
+	-webkit-text-stroke-width: 1px
+	-webkit-text-stroke-color: #7b0080
 
 .common-layout
 	display: flex
