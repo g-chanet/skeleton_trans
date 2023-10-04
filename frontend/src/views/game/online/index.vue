@@ -9,6 +9,7 @@ import { useRoute } from 'vue-router'
 import PongDisplay from "./game.vue"
 import { ElMessage } from 'element-plus'
 import type { PongData } from './index'
+import { router } from '@/router'
 
 const route = useRoute()
 const socket = io(`http://localhost:5173`)
@@ -37,6 +38,10 @@ window.addEventListener('dismount', (event) => {
   socket.emit('changedPage')
 })
 
+// socket.on(`redirectDashboard`, (data: any) => {
+//   router.push()
+// }
+
 socket.on(`joinRoomSuccess`, (data: PongData) => {
   pongData.value = data
 })
@@ -45,6 +50,14 @@ socket.on(`playerReady`, (player: string) => {
   ElMessage({
     message: `${player} is Ready to play!`,
     type: `success`,
+    duration: 5000,
+  })
+})
+
+socket.on(`opponentLeft`, () => {
+  ElMessage({
+    message: `Your opponent left! Go back to dashboard.`,
+    type: `warning`,
     duration: 5000,
   })
 })

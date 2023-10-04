@@ -9,7 +9,7 @@ import { randomInt } from 'crypto'
 
 @Injectable()
 export class GamesService {
-  constructor(private prisma: PrismaService, private readonly pubSub: PubSub) {}
+  constructor(private prisma: PrismaService, private readonly pubSub: PubSub) { }
 
   //**************************************************//
   //  GAME DATA
@@ -239,15 +239,22 @@ export class GamesService {
 
   async endGameOnFailure(gameId: string) {
     console.log(`entered endGameOnFailure`)
-    const game = await this.prisma.game.delete({
+    const verifier = await this.prisma.game.findFirst({
       where: {
         id: gameId,
       },
     })
-    game.isDeleted = true
-    this.pubSub.publish(`allGamesUpdated`, {
-      allGamesUpdated: game,
-    })
+    if (verifier) {
+      const game = await this.prisma.game.delete({
+        where: {
+          id: gameId,
+        },
+      })
+      game.isDeleted = true
+      this.pubSub.publish(`allGamesUpdated`, {
+        allGamesUpdated: game,
+      })
+    }
   }
 
   async endGameOnSuccess(
@@ -256,49 +263,57 @@ export class GamesService {
     scorePlayer2: number,
   ) {
     console.log(`entered endGameOnSuccess`)
-    const game = await this.prisma.game.delete({
-      where: {
-        id: gameId,
-      },
-      include: {
-        gameMembers: true,
-      },
-    })
-    game.isDeleted = true
-    this.pubSub.publish(`allGamesUpdated`, {
-      allGamesUpdated: game,
-    })
-    const isWinner = scorePlayer1 >= scorePlayer2 ? true : false
-    const gameStatForPlayer1 = await this.createGameStat({
-      userId: game.gameMembers[0].userId,
-      opponentId: game.gameMembers[1].userId,
-      isWinner: isWinner,
-      userScore: scorePlayer1.toString(),
-      opponentScore: scorePlayer2.toString(),
-      isFakeData: false,
-    })
-    const gameStatForPlayer2 = await this.createGameStat({
-      userId: game.gameMembers[1].userId,
-      opponentId: game.gameMembers[0].userId,
-      isWinner: !isWinner,
-      userScore: scorePlayer2.toString(),
-      opponentScore: scorePlayer1.toString(),
-      isFakeData: false,
-    })
-
-    const resGame = await this.prisma.game.findFirst({
+    const verifier = await this.prisma.game.findFirst({
       where: {
         id: gameId,
       },
     })
+    if (verifier) {
+      const game = await this.prisma.game.delete({
+        where: {
+          id: gameId,
+        },
+        include: {
+          gameMembers: true,
+        },
+      })
+      game.isDeleted = true
+      this.pubSub.publish(`allGamesUpdated`, {
+        allGamesUpdated: game,
+      })
+      const isWinner = scorePlayer1 >= scorePlayer2 ? true : false
+      const gameStatForPlayer1 = await this.createGameStat({
+        userId: game.gameMembers[0].userId,
+        opponentId: game.gameMembers[1].userId,
+        isWinner: isWinner,
+        userScore: scorePlayer1.toString(),
+        opponentScore: scorePlayer2.toString(),
+        isFakeData: false,
+      })
+      const gameStatForPlayer2 = await this.createGameStat({
+        userId: game.gameMembers[1].userId,
+        opponentId: game.gameMembers[0].userId,
+        isWinner: !isWinner,
+        userScore: scorePlayer2.toString(),
+        opponentScore: scorePlayer1.toString(),
+        isFakeData: false,
+      })
 
-    if (resGame) {
-      throw new BadRequestException(`can't delete game !`)
+      const resGame = await this.prisma.game.findFirst({
+        where: {
+          id: gameId,
+        },
+      })
+
+      if (resGame) {
+        throw new BadRequestException(`can't delete game !`)
+      }
+      if (!gameStatForPlayer1 || !gameStatForPlayer2) {
+        throw new BadRequestException(`can't create gameStats !`)
+      }
+      return gameStatForPlayer1
     }
-    if (!gameStatForPlayer1 || !gameStatForPlayer2) {
-      throw new BadRequestException(`can't create gameStats !`)
-    }
-    return gameStatForPlayer1
+    return null
   }
 
   async killAll() {

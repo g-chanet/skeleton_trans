@@ -1,5 +1,6 @@
 import Konva from 'konva'
 import type { Socket } from 'socket.io-client'
+import { router } from '../../../router/index'
 
 export interface PongPlayer {
   socketId: string
@@ -965,7 +966,7 @@ export class Pong {
       const buttonText = new Konva.Text({
         x: buttonX + buttonWidth / 2,
         y: buttonY + buttonHeight / 2,
-        text: `REMATCH`,
+        text: `HOME`,
         fontSize: 20,
         fontFamily: `BaseRetroWave`,
         fill: `white`,
@@ -1009,8 +1010,8 @@ export class Pong {
       })
 
       buttonRect.on(`click`, () => {
-        // Delete room
-        // retour à la logique matchmaking
+        console.log('redirect')
+        router.push('/app/home')
       })
     
       this.victoryScreenLayer.add(buttonRect)
@@ -1199,7 +1200,7 @@ export class Pong {
       const buttonText = new Konva.Text({
         x: buttonX + buttonWidth / 2,
         y: buttonY + buttonHeight / 2,
-        text: `REMATCH`,
+        text: `HOME`,
         fontSize: 20,
         fontFamily: `BaseRetroWave`,
         fill: `white`,
@@ -1243,8 +1244,8 @@ export class Pong {
       })
 
       buttonRect.on(`click`, () => {
-        // Delete room
-        // retour à la logique matchmaking
+        console.log('redirect')
+        router.push('/app/home')
       })
     
       this.victoryScreenLayer.add(buttonRect)
