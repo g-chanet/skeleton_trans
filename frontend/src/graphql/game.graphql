@@ -90,6 +90,16 @@ mutation JoinGameMatchmakingMember($message:String, $userTargetId: String) {
     }
 }
 
+mutation DeleteGame($gameId: String!) {
+    deleteGame(args: { id: $gameId }) {
+        id
+        message
+        isDeleted
+        targetUserId
+        createdAt
+    }
+}
+
 mutation joinGame($gameId:String!) {
     joinGame(args: { id: $gameId }) {
         message
@@ -122,6 +132,27 @@ subscription MatchmakingMembersChanged {
         message
     }
 }
+
+subscription UserGameUpdated($userId: String!) {
+    UserGameUpdated(userId: $userId) {
+        id
+        message
+        isDeleted
+        targetUserId
+        createdAt
+        gameMembers {
+            gameId
+            userId
+            score
+            userGameInfos {
+                username
+                avatarUrl
+                ratio
+            }
+        }
+    }
+}
+
 
 query FindAllGameMatchmakingMemberl {
     findAllGameMatchmakingMemberl {

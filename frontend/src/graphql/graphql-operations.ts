@@ -93,6 +93,10 @@ export type DeleteChannelInput = {
   id: Scalars['String'];
 };
 
+export type DeleteGameInput = {
+  id: Scalars['String'];
+};
+
 export type DeleteMemberForChannelInput = {
   channelId: Scalars['String'];
   userId: Scalars['String'];
@@ -236,6 +240,7 @@ export type Mutation = {
   createMyMemberForChannel: ChannelMember;
   createRequestFriend: UserRelation;
   deleteChannel: Channel;
+  deleteGame: Game;
   deleteMemberForChannel: ChannelMember;
   deleteMyMemberForChannel: ChannelMember;
   deleteMyMessageForChannel: ChannelMessage;
@@ -323,6 +328,11 @@ export type MutationCreateRequestFriendArgs = {
 
 export type MutationDeleteChannelArgs = {
   args: DeleteChannelInput;
+};
+
+
+export type MutationDeleteGameArgs = {
+  args: DeleteGameInput;
 };
 
 
@@ -561,6 +571,7 @@ export type SignUpLocalInput = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  UserGameUpdated: Game;
   allGamesStatsUpdated?: Maybe<GameStat>;
   allGamesStatsUpdatedForUser: GameStat;
   allGamesUpdated?: Maybe<Game>;
@@ -579,6 +590,11 @@ export type Subscription = {
   onUpdateChannelMemberForUserlId: ChannelMember;
   userRelationsChanged: UserRelation;
   usersPresenceUpdated: UserPresence;
+};
+
+
+export type SubscriptionUserGameUpdatedArgs = {
+  userId: Scalars['String'];
 };
 
 
@@ -1017,6 +1033,13 @@ export type JoinGameMatchmakingMemberMutationVariables = Exact<{
 
 export type JoinGameMatchmakingMemberMutation = { __typename?: 'Mutation', joinGameMatchmakingMember: { __typename?: 'GameMatchmakingMember', userId: string, message: string, isDeleted: boolean, targetUserId?: string | null, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } } };
 
+export type DeleteGameMutationVariables = Exact<{
+  gameId: Scalars['String'];
+}>;
+
+
+export type DeleteGameMutation = { __typename?: 'Mutation', deleteGame: { __typename?: 'Game', id: string, message: string, isDeleted: boolean, targetUserId?: string | null, createdAt: any } };
+
 export type JoinGameMutationVariables = Exact<{
   gameId: Scalars['String'];
 }>;
@@ -1028,6 +1051,13 @@ export type MatchmakingMembersChangedSubscriptionVariables = Exact<{ [key: strin
 
 
 export type MatchmakingMembersChangedSubscription = { __typename?: 'Subscription', matchmakingMembersChanged: { __typename?: 'GameMatchmakingMember', userId: string, isDeleted: boolean, targetUserId?: string | null, isLaunched?: boolean | null, message: string, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } } };
+
+export type UserGameUpdatedSubscriptionVariables = Exact<{
+  userId: Scalars['String'];
+}>;
+
+
+export type UserGameUpdatedSubscription = { __typename?: 'Subscription', UserGameUpdated: { __typename?: 'Game', id: string, message: string, isDeleted: boolean, targetUserId?: string | null, createdAt: any, gameMembers?: Array<{ __typename?: 'GameMember', gameId: string, userId: string, score: number, userGameInfos: { __typename?: 'UserPublicGameInfos', username: string, avatarUrl: string, ratio: number } }> | null } };
 
 export type FindAllGameMatchmakingMemberlQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1064,6 +1094,16 @@ export type FindAllGameStatsSoftLimitQueryVariables = Exact<{ [key: string]: nev
 
 
 export type FindAllGameStatsSoftLimitQuery = { __typename?: 'Query', findAllGameStatsSoftLimit: Array<{ __typename?: 'GameStat', id?: string | null, userId?: string | null, opponentId?: string | null, isWinner?: boolean | null, userScore?: string | null, opponentScore?: string | null, createdAt?: string | null, isDeleted: boolean }> };
+
+export type InjectFalseGameStatDataMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type InjectFalseGameStatDataMutation = { __typename?: 'Mutation', injectFalseGameStatData: boolean };
+
+export type RemoveFalseGameStatDataMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RemoveFalseGameStatDataMutation = { __typename?: 'Mutation', removeFalseGameStatData: boolean };
 
 export type FindLeaderboardUserListQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2549,6 +2589,39 @@ export function useJoinGameMatchmakingMemberMutation(options: VueApolloComposabl
   return VueApolloComposable.useMutation<JoinGameMatchmakingMemberMutation, JoinGameMatchmakingMemberMutationVariables>(JoinGameMatchmakingMemberDocument, options);
 }
 export type JoinGameMatchmakingMemberMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<JoinGameMatchmakingMemberMutation, JoinGameMatchmakingMemberMutationVariables>;
+export const DeleteGameDocument = gql`
+    mutation DeleteGame($gameId: String!) {
+  deleteGame(args: {id: $gameId}) {
+    id
+    message
+    isDeleted
+    targetUserId
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useDeleteGameMutation__
+ *
+ * To run a mutation, you first call `useDeleteGameMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteGameMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useDeleteGameMutation({
+ *   variables: {
+ *     gameId: // value for 'gameId'
+ *   },
+ * });
+ */
+export function useDeleteGameMutation(options: VueApolloComposable.UseMutationOptions<DeleteGameMutation, DeleteGameMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<DeleteGameMutation, DeleteGameMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<DeleteGameMutation, DeleteGameMutationVariables>(DeleteGameDocument, options);
+}
+export type DeleteGameMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DeleteGameMutation, DeleteGameMutationVariables>;
 export const JoinGameDocument = gql`
     mutation joinGame($gameId: String!) {
   joinGame(args: {id: $gameId}) {
@@ -2623,6 +2696,47 @@ export function useMatchmakingMembersChangedSubscription(options: VueApolloCompo
   return VueApolloComposable.useSubscription<MatchmakingMembersChangedSubscription, MatchmakingMembersChangedSubscriptionVariables>(MatchmakingMembersChangedDocument, {}, options);
 }
 export type MatchmakingMembersChangedSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<MatchmakingMembersChangedSubscription, MatchmakingMembersChangedSubscriptionVariables>;
+export const UserGameUpdatedDocument = gql`
+    subscription UserGameUpdated($userId: String!) {
+  UserGameUpdated(userId: $userId) {
+    id
+    message
+    isDeleted
+    targetUserId
+    createdAt
+    gameMembers {
+      gameId
+      userId
+      score
+      userGameInfos {
+        username
+        avatarUrl
+        ratio
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useUserGameUpdatedSubscription__
+ *
+ * To run a query within a Vue component, call `useUserGameUpdatedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useUserGameUpdatedSubscription` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the subscription
+ * @param options that will be passed into the subscription, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/subscription.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useUserGameUpdatedSubscription({
+ *   userId: // value for 'userId'
+ * });
+ */
+export function useUserGameUpdatedSubscription(variables: UserGameUpdatedSubscriptionVariables | VueCompositionApi.Ref<UserGameUpdatedSubscriptionVariables> | ReactiveFunction<UserGameUpdatedSubscriptionVariables>, options: VueApolloComposable.UseSubscriptionOptions<UserGameUpdatedSubscription, UserGameUpdatedSubscriptionVariables> | VueCompositionApi.Ref<VueApolloComposable.UseSubscriptionOptions<UserGameUpdatedSubscription, UserGameUpdatedSubscriptionVariables>> | ReactiveFunction<VueApolloComposable.UseSubscriptionOptions<UserGameUpdatedSubscription, UserGameUpdatedSubscriptionVariables>> = {}) {
+  return VueApolloComposable.useSubscription<UserGameUpdatedSubscription, UserGameUpdatedSubscriptionVariables>(UserGameUpdatedDocument, variables, options);
+}
+export type UserGameUpdatedSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<UserGameUpdatedSubscription, UserGameUpdatedSubscriptionVariables>;
 export const FindAllGameMatchmakingMemberlDocument = gql`
     query FindAllGameMatchmakingMemberl {
   findAllGameMatchmakingMemberl {
@@ -2816,6 +2930,52 @@ export function useFindAllGameStatsSoftLimitLazyQuery(options: VueApolloComposab
   return VueApolloComposable.useLazyQuery<FindAllGameStatsSoftLimitQuery, FindAllGameStatsSoftLimitQueryVariables>(FindAllGameStatsSoftLimitDocument, {}, options);
 }
 export type FindAllGameStatsSoftLimitQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<FindAllGameStatsSoftLimitQuery, FindAllGameStatsSoftLimitQueryVariables>;
+export const InjectFalseGameStatDataDocument = gql`
+    mutation InjectFalseGameStatData {
+  injectFalseGameStatData
+}
+    `;
+
+/**
+ * __useInjectFalseGameStatDataMutation__
+ *
+ * To run a mutation, you first call `useInjectFalseGameStatDataMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useInjectFalseGameStatDataMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useInjectFalseGameStatDataMutation();
+ */
+export function useInjectFalseGameStatDataMutation(options: VueApolloComposable.UseMutationOptions<InjectFalseGameStatDataMutation, InjectFalseGameStatDataMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<InjectFalseGameStatDataMutation, InjectFalseGameStatDataMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<InjectFalseGameStatDataMutation, InjectFalseGameStatDataMutationVariables>(InjectFalseGameStatDataDocument, options);
+}
+export type InjectFalseGameStatDataMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<InjectFalseGameStatDataMutation, InjectFalseGameStatDataMutationVariables>;
+export const RemoveFalseGameStatDataDocument = gql`
+    mutation RemoveFalseGameStatData {
+  removeFalseGameStatData
+}
+    `;
+
+/**
+ * __useRemoveFalseGameStatDataMutation__
+ *
+ * To run a mutation, you first call `useRemoveFalseGameStatDataMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveFalseGameStatDataMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useRemoveFalseGameStatDataMutation();
+ */
+export function useRemoveFalseGameStatDataMutation(options: VueApolloComposable.UseMutationOptions<RemoveFalseGameStatDataMutation, RemoveFalseGameStatDataMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<RemoveFalseGameStatDataMutation, RemoveFalseGameStatDataMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<RemoveFalseGameStatDataMutation, RemoveFalseGameStatDataMutationVariables>(RemoveFalseGameStatDataDocument, options);
+}
+export type RemoveFalseGameStatDataMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<RemoveFalseGameStatDataMutation, RemoveFalseGameStatDataMutationVariables>;
 export const FindLeaderboardUserListDocument = gql`
     query FindLeaderboardUserList {
   findLeaderboardUserList {

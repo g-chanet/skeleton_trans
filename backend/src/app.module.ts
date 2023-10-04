@@ -19,6 +19,7 @@ import { PassportModule } from '@nestjs/passport'
 import { AppGateway } from './app.gateway'
 import { UserPresencesService } from './user-presences/user-presences.service'
 import { GamesService } from './games/games.service'
+import { GameMembersService } from './game-members/game-members.service'
 
 @Module({
   imports: [
@@ -47,7 +48,12 @@ import { GamesService } from './games/games.service'
     PubSubModule,
     PassportModule.register({ session: true }),
   ],
-  providers: [AppGateway, UserPresencesService, GamesService],
+  providers: [
+    AppGateway,
+    UserPresencesService,
+    GamesService,
+    GameMembersService,
+  ],
   //controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule { }

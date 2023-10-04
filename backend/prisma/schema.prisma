@@ -154,7 +154,7 @@ model GameStat {
 
 model GameMatchmakingMember {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       String   @id
+  userId       String   @id @unique
   createdAt    DateTime @default(now())
   isDeleted    Boolean  @default(false)
   message      String?  @default("Join this game to play against me !")

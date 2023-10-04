@@ -35,3 +35,11 @@ query FindAllGameStatsSoftLimit {
         isDeleted
     }
 }
+
+mutation InjectFalseGameStatData {
+    injectFalseGameStatData
+}
+
+mutation RemoveFalseGameStatData {
+    removeFalseGameStatData
+}

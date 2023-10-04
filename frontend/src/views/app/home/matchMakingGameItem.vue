@@ -39,6 +39,7 @@ const props = defineProps({
 })
 
 const acceptGameInvite = () => {
+	console.log('game have been accepted, joining matchmaking ')
 	joinMatchmakingMutate({ userTargetId : props.matchmakingItem?.userId})
 	.catch((error) => {
 		ElMessage.error(error)
@@ -46,6 +47,7 @@ const acceptGameInvite = () => {
 }
 
 const refuseGameInvite = () => {
+	console.log('game have been refused, will refuse')
 	refuseMatchmakingMutate({ matchMakerId: props.matchmakingItem?.userId })
 	.catch((error) => {
 		ElMessage.error(error)

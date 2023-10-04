@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { Prisma } from '@prisma/client'
+import { GameMember } from '@prisma/client'
 
 @Injectable()
 export class GameMembersService {
@@ -58,5 +59,23 @@ export class GameMembersService {
         },
       },
     })
+  }
+
+  async findOtherPlayerInGame(userId: string): Promise<GameMember | null> {
+    const userGameMember = await this.prisma.gameMember.findFirst({
+      where: { userId },
+      include: { game: true },
+    })
+    if (!userGameMember || !userGameMember.game) {
+      throw new Error(`Game or GameMember not found`)
+    }
+    const otherGameMember = await this.prisma.gameMember.findFirst({
+      where: {
+        gameId: userGameMember.gameId,
+        userId: { not: userId },
+      },
+    })
+
+    return otherGameMember || null
   }
 }

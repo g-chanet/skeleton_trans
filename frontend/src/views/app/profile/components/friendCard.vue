@@ -143,6 +143,7 @@ export default {
 	})
 
 	const onChallengeClicked = () => {
+		console.log("joining matchmaking from firend card")
 		joinMatchmakingMutate({ userTargetId: props.userId })
       .catch((error) => {
           ElMessage.warning(error)

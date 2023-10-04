@@ -1,37 +1,25 @@
 <template>
-	<el-dialog v-model="DialogVisible" width="25%">
-		<div class="container">
-			<el-input
-				class="input"
-				placeholder="Rechercher un utilisateur"
-				:prefix-icon="Search"
-				v-model="searched"
-				style="width:100%"
-			></el-input>
-			<el-scrollbar>
-				<div>
-					<p v-for="item in filtered" :key="item.id">
-						<blockUserCard 
-							:userId="item.id" 
-							:avatarUrl="item.avatarUrl || ''" 
-							:username="item.username" 
-							:relationStatus="gestUserRelation(item.id)?.type"
-						/>
-					</p>
-				</div>
-			</el-scrollbar>
-		</div>
-	</el-dialog>
+	<div class="container">
+		<el-input class="input" placeholder="Rechercher un utilisateur" :prefix-icon="Search" v-model="searched"
+			style="width:100%"></el-input>
+		<el-scrollbar>
+			<div>
+				<p v-for="item in filtered" :key="item.id">
+					<blockUserCard :userId="item.id" :avatarUrl="item.avatarUrl || ''" :username="item.username"
+						:relationStatus="gestUserRelation(item.id)?.type" />
+				</p>
+			</div>
+		</el-scrollbar>
+	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, inject, watch, computed, type Ref } from 'vue'
+import { ref, inject, watch, computed, type Ref, onMounted } from 'vue'
 import { Search } from '@element-plus/icons-vue'
-import {  useFindPublicUsersListQuery , type UserRelation, type UserPublic, type User } from '@/graphql/graphql-operations'
+import { useFindPublicUsersListQuery, type UserRelation, type UserPublic, type User } from '@/graphql/graphql-operations'
 import blockUserCard from './blockUserCard.vue'
 
 const { onResult, refetch } = useFindPublicUsersListQuery()
-const DialogVisible = ref(false)
 const userRelations = inject<Ref<UserRelation[]>>('userRelations')
 const users = ref<UserPublic[]>([])
 const searched = ref('')
@@ -49,10 +37,8 @@ onResult((res) => {
 	}
 })
 
-watch(DialogVisible, () => {
-    if (DialogVisible.value) {
-        refetch()
-    }
+onMounted(() => {
+	refetch()
 })
 
 const gestUserRelation = (userId: string) => {
@@ -62,23 +48,17 @@ const gestUserRelation = (userId: string) => {
 }
 
 const filtered = computed(() => {
-  return users.value.filter(user => {
-    if (user.id === loggedInUser?.value.id) {
-      return false
-    }
-    if (searched.value && !user.username.toLowerCase().includes(searched.value.toLowerCase())) {
-      return false
-    }
-    return true
-  })
+	return users.value.filter(user => {
+		if (user.id === loggedInUser?.value.id) {
+			return false
+		}
+		if (searched.value && !user.username.toLowerCase().includes(searched.value.toLowerCase())) {
+			return false
+		}
+		return true
+	})
 })
 
-
-
-const changeDialogVisibility = () => {
-    DialogVisible.value ? DialogVisible.value = false : DialogVisible.value = true
-  }
-defineExpose({ changeDialogVisibility })
 </script>
 
 <style scoped lang="sass">
@@ -90,7 +70,6 @@ defineExpose({ changeDialogVisibility })
 	flex-direction: column
 	justify-content: center
 	align-items: center
-	background: #111115
 	font-family: "roboto"
 	.input
 		margin: 20px

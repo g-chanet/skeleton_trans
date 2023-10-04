@@ -1,114 +1,109 @@
 <template>
-    <div class="user-item-component">
+	<div class="user-item-component">
 		<div class="avatar-username-wrapper">
-			<el-avatar class="avatar" :src="avatarUrl"/>
-			<text>{{truncateStr(username, 8)}}</text>
+			<el-avatar class="avatar" :src="avatarUrl" />
+			<text>{{ truncateStr(username, 8) }}</text>
 		</div>
-        <el-button class="add-btn"
-					@click="handleButtonClick()"
-                   @mouseenter="handleMouseEnter()" 
-                   @mouseleave="handleMouseLeave()">
-            <el-icon v-if="relationType != 'Blocked'">
-                <CirclePlus/>
-            </el-icon>
+		<el-button class="add-btn" @click="handleButtonClick()" @mouseenter="handleMouseEnter()"
+			@mouseleave="handleMouseLeave()">
+			<el-icon v-if="relationType != 'Blocked'">
+				<CirclePlus />
+			</el-icon>
 			<el-icon v-if="relationType === 'PendingAccept' && isHovered">
-                <Close/>
-            </el-icon>
-            <a v-if="relationType === 'Blocked' && !isHovered">Bloqué !</a>
-            <span v-if="relationType === 'Blocked' && isHovered">Annuler</span>
-        </el-button>
-    </div>
+				<Close />
+			</el-icon>
+			<a v-if="relationType === 'Blocked' && !isHovered">Bloqué !</a>
+			<span v-if="relationType === 'Blocked' && isHovered">Annuler</span>
+		</el-button>
+	</div>
 </template>
 
 <script lang="ts">
 import { ElMessage } from 'element-plus'
-import {  ref, watch } from 'vue'
-import { useBlockRelationMutation , useUnblockRelationMutation  } from '@/graphql/graphql-operations'
+import { ref, watch } from 'vue'
+import { useBlockRelationMutation, useUnblockRelationMutation } from '@/graphql/graphql-operations'
 
 
 export default {
-  name: `search-friend-card-item`,
-  props: {
-	userId: String,
-	avatarUrl: String,
-	username: String,
-	relationStatus: String,
-  },
-  setup(props) {
+	name: `search-friend-card-item`,
+	props: {
+		userId: String,
+		avatarUrl: String,
+		username: String,
+		relationStatus: String,
+	},
+	setup(props) {
 
-	const { mutate:blockrelationmutation } = useBlockRelationMutation()
-	const { mutate:unblockrelationmutation } = useUnblockRelationMutation()
+		const { mutate: blockrelationmutation } = useBlockRelationMutation()
+		const { mutate: unblockrelationmutation } = useUnblockRelationMutation()
 
-	const relationType = ref(props.relationStatus)
-	const isHovered = ref(false)
-	watch(() => props.relationStatus, (newRel) => {
-        relationType.value = newRel
-    })
-    
-    const handleMouseEnter = () => {
-      isHovered.value = true
-    }
-
-    const handleMouseLeave = () => {
-      isHovered.value = false
-    }
-
-    const handleButtonClick = () => {
-      if (relationType.value === `Blocked`) {
-        unblockUser()
-      } else {
-        blockUser()
-      }
-    }
-	
-	const unblockUser = () => {
-		if (props.userId) {
-			unblockrelationmutation({ userTargetId: props.userId })
-		.then ((res) => {
-			if (!res?.errors && res?.data?.unblockRelation)
-			{
-				relationType.value = undefined
-			}
+		const relationType = ref(props.relationStatus)
+		const isHovered = ref(false)
+		watch(() => props.relationStatus, (newRel) => {
+			relationType.value = newRel
 		})
-		.catch((Error) => {
-				ElMessage.error(Error.message)
-			})
-		}
-	}
 
-	const blockUser = () => {
-		if (props.userId)
-		{
-			blockrelationmutation({ userTargetId: props.userId })
-			.then((res) => {
-				if (!res?.errors && res?.data?.blockRelation)
-				{
-					relationType.value = res.data.blockRelation.type
+		const handleMouseEnter = () => {
+			isHovered.value = true
+		}
+
+		const handleMouseLeave = () => {
+			isHovered.value = false
+		}
+
+		const handleButtonClick = () => {
+			if (relationType.value === `Blocked`) {
+				unblockUser()
+			} else {
+				blockUser()
+			}
+		}
+
+		const unblockUser = () => {
+			if (props.userId) {
+				unblockrelationmutation({ userTargetId: props.userId })
+					.then((res) => {
+						if (!res?.errors && res?.data?.unblockRelation) {
+							relationType.value = undefined
+						}
+					})
+					.catch((Error) => {
+						ElMessage.error(Error.message)
+					})
+			}
+		}
+
+		const blockUser = () => {
+			if (props.userId) {
+				blockrelationmutation({ userTargetId: props.userId })
+					.then((res) => {
+						if (!res?.errors && res?.data?.blockRelation) {
+							relationType.value = res.data.blockRelation.type
+						}
+					})
+					.catch((Error) => {
+						ElMessage.error(Error.message)
+					})
+			}
+		}
+
+		const truncateStr = (str: string | undefined, limit: number) => {
+			if (str) {
+				if (str.length < limit) {
+					return str
 				}
-			})
-			.catch((Error) => {
-				ElMessage.error(Error.message)
-			})
-		}
-	}
-
-	const truncateStr = (str:string | undefined, limit: number) => {
-		if (str) {
-			if (str.length < limit) {
-			return str
+				else {
+					return str.slice(0, limit) + "..."
+				}
+			} else {
+				return '...'
 			}
-			else {
-				return str.slice(0, limit) + "..."
-			}
-		} else {
-			return '...'
 		}
+
+		return { props, relationType, handleMouseLeave, handleMouseEnter, handleButtonClick, isHovered, truncateStr }
 	}
 
-		return {props, relationType, handleMouseLeave, handleMouseEnter, handleButtonClick, isHovered, truncateStr}
-	}
 
-	
 }
 
 </script>
@@ -118,7 +113,6 @@ export default {
 .user-item-component
 		width: 17vw
 		height: 100%
-		background: #151519
 		display: flex
 		justify-content: space-between
 		align-items: center
