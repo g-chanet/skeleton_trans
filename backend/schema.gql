@@ -259,6 +259,7 @@ type Mutation {
   logout: Boolean!
   createGame(message: String, userTargetId: String): GameData!
   updateGame(args: UpdateGameInput!): GameData!
+  deleteGame(args: DeleteGameInput!): Game!
   joinGame(args: JoinGameInput!): Game!
   DEBUGkilleallgames: [Game!]!
   leaveGame: Boolean!
@@ -376,6 +377,10 @@ input UpdateGameInput {
   id: String!
 }
 
+input DeleteGameInput {
+  id: String!
+}
+
 input JoinGameInput {
   id: String!
 }
@@ -405,6 +410,7 @@ type Subscription {
   matchmakingMembersChanged: GameMatchmakingMember!
   allGamesStatsUpdated: GameStat
   allGamesUpdated: Game
+  UserGameUpdated(userId: String!): Game!
   allGamesStatsUpdatedForUser(userId: String!): GameStat!
 }
 

@@ -22,7 +22,7 @@ export class GameMatchmakingMembersResolver {
   constructor(
     private readonly gameMatchmakingMembersService: GameMatchmakingMembersService,
     private readonly pubSub: PubSub,
-    private readonly gamseService: GamesService,
+    private readonly gameService: GamesService,
   ) { }
 
   //**************************************************//
@@ -36,9 +36,14 @@ export class GameMatchmakingMembersResolver {
     @Args(`message`, { nullable: true }) message?: string,
     @Args(`userTargetId`, { nullable: true }) userTargetId?: string,
   ) {
-    const activeGame = await this.gamseService.findGameByUserId(user.id)
+    const activeGame = await this.gameService.findGameByUserId(user.id)
     if (activeGame) {
-      await this.gamseService.playerLeave(activeGame.id, user)
+      console.log(
+        `we re in join GameMatchmaking resolver, an active game have been found`,
+      )
+      throw new BadRequestException(`user is already in game`)
+      // await this.gameService.playerLeave(activeGame.id, user)
+      // await this.gameService.endGameOnFailure(activeGame.id) //toTEST
     }
     const newMember = await this.gameMatchmakingMembersService.create({
       userId: user.id,

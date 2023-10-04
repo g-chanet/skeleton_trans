@@ -107,11 +107,23 @@ export class GamesService {
   }
 
   async delete(id: string) {
-    const game = await this.prisma.game.delete({ where: { id } })
-    this.pubSub.publish(`allGamesUpdated`, {
-      allGamesUpdated: { ...game, isDeleted: true },
+    const verifier = await this.prisma.game.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        gameMembers: true,
+      },
     })
-    return game
+    if (verifier) {
+      const game = await this.prisma.game.delete({ where: { id } })
+      game.isDeleted = true
+      await this.pubSub.publish(`allGamesUpdated`, {
+        allGamesUpdated: { ...game },
+      })
+      return game
+    }
+    return
   }
 
   async createGameStat(data: Prisma.GameStatUncheckedCreateInput) {
@@ -120,7 +132,7 @@ export class GamesService {
     this.pubSub.publish(`allGamestatsUpdated`, {
       allGamesStatsUpdated: gameStat,
     })
-    this.pubSub.publish(`userGamesStats:${gameStat.userId}`, {
+    this.pubSub.publish(`userGamesStats: ${gameStat.userId}`, {
       allGamesStatsUpdatedForUser: gameStat,
     })
 
@@ -135,11 +147,11 @@ export class GamesService {
     await this.prisma.gameStat.delete({
       where: { id_userId: { id, userId } },
     })
-    console.log(`userGamesStats:${userId}`)
+    console.log(`userGamesStats: ${userId}`)
     this.pubSub.publish(`allGamestatsUpdated`, {
       allGamesStatsUpdated: { ...gameStat, isDeleted: true },
     })
-    this.pubSub.publish(`userGamesStats:${userId}`, {
+    this.pubSub.publish(`userGamesStats: ${userId}`, {
       allGamesStatsUpdatedForUser: { ...gameStat, isDeleted: true },
     })
     return gameStat
@@ -237,23 +249,42 @@ export class GamesService {
     return memberToDelete
   }
 
-  async endGameOnFailure(gameId: string) {
+  async endGameOnFailure(gameId: string, requesterUserId?: string) {
     console.log(`entered endGameOnFailure`)
-    const verifier = await this.prisma.game.findFirst({
+    const game = await this.prisma.game.findUnique({
       where: {
         id: gameId,
       },
+      include: {
+        gameMembers: true,
+      },
     })
-    if (verifier) {
-      const game = await this.prisma.game.delete({
-        where: {
-          id: gameId,
-        },
-      })
-      game.isDeleted = true
-      this.pubSub.publish(`allGamesUpdated`, {
-        allGamesUpdated: game,
-      })
+    const gameMembers = game.gameMembers
+    if (game) {
+      await this.delete(game.id)
+      game.isDeleted
+    }
+    if (gameMembers && gameMembers.length) {
+      if (
+        requesterUserId &&
+        gameMembers.find((gameMember) => gameMember.userId === requesterUserId)
+      ) {
+        await this.pubSub.publish(`UserGameUpdated:${requesterUserId}`, {
+          UserGameUpdated: {
+            ...game,
+            userId: requesterUserId,
+          },
+        })
+      } else {
+        for (const gameMember of gameMembers) {
+          await this.pubSub.publish(`UserGameUpdated:${gameMember.userId}`, {
+            UserGameUpdated: {
+              ...game,
+              userId: gameMember.userId,
+            },
+          })
+        }
+      }
     }
   }
 

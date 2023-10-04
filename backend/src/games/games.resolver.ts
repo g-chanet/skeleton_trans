@@ -3,6 +3,7 @@ import { GameData } from './entities/game-data.entity'
 import { Resolver, Mutation, Args, Query, Subscription } from '@nestjs/graphql'
 import { GamesService } from './games.service'
 import { UsersService } from '../users/users.service'
+import { GameMembersService } from 'src/game-members/game-members.service'
 import { Game } from './entities/game.entity'
 import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard'
 import { User } from 'src/users/entities/user.entity'
@@ -17,9 +18,10 @@ import { PubSub } from 'graphql-subscriptions'
 export class GamesResolver {
   constructor(
     private readonly gamesService: GamesService,
+    private readonly gameMemberService: GameMembersService,
     private readonly userService: UsersService,
     private readonly pubSub: PubSub,
-  ) {}
+  ) { }
 
   //**************************************************//
   //  MUTATION
@@ -51,6 +53,14 @@ export class GamesResolver {
   }
 
   @Mutation(() => Game)
+  async deleteGame(
+    @CtxUser() user: User,
+    @Args(`args`) args: DTO.DeleteGameInput,
+  ) {
+    return await this.gamesService.delete(args.id)
+  }
+
+  @Mutation(() => Game)
   @UseGuards(GqlAuthGuard)
   joinGame(@CtxUser() user: User, @Args(`args`) args: DTO.JoinGameInput) {
     return this.gamesService.playerJoin(args.id, user)
@@ -64,15 +74,29 @@ export class GamesResolver {
   @Mutation(() => Boolean)
   @UseGuards(GqlAuthGuard)
   async leaveGame(@CtxUser() user: User) {
+    console.log(`leaveGame called`)
     const userGame = await this.gamesService.findGameByUserId(user.id)
-    if (
-      userGame &&
-      (await this.gamesService.playerLeave(userGame.id, user)).userId == user.id
-    ) {
+    if (!userGame) {
       return true
-    } else {
-      return false
     }
+    const otherPlayer = await this.gameMemberService.findOtherPlayerInGame(
+      user.id,
+    )
+    if (userGame) {
+      await this.gamesService.delete(userGame.id)
+      userGame.isDeleted = true
+    }
+    if (otherPlayer) {
+      console.log(`publishing for other player`)
+      // publishing info to opponent that game have been terminated
+      await this.pubSub.publish(`UserGameUpdated:${otherPlayer.userId}`, {
+        UserGameUpdated: {
+          ...userGame,
+          userId: otherPlayer.userId,
+        },
+      })
+    }
+    return true
   }
 
   @Mutation(() => Boolean)
@@ -164,6 +188,7 @@ export class GamesResolver {
     if (game && game.targetUserId != user.id) {
       throw new BadRequestException(`you're not invited to this game`)
     } else {
+      console.log(`the game have been refused (old)`)
       this.gamesService.endGameOnFailure(gameId)
     }
     return true
@@ -205,6 +230,15 @@ export class GamesResolver {
   allGamesUpdated() {
     const res = this.pubSub.asyncIterator(`allGamesUpdated`)
     return res
+  }
+
+  @Subscription(() => Game, {
+    filter: (payload, variables) => {
+      return payload.UserGameUpdated.userId === variables.userId
+    },
+  })
+  UserGameUpdated(@Args(`userId`) userId: string) {
+    return this.pubSub.asyncIterator(`UserGameUpdated:${userId}`)
   }
 
   @Subscription(() => GameStat, {

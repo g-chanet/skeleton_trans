@@ -20,6 +20,12 @@ export class UpdateGameInput {
 }
 
 @InputType()
+export class DeleteGameInput {
+  @Field(() => String)
+  id: string
+}
+
+@InputType()
 export class JoinGameInput {
   @Field(() => String)
   id: string

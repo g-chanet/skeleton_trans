@@ -110,8 +110,9 @@ if (subscriptionData.value?.allGamesStatsUpdated) {
 return ret
 })
 
-const onMatchMackingJoined = () => {
-		mutateJoinMatchmaking()
+const onMatchMackingJoined = async () => {
+		console.log('join matchmaking button have been pushed')
+		await mutateJoinMatchmaking()
 		.catch((error) => {
 		ElMessage.error(error.message)
 	})
