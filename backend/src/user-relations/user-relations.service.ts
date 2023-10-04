@@ -8,7 +8,7 @@ import {
 
 @Injectable()
 export class UserRelationsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   //**************************************************//
   //  MUTATION
   //**************************************************//
@@ -186,6 +186,13 @@ export class UserRelationsService {
   async findAllForUser(userOwnerId: string) {
     return await this.prisma.userRelation.findMany({
       where: { userOwnerId },
+    })
+  }
+
+  async findAllFriendsForUser(userOwnerId: string) {
+    return await this.prisma.userRelation.findMany({
+      where: { userOwnerId, type: EUserRelationType.Friend },
+      include: { userTarget: true },
     })
   }
 

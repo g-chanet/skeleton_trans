@@ -44,7 +44,7 @@ import {
     type ChannelMessage,
     useFindMyUserQuery
 } from '@/graphql/graphql-operations'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const hover = ref(false)
 const props = defineProps<{
@@ -55,6 +55,11 @@ const props = defineProps<{
 defineEmits<{
     (e: `onDelete`): void
 }>()
+
+onMounted(() => {
+    refetchUser({ args: { id: props.message.id } })
+    refetchMyUser({})
+})
 
 const isNotNull = computed(() => props.previousMessage !== null)
 const showUser = computed(
@@ -67,8 +72,8 @@ const showDate = computed(
         moment(props.previousMessage?.createdAt).format(`LL`)
 )
 
-const { result: user } = useFindUserForChannelMessageQuery({ args: { id: props.message.id } })
-const { result: myUser } = useFindMyUserQuery({})
+const { result: user, refetch: refetchUser } = useFindUserForChannelMessageQuery({ args: { id: props.message.id } })
+const { result: myUser, refetch: refetchMyUser } = useFindMyUserQuery({})
 </script>
 
 <style scoped lang="sass">

@@ -5,7 +5,7 @@ import { EChannelMemberType } from '@prisma/client'
 //**************************************************//
 
 @InputType()
-export class CreateMemberForChannelInput {
+export class CreateMyMemberForChannelInput {
   @Field(() => String)
   channelId: string
 
@@ -14,6 +14,15 @@ export class CreateMemberForChannelInput {
 
   @Field(() => EChannelMemberType, { nullable: true })
   type?: EChannelMemberType
+}
+
+@InputType()
+export class CreateMemberForChannelInput {
+  @Field(() => String)
+  channelId: string
+
+  @Field(() => String)
+  userId: string
 }
 
 @InputType()

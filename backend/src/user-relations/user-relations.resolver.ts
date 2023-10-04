@@ -9,21 +9,30 @@ import {
 } from '@nestjs/graphql'
 import { UserRelationsService } from './user-relations.service'
 import { UserRelation } from './entities/user-relation.entity'
-import { BadRequestException, UseGuards } from '@nestjs/common'
+import {
+  BadRequestException,
+  Inject,
+  UseGuards,
+  forwardRef,
+} from '@nestjs/common'
 import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User, UserPublicGameInfos } from 'src/users/entities/user.entity'
 import * as DTO from './dto/user-relation.input'
 import { EUserRelationType } from '@prisma/client'
+import { ChannelsService } from 'src/channels/channels.service'
 import { PubSub } from 'graphql-subscriptions'
+
+const PUB_DELETE_CHANNEL = `onDeleteChannel`
 
 @Resolver(() => UserRelation)
 export class UserRelationsResolver {
   constructor(
     private readonly userRelationsService: UserRelationsService,
+    @Inject(forwardRef(() => ChannelsService))
+    private readonly channelsService: ChannelsService,
     private readonly pubSub: PubSub,
-  ) { }
-
+  ) {}
   //**************************************************//
   //  MUTATION
   //**************************************************//
@@ -113,6 +122,14 @@ export class UserRelationsResolver {
     @CtxUser() user: User,
     @Args(`args`) args: DTO.UpdateUserRelationInput,
   ) {
+    const channel = await this.channelsService.findDirectChannelForUsers(
+      user.id,
+      args.userTargetid,
+    )
+    if (channel !== null) {
+      await this.channelsService.delete(channel.id)
+      this.pubSub.publish(PUB_DELETE_CHANNEL, channel)
+    }
     const targetResult = await this.userRelationsService.findOne(
       args.userTargetid,
       user.id,
@@ -178,6 +195,12 @@ export class UserRelationsResolver {
   @UseGuards(GqlAuthGuard)
   async findAllRelationsForMyUser(@CtxUser() user: User) {
     return await this.userRelationsService.findAllForUser(user.id)
+  }
+
+  @Query(() => [UserRelation])
+  @UseGuards(GqlAuthGuard)
+  async findAllFriendsForUser(@CtxUser() user: User) {
+    return await this.userRelationsService.findAllFriendsForUser(user.id)
   }
 
   //**************************************************//

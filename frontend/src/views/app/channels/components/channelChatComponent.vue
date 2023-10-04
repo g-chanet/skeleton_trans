@@ -66,6 +66,16 @@ onMounted(() => {
         loading.value = false
         chatScroll.value?.setScrollTop(innerRef.value!.clientHeight)
     }, 500)
+    queryChannel.refetch({
+        args: {
+            id: props.channelId
+        }
+    })
+    queryMessages.refetch({
+        args: {
+            channelId: props.channelId
+        }
+    })
 })
 
 const { mutate: deleteChannel } = useDeleteChannelMutation({})

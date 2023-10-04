@@ -22,7 +22,7 @@
 			</el-form-item>
 			<div style="display: flex; justify-content: space-between;">
 				<el-button @click="resetForm">Reset</el-button>
-				<el-button type="primary" @click="submitForm"> Create </el-button>
+				<el-button :disabled="loading || searching" type="primary" @click="submitForm"> Create </el-button>
 			</div>
 		</el-form>
 	</el-dialog>
@@ -34,7 +34,8 @@ import {
 	EChannelType,
 	useCheckChannelNameQuery,
 	useCreateChannelMutation,
-	useCreateMemberForChannelMutation
+	useCreateMyMemberForChannelMutation,
+	useFindAllChannelsForUserQuery
 } from '@/graphql/graphql-operations'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -53,8 +54,10 @@ const dialog = computed({
 	}
 })
 
+const query = useFindAllChannelsForUserQuery({})
+
 const { mutate: mutateChannel, onError: createChannelError } = useCreateChannelMutation({})
-const { mutate: mutateChannelMember } = useCreateMemberForChannelMutation({})
+const { mutate: mutateChannelMember } = useCreateMyMemberForChannelMutation({})
 
 const router = useRouter()
 
@@ -71,7 +74,7 @@ const channelForm = reactive<ChannelForm>({
 	password: ``,
 })
 
-const { result: nameChecked, refetch: checkName } = useCheckChannelNameQuery({
+const { result: nameChecked, refetch: checkName, loading } = useCheckChannelNameQuery({
 	args: { channelName: channelForm.channelName }
 })
 
@@ -126,11 +129,14 @@ const resetForm = () => {
 }
 
 let timeout: number | undefined
+const searching = ref(false)
 
 const search = () => {
+	searching.value = true
 	clearTimeout(timeout)
 	timeout = setTimeout(() => {
 		checkName({ args: { channelName: channelForm.channelName } })
+		searching.value = false
 	}, 1000)
 }
 
@@ -154,7 +160,7 @@ const onCreateChannel = () => {
 				})
 			)
 			.then((args) => {
-				router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId } })
+				router.replace({ query: { channelId: args?.data?.createMyMemberForChannel.channelId } })
 			})
 	}
 	//Public & Private
@@ -174,10 +180,12 @@ const onCreateChannel = () => {
 				})
 			)
 			.then((args) => {
-				router.replace({ query: { channelId: args?.data?.createMemberForChannel.channelId } })
+				router.replace({ query: { channelId: args?.data?.createMyMemberForChannel.channelId } })
 			})
 	}
+	query.refetch()
 	dialog.value = false
+	resetForm()
 }
 
 createChannelError((e) => {

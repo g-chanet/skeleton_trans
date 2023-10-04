@@ -1,11 +1,17 @@
-import { ObjectType, Field, registerEnumType } from '@nestjs/graphql'
-import { EUserRelationType } from '@prisma/client'
-import { UserPublicGameInfos } from '../../users/entities/user.entity'
+import { ObjectType, Field, registerEnumType, ID } from '@nestjs/graphql'
+import { EUserRelationType, User } from '@prisma/client'
+import {
+  UserPublic,
+  UserPublicGameInfos,
+} from '../../users/entities/user.entity'
 
 @ObjectType()
 export class UserRelation {
-  @Field(() => String)
+  @Field(() => ID)
   userOwnerId: string
+
+  @Field(() => UserPublic)
+  userTarget: User
 
   @Field(() => String)
   userTargetId: string

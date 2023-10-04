@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, ref } from 'vue'
+import { computed, h, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { router } from '@/router'
 import {
@@ -37,6 +37,10 @@ import {
     useOnDeleteChannelMemberForUserlIdSubscription,
     useOnUpdateChannelMemberForUserlIdSubscription,
     useFindAllVisibleChannelsQuery,
+    useOnDeleteChannelMessageForChannelSubscription,
+    useOnNewChannelMemberForChannelIdSubscription,
+    useOnDeleteChannelMemberForChannelIdSubscription,
+    useOnUpdateChannelMemberForChannelIdSubscription,
 } from '@/graphql/graphql-operations'
 import ItemChannel from './components/channelListItemComponent.vue'
 import CreateChannelDialog from './dialogs/createChannel/createChannelDialog.vue'
@@ -56,6 +60,10 @@ const visibleQuery = useFindAllVisibleChannelsQuery()
 
 const createDialog = ref(false)
 const joinDialog = ref(false)
+
+onMounted(() => {
+    query.refetch({})
+})
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const onSelectChannelInList = ({ id }: Channel, _value: string) => {
@@ -96,7 +104,6 @@ useOnDeleteChannelMemberForUserlIdSubscription({ args: { userId: myUser.value!.f
     })
     router.replace({ query: {} })
 })
-
 
 </script>
 

@@ -89,3 +89,13 @@ mutation SendDirectMessage($args: SendDirectMessageInput!) {
     createdAt
   }
 }
+
+subscription OnNewVisibleChannel {
+  onNewVisibleChannel {
+    id
+    name
+    avatarUrl
+    channelType
+    createdAt
+  }
+}

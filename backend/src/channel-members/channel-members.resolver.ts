@@ -40,9 +40,9 @@ export class ChannelMembersResolver {
 
   @Mutation(() => ChannelMember)
   @UseGuards(GqlAuthGuard)
-  async createMemberForChannel(
+  async createMyMemberForChannel(
     @CtxUser() user: User,
-    @Args(`args`) args: DTO.CreateMemberForChannelInput,
+    @Args(`args`) args: DTO.CreateMyMemberForChannelInput,
   ) {
     if (
       !(await this.channelsService.verifyChannelPassword(
@@ -57,12 +57,41 @@ export class ChannelMembersResolver {
         ...args,
         userId: user.id,
       })
+      await this.pubSub.publish(PUB_INSERT_MY_CHANNEL_MEMBER, res)
+      await this.pubSub.publish(PUB_INSERT_CHANNEL_MEMBER, res)
+      return res
+    } catch (e) {
+      throw new UnauthorizedException(
+        `Unable to join the channel, you may already be a member of this channel or you are banned`,
+      )
+    }
+  }
+
+  @Mutation(() => ChannelMember)
+  @UseGuards(GqlAuthGuard)
+  async createMemberForChannel(
+    @CtxUser() user: User,
+    @Args(`args`) args: DTO.CreateMemberForChannelInput,
+  ) {
+    const member = await this.channelMembersService.findOne(
+      args.channelId,
+      user.id,
+    )
+    if (
+      member.type !== EChannelMemberType.Owner &&
+      member.type !== EChannelMemberType.Admin
+    )
+      throw new UnauthorizedException(`Invalid member type`)
+    try {
+      const res = await this.channelMembersService.create({
+        ...args,
+      })
       await this.pubSub.publish(PUB_INSERT_CHANNEL_MEMBER, res)
       await this.pubSub.publish(PUB_INSERT_MY_CHANNEL_MEMBER, res)
       return res
     } catch (e) {
       throw new UnauthorizedException(
-        `Unable to join the channel, you may already be a member of this channel or you are banned`,
+        `Unable to create channel member, this user may already be a member of this channel or is banned`,
       )
     }
   }

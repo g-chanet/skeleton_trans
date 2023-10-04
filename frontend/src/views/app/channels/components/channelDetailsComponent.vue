@@ -21,7 +21,7 @@
             class="members-scroll">
             <div style="display: flex; flex-direction: column; justify-content: space-evenly;">
               <div>
-                {{ item.user.username }}
+                {{ item.user?.username }}
               </div>
               <div style="color: white; font-size: small;">
                 {{ item.type.toString() }}
@@ -58,11 +58,11 @@ import type { ChannelMember } from '@/graphql/graphql-operations'
 import { EChannelMemberType, useDeleteChannelMutation, useFindMyChannelMemberForChannelQuery, useFindMyUserQuery, useOnDeleteChannelMemberForChannelIdSubscription, useOnDeleteChannelMemberForUserlIdSubscription, useOnNewChannelMemberForChannelIdSubscription, useOnUpdateChannelMemberForChannelIdSubscription, useOnUpdateChannelMemberForUserlIdSubscription, useOnUpdateChannelSubscription, useSendDirectMessageMutation } from '@/graphql/graphql-operations'
 import { useFindChannelQuery, EChannelType, useFindAllChannelMembersForChannelQuery, useDeleteMyMemberForChannelMutation } from '@/graphql/graphql-operations'
 import ChannelOptionsDialog from "../dialogs/channelOption/channelOptionsDialog.vue"
-import { computed, h, ref } from 'vue'
+import { computed, h, onMounted, ref } from 'vue'
 import moment from "moment"
 import { useRouter } from 'vue-router'
 import { cacheDelete, cacheUpsert } from '@/utils/cacheUtils'
-import { ElNotification } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 
 const router = useRouter()
 const { result: myUser } = useFindMyUserQuery()
@@ -72,6 +72,19 @@ const props = defineProps<{
   channelId: string
 }>()
 
+onMounted(() => {
+  queryChannel.refetch({
+    args: {
+      id: props.channelId
+    }
+  })
+  queryMyMemberForChannel.refetch({ args: { channelId: props.channelId } })
+  queryMembers.refetch({
+    args: {
+      channelId: props.channelId
+    }
+  })
+})
 
 const emit = defineEmits<{
   (e: `update:modelValue`, value: boolean): void
@@ -113,11 +126,6 @@ useOnNewChannelMemberForChannelIdSubscription({ args: { channelId: props.channel
       channelId: props.channelId
     }
   })
-  ElNotification({
-    title: 'New channel member',
-    message: h('i', { style: 'color: teal' }, data?.onNewChannelMemberForChannelId.user?.username + ' joined the channel'),
-    type: 'info'
-  })
 })
 
 useOnUpdateChannelMemberForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(({ data }) => {
@@ -133,11 +141,6 @@ useOnDeleteChannelMemberForChannelIdSubscription({ args: { channelId: props.chan
     args: {
       channelId: props.channelId
     }
-  })
-  ElNotification({
-    title: 'New channel member',
-    message: h('i', { style: 'color: teal' }, data?.onDeleteChannelMemberForChannelId.user?.username + ' left the channel'),
-    type: 'info'
   })
 })
 
@@ -163,7 +166,7 @@ interface MemberForTable {
 const isOwner = computed(() => queryMyMemberForChannel.result.value?.findMyChannelMemberForChannel.type === EChannelMemberType.Owner)
 const isAdmin = computed(() => queryMyMemberForChannel.result.value?.findMyChannelMemberForChannel.type === EChannelMemberType.Admin)
 
-const { mutate: sendDirectMessage } = useSendDirectMessageMutation({})
+const { mutate: sendDirectMessage, onError: onErrorSendingDirectMessage } = useSendDirectMessageMutation({})
 
 const directMessage = (userId: string) => {
   sendDirectMessage({
@@ -174,6 +177,13 @@ const directMessage = (userId: string) => {
     router.replace({ query: { channelId: args?.data?.sendDirectMessage.id } })
   })
 }
+
+onErrorSendingDirectMessage((e) => {
+  ElMessage({
+    message: e.message,
+    type: 'warning',
+  })
+})
 
 const pushPublicProfile = (userId: string) => {
   router.push(`/app/publicprofile`).then(() =>
