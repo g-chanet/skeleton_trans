@@ -82,8 +82,8 @@ const onSetPassword = () => {
     ElMessageBox.prompt('Please input your channel password', 'password', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel',
-        inputPattern: /^.{8,}$/,
-        inputErrorMessage: 'Invalid password',
+        inputPattern: /^.{3,}$/,
+        inputErrorMessage: 'Invalid password, must be at least 3 characters long',
     }).then(({ value }) => {
         mutate({
             args: {

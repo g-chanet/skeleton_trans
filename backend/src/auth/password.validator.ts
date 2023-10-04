@@ -11,7 +11,7 @@ export function verifyPassword(password: string) {
     throw new Error(`Password is empty.`)
   } else if (!MIN_LENGTH) {
     throw new BadRequestException(
-      `Password needs to be atleast 8 characters long`,
+      `Password needs to be at least 8 characters long`,
     )
   } else if (!MAX_LENGTH) {
     throw new BadRequestException(`Password cannot exceed 16 characters.`)

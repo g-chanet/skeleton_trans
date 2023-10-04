@@ -14,7 +14,7 @@ import { toDataURL } from 'qrcode'
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   //**************************************************//
   //  MUTATION

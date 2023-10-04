@@ -104,6 +104,7 @@ const rules = reactive<FormRules>({
 	],
 	password: [
 		{ required: true, message: `Please input Channel password`, trigger: `blur` },
+		{ min: 3, message: 'Length should be at least 3 characters', trigger: 'blur' },
 		{ validator: validatePassword, trigger: `blur` }
 	],
 })
