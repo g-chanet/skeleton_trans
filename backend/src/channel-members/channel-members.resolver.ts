@@ -57,8 +57,8 @@ export class ChannelMembersResolver {
         ...args,
         userId: user.id,
       })
-      await this.pubSub.publish(PUB_INSERT_CHANNEL_MEMBER, res)
       await this.pubSub.publish(PUB_INSERT_MY_CHANNEL_MEMBER, res)
+      await this.pubSub.publish(PUB_INSERT_CHANNEL_MEMBER, res)
       return res
     } catch (e) {
       throw new UnauthorizedException(

@@ -25,6 +25,8 @@ const PUB_INSERT_CHANNEL = `onInsertChannel`
 const PUB_UPDATE_CHANNEL = `onUpdateChannel`
 const PUB_DELETE_CHANNEL = `onDeleteChannel`
 
+const PUB_NEW_VISIBLE_CHANNEL = `onNewVisibleChannel`
+
 const PUB_INSERT_CHANNEL_MEMBER = `onInsertChannelMemberForChannelId`
 const PUB_INSERT_MY_CHANNEL_MEMBER = `onInsertMyChannelMemberForUserId`
 
@@ -68,6 +70,11 @@ export class ChannelsResolver {
       args.password,
       args,
     )
+    if (
+      channel.channelType === EChannelType.Public ||
+      channel.channelType === EChannelType.Protected
+    )
+      this.pubSub.publish(PUB_NEW_VISIBLE_CHANNEL, channel)
     this.pubSub.publish(PUB_UPDATE_CHANNEL, channel)
     return channel
   }
@@ -159,6 +166,13 @@ export class ChannelsResolver {
   })
   onDeleteChannel(@Args(`args`) args: DTO.OnChannelInput) {
     return this.pubSub.asyncIterator(PUB_DELETE_CHANNEL)
+  }
+
+  @Subscription(() => Channel, {
+    resolve: (value) => value,
+  })
+  onNewVisibleChannel() {
+    return this.pubSub.asyncIterator(PUB_NEW_VISIBLE_CHANNEL)
   }
 
   //**************************************************//

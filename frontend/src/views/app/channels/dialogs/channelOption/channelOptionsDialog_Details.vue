@@ -3,7 +3,7 @@
         status-icon @submit.prevent="submitForm" :disabled="loadingUpdate">
         <el-form-item label="Channel avatar" prop="imageUrl">
             <el-upload action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15" :show-file-list="false"
-                :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
+                :on-success="handleAvatarSuccess">
                 <el-avatar :size="90" :src="editChannelForm.imageUrl" />
             </el-upload>
         </el-form-item>

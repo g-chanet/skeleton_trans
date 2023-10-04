@@ -58,7 +58,7 @@ import type { ChannelMember } from '@/graphql/graphql-operations'
 import { EChannelMemberType, useDeleteChannelMutation, useFindMyChannelMemberForChannelQuery, useFindMyUserQuery, useOnDeleteChannelMemberForChannelIdSubscription, useOnDeleteChannelMemberForUserlIdSubscription, useOnNewChannelMemberForChannelIdSubscription, useOnUpdateChannelMemberForChannelIdSubscription, useOnUpdateChannelMemberForUserlIdSubscription, useOnUpdateChannelSubscription, useSendDirectMessageMutation } from '@/graphql/graphql-operations'
 import { useFindChannelQuery, EChannelType, useFindAllChannelMembersForChannelQuery, useDeleteMyMemberForChannelMutation } from '@/graphql/graphql-operations'
 import ChannelOptionsDialog from "../dialogs/channelOption/channelOptionsDialog.vue"
-import { computed, h, ref } from 'vue'
+import { computed, h, onMounted, ref } from 'vue'
 import moment from "moment"
 import { useRouter } from 'vue-router'
 import { cacheDelete, cacheUpsert } from '@/utils/cacheUtils'
@@ -72,6 +72,19 @@ const props = defineProps<{
   channelId: string
 }>()
 
+onMounted(() => {
+  queryChannel.refetch({
+    args: {
+      id: props.channelId
+    }
+  })
+  queryMyMemberForChannel.refetch({ args: { channelId: props.channelId } })
+  queryMembers.refetch({
+    args: {
+      channelId: props.channelId
+    }
+  })
+})
 
 const emit = defineEmits<{
   (e: `update:modelValue`, value: boolean): void
@@ -113,11 +126,6 @@ useOnNewChannelMemberForChannelIdSubscription({ args: { channelId: props.channel
       channelId: props.channelId
     }
   })
-  ElNotification({
-    title: 'New channel member',
-    message: h('i', { style: 'color: teal' }, data?.onNewChannelMemberForChannelId.user?.username + ' joined the channel'),
-    type: 'info'
-  })
 })
 
 useOnUpdateChannelMemberForChannelIdSubscription({ args: { channelId: props.channelId } }).onResult(({ data }) => {
@@ -133,11 +141,6 @@ useOnDeleteChannelMemberForChannelIdSubscription({ args: { channelId: props.chan
     args: {
       channelId: props.channelId
     }
-  })
-  ElNotification({
-    title: 'New channel member',
-    message: h('i', { style: 'color: teal' }, data?.onDeleteChannelMemberForChannelId.user?.username + ' left the channel'),
-    type: 'info'
   })
 })
 

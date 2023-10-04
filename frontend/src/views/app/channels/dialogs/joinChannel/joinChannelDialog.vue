@@ -14,8 +14,8 @@
 </template>
 
 <script setup lang="ts">
-import { useCreateMyMemberForChannelMutation, useFindAllVisibleChannelsQuery, type Channel, useFindAllChannelsForUserQuery, useFindMyUserQuery, useOnCreateChannelSubscription, useFindChannelQuery } from '@/graphql/graphql-operations'
-import { computed } from 'vue'
+import { useCreateMyMemberForChannelMutation, useOnNewVisibleChannelSubscription, useFindAllVisibleChannelsQuery, type Channel, useFindAllChannelsForUserQuery, useFindMyUserQuery, useOnCreateChannelSubscription, useFindChannelQuery, useOnUpdateChannelSubscription } from '@/graphql/graphql-operations'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { EChannelType } from '@/graphql/graphql-operations'
@@ -46,6 +46,16 @@ const excludeChannels = computed(() => {
 })
 
 const visibleQuery = useFindAllVisibleChannelsQuery()
+
+onMounted(() => {
+  query.refetch({})
+  visibleQuery.refetch({})
+})
+
+useOnNewVisibleChannelSubscription({}).onResult(() => {
+  visibleQuery.refetch()
+})
+
 const { mutate: mutateChannelMember, onDone: memberCreated, onError: createMemberError } = useCreateMyMemberForChannelMutation({})
 
 useOnCreateChannelSubscription({}).onResult(({ data }) => {
@@ -74,6 +84,7 @@ const onSelectChannel = (channel: Channel, password: string) => {
       router.replace({ query: { channelId: args?.data?.createMyMemberForChannel.channelId } })
     })
   }
+  query.refetch()
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

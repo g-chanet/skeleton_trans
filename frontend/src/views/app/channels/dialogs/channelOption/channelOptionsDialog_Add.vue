@@ -16,8 +16,18 @@ const props = defineProps<{
     channel: Channel,
 }>()
 
+onMounted(() => {
+    refetchMyUser({})
+    queryMembers.refetch({
+        args: {
+            channelId: props.channel.id
+        }
+    })
+    refetch()
+})
+
 const router = useRouter()
-const { result: myUser } = useFindMyUserQuery({})
+const { result: myUser, refetch: refetchMyUser } = useFindMyUserQuery({})
 const queryMembers = useFindAllChannelMembersForChannelQuery({
     args: {
         channelId: props.channel.id

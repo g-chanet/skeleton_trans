@@ -9,7 +9,12 @@ import {
 } from '@nestjs/graphql'
 import { UserRelationsService } from './user-relations.service'
 import { UserRelation } from './entities/user-relation.entity'
-import { BadRequestException, Inject, UseGuards, forwardRef } from '@nestjs/common'
+import {
+  BadRequestException,
+  Inject,
+  UseGuards,
+  forwardRef,
+} from '@nestjs/common'
 import { GqlAuthGuard } from './../auth/guards/gql-auth.guard'
 import { CtxUser } from 'src/auth/decorators/ctx-user.decorator'
 import { User, UserPublicGameInfos } from 'src/users/entities/user.entity'

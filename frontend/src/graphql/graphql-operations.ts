@@ -573,6 +573,7 @@ export type Subscription = {
   onNewChannelMemberForChannelId: ChannelMember;
   onNewChannelMemberForUserId: ChannelMember;
   onNewChannelMessageForChannelId: ChannelMessage;
+  onNewVisibleChannel: Channel;
   onUpdateChannel: Channel;
   onUpdateChannelMemberForChannelId: ChannelMember;
   onUpdateChannelMemberForUserlId: ChannelMember;
@@ -832,6 +833,11 @@ export type SendDirectMessageMutationVariables = Exact<{
 
 
 export type SendDirectMessageMutation = { __typename?: 'Mutation', sendDirectMessage: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } };
+
+export type OnNewVisibleChannelSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type OnNewVisibleChannelSubscription = { __typename?: 'Subscription', onNewVisibleChannel: { __typename?: 'Channel', id: string, name: string, avatarUrl?: string | null, channelType: EChannelType, createdAt: any } };
 
 export type CreateMyMemberForChannelMutationVariables = Exact<{
   args: CreateMyMemberForChannelInput;
@@ -1647,6 +1653,34 @@ export function useSendDirectMessageMutation(options: VueApolloComposable.UseMut
   return VueApolloComposable.useMutation<SendDirectMessageMutation, SendDirectMessageMutationVariables>(SendDirectMessageDocument, options);
 }
 export type SendDirectMessageMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<SendDirectMessageMutation, SendDirectMessageMutationVariables>;
+export const OnNewVisibleChannelDocument = gql`
+    subscription OnNewVisibleChannel {
+  onNewVisibleChannel {
+    id
+    name
+    avatarUrl
+    channelType
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useOnNewVisibleChannelSubscription__
+ *
+ * To run a query within a Vue component, call `useOnNewVisibleChannelSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnNewVisibleChannelSubscription` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the subscription, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/subscription.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useOnNewVisibleChannelSubscription();
+ */
+export function useOnNewVisibleChannelSubscription(options: VueApolloComposable.UseSubscriptionOptions<OnNewVisibleChannelSubscription, OnNewVisibleChannelSubscriptionVariables> | VueCompositionApi.Ref<VueApolloComposable.UseSubscriptionOptions<OnNewVisibleChannelSubscription, OnNewVisibleChannelSubscriptionVariables>> | ReactiveFunction<VueApolloComposable.UseSubscriptionOptions<OnNewVisibleChannelSubscription, OnNewVisibleChannelSubscriptionVariables>> = {}) {
+  return VueApolloComposable.useSubscription<OnNewVisibleChannelSubscription, OnNewVisibleChannelSubscriptionVariables>(OnNewVisibleChannelDocument, {}, options);
+}
+export type OnNewVisibleChannelSubscriptionCompositionFunctionResult = VueApolloComposable.UseSubscriptionReturn<OnNewVisibleChannelSubscription, OnNewVisibleChannelSubscriptionVariables>;
 export const CreateMyMemberForChannelDocument = gql`
     mutation CreateMyMemberForChannel($args: CreateMyMemberForChannelInput!) {
   createMyMemberForChannel(args: $args) {

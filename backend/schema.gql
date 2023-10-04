@@ -393,6 +393,7 @@ type Subscription {
   onCreateChannel: Channel!
   onUpdateChannel(args: OnChannelInput!): Channel!
   onDeleteChannel(args: OnChannelInput!): Channel!
+  onNewVisibleChannel: Channel!
   onNewChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!
   onUpdateChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!
   onDeleteChannelMemberForChannelId(args: OnChannelMemberChannelInput!): ChannelMember!

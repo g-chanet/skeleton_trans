@@ -46,7 +46,7 @@
 import { EChannelMemberType, useFindAllChannelMembersForChannelQuery, type Channel, useUpdateMemberForChannelMutation, useDeleteMemberForChannelMutation } from '@/graphql/graphql-operations'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 
 const props = defineProps<{
     channel: Channel
@@ -61,6 +61,10 @@ interface MemberForTable {
     createdAt: string
     updatedAt: string
 }
+
+onMounted(() => {
+    queryMembers.refetch()
+})
 
 const queryMembers = useFindAllChannelMembersForChannelQuery({
     args: {

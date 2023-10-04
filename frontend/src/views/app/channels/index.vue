@@ -37,6 +37,10 @@ import {
     useOnDeleteChannelMemberForUserlIdSubscription,
     useOnUpdateChannelMemberForUserlIdSubscription,
     useFindAllVisibleChannelsQuery,
+    useOnDeleteChannelMessageForChannelSubscription,
+    useOnNewChannelMemberForChannelIdSubscription,
+    useOnDeleteChannelMemberForChannelIdSubscription,
+    useOnUpdateChannelMemberForChannelIdSubscription,
 } from '@/graphql/graphql-operations'
 import ItemChannel from './components/channelListItemComponent.vue'
 import CreateChannelDialog from './dialogs/createChannel/createChannelDialog.vue'
@@ -100,7 +104,6 @@ useOnDeleteChannelMemberForUserlIdSubscription({ args: { userId: myUser.value!.f
     })
     router.replace({ query: {} })
 })
-
 
 </script>
 

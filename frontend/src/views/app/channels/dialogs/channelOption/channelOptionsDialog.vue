@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useFindChannelQuery } from '@/graphql/graphql-operations'
 
 import TabDetails from './channelOptionsDialog_Details.vue'
@@ -36,6 +36,10 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: `update:modelValue`, value: boolean): void
 }>()
+
+onMounted(() => {
+    queryChannel.refetch()
+})
 
 const queryChannel = useFindChannelQuery({
     args: {
